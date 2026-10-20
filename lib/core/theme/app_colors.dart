@@ -59,6 +59,52 @@ class AppColors {
   /// Garis Sage tipis untuk batas kartu (25% alpha).
   static const Color cardBorder = Color(0x40728C5A);
 
+  // --- Identitas pemain (A vs B) ----------------------------------------
+  /// Pemain A: garis radar, bar, dan badge.
+  static const Color playerA = forest;
+
+  /// Pemain B: lebih terang dari A agar kontras di radar & bar.
+  static const Color playerB = sageSoft;
+
+  /// Isi polygon radar (semi-transparan).
+  static const Color playerAFill = Color(0x24102F15); // forest ~14%
+  static const Color playerBFill = Color(0x66EAF1B1); // lime ~40%
+
+  // --- Komponen grafik ---------------------------------------------------
+  /// Garis grid & sumbu radar.
+  static const Color chartGrid = Color(0x33728C5A); // sageSoft ~20%
+
+  /// Track bar perbandingan (latar bar kosong).
+  static const Color barTrack = surfaceContainer;
+
+  /// Bar pemain yang kalah pada satu metrik.
+  static const Color barLoser = outlineVariant;
+
+  /// Teks angka metrik yang tidak menang.
+  static const Color valueMuted = sageSoft;
+
+  // --- Gradient ----------------------------------------------------------
+  /// Kartu AI Verdict: tint lime halus menuju putih.
+  static const LinearGradient verdictGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xBFEAF1B1), surface], // lime ~75% -> putih
+  );
+
+  /// Kartu hero / kotak kesimpulan gelap.
+  static const LinearGradient forestGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFF1A4220), forest],
+  );
+
+  /// Fade di belakang CTA melayang agar konten tidak bertabrakan.
+  static const LinearGradient bottomFade = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0x00EFFEE0), canvas],
+  );
+
   // --- Bayangan (ambient herbal) ----------------------------------------
   static const List<BoxShadow> cardShadow = [
     BoxShadow(
@@ -77,4 +123,50 @@ class AppColors {
       spreadRadius: -6,
     ),
   ];
+
+  /// Bayangan tombol solid (CTA).
+  static const List<BoxShadow> buttonShadow = [
+    BoxShadow(
+      color: Color(0x4D102F15),
+      blurRadius: 20,
+      offset: Offset(0, 10),
+      spreadRadius: -6,
+    ),
+  ];
 }
+
+/// Pembantu transparansi: `AppColors.forest.a(0.1)`.
+/// Memakai withAlpha agar aman di semua versi Flutter.
+extension ColorAlpha on Color {
+  Color a(double opacity) => withAlpha((opacity.clamp(0, 1) * 255).round());
+}
+
+/// Skala jari-jari sudut.
+class AppRadius {
+  const AppRadius._();
+  static const double sm = 12;
+  static const double md = 16;
+  static const double lg = 24;
+  static const double xl = 28;
+  static const double pill = 999;
+}
+
+/// Skala jarak (kelipatan 4).
+class AppSpace {
+  const AppSpace._();
+  static const double xs = 4;
+  static const double sm = 8;
+  static const double md = 12;
+  static const double lg = 16;
+  static const double xl = 20;
+  static const double xxl = 24;
+}
+
+/// Durasi animasi.
+class AppMotion {
+  const AppMotion._();
+  static const Duration fast = Duration(milliseconds: 250);
+  static const Duration chart = Duration(milliseconds: 700);
+  static const Duration reveal = Duration(milliseconds: 900);
+}
+

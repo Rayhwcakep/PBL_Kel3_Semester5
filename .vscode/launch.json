@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Scoutify (HP - data contoh)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "6e6dd2fa",
+      "program": "lib/main.dart",
+      "args": ["--dart-define=USE_MOCK=true"]
+    },
+    {
+      "name": "Scoutify (HP - backend LAN)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "6e6dd2fa",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=USE_MOCK=false",
+        "--dart-define=API_BASE_URL=http://192.168.0.104:8000"
+      ]
+    }
+  ]
+}
