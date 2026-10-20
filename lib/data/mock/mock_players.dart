@@ -55,7 +55,7 @@ final List<Player> mockPlayers = [
   ),
   Player(
     id: 'p002',
-    name: 'Benjamin Å eÅ¡ko',
+    name: 'Benjamin Šeško',
     club: 'RB Leipzig',
     league: 'Bundesliga',
     position: 'Striker',
@@ -102,7 +102,7 @@ final List<Player> mockPlayers = [
   Player(
     id: 'p003',
     name: 'Michael Olise',
-    club: 'Bayern MÃ¼nchen',
+    club: 'Bayern München',
     league: 'Bundesliga',
     position: 'Right Winger',
     positionShort: 'RW',
@@ -147,7 +147,7 @@ final List<Player> mockPlayers = [
   ),
   Player(
     id: 'p004',
-    name: 'JoÃ£o Neves',
+    name: 'João Neves',
     club: 'Paris Saint-Germain',
     league: 'Ligue 1',
     position: 'Center Midfielder',
@@ -239,7 +239,7 @@ final List<Player> mockPlayers = [
   ),
   Player(
     id: 'p006',
-    name: 'Viktor GyÃ¶keres',
+    name: 'Viktor Gyökeres',
     club: 'Sporting CP',
     league: 'Liga Portugal',
     position: 'Striker',
@@ -285,7 +285,7 @@ final List<Player> mockPlayers = [
   ),
   Player(
     id: 'p007',
-    name: 'EstÃªvÃ£o Willian',
+    name: 'Estêvão Willian',
     club: 'Chelsea',
     league: 'Premier League',
     position: 'Right Winger',
@@ -331,7 +331,7 @@ final List<Player> mockPlayers = [
   ),
   Player(
     id: 'p008',
-    name: 'Francisco ConceiÃ§Ã£o',
+    name: 'Francisco Conceição',
     club: 'Juventus',
     league: 'Serie A',
     position: 'Right Winger',
@@ -377,7 +377,7 @@ final List<Player> mockPlayers = [
   ),
   Player(
     id: 'p009',
-    name: 'DÃ©sirÃ© DouÃ©',
+    name: 'Désiré Doué',
     club: 'Paris Saint-Germain',
     league: 'Ligue 1',
     position: 'Winger',
@@ -423,7 +423,7 @@ final List<Player> mockPlayers = [
   ),
   Player(
     id: 'p010',
-    name: 'Vinicius JÃºnior',
+    name: 'Vinicius Júnior',
     club: 'Real Madrid',
     league: 'La Liga',
     position: 'Left Winger',

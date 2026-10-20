@@ -17,7 +17,7 @@ import '../widgets/radar_chart.dart';
 import '../widgets/scout_card.dart';
 import 'player_picker_screen.dart';
 
-/// Halaman Compare â€” analisis head-to-head dua pemain.
+/// Halaman Compare — analisis head-to-head dua pemain.
 class CompareScreen extends StatelessWidget {
   const CompareScreen({super.key});
 
@@ -216,7 +216,7 @@ class _SlotCard extends StatelessWidget {
             style: AppTypography.headlineMd().copyWith(fontSize: 19),
           ),
           Text(
-            '${p.club} Â· ${p.age}y',
+            '${p.club} · ${p.age}y',
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -355,7 +355,7 @@ class _HeadToHead extends StatelessWidget {
                 child: Text('Head to Head', style: AppTypography.headlineMd()),
               ),
               Text(
-                '${_short(left.name)} Â· ${_short(right.name)}',
+                '${_short(left.name)} · ${_short(right.name)}',
                 style: AppTypography.labelMd(),
               ),
             ],

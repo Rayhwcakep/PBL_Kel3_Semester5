@@ -14,7 +14,7 @@ import '../widgets/chips.dart';
 import '../widgets/scout_card.dart';
 import '../widgets/section_header.dart';
 
-/// Halaman Profile â€” identitas scout, ringkasan aktivitas, dan konfigurasi.
+/// Halaman Profile — identitas scout, ringkasan aktivitas, dan konfigurasi.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -198,7 +198,7 @@ class _ConnectionCard extends StatelessWidget {
         children: [
           const SectionHeader(
             title: 'Koneksi Backend',
-            subtitle: 'FastAPI Â· JSON API',
+            subtitle: 'FastAPI · JSON API',
           ),
           const SizedBox(height: AppSpacing.md),
           _InfoRow(label: 'Base URL', value: AppConfig.baseUrl),
@@ -397,7 +397,7 @@ class _AboutCard extends StatelessWidget {
               const BrandMark(size: 28),
               const SizedBox(width: AppSpacing.sm),
               Text(
-                'PBL Kelompok 3 Â· Semester 5',
+                'PBL Kelompok 3 · Semester 5',
                 style: AppTypography.labelMd(color: AppColors.sageSoft),
               ),
             ],

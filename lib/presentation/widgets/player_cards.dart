@@ -275,7 +275,7 @@ class RisingValueCard extends StatelessWidget {
               player.name,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTypography.titleMd(),
+              style: AppTypography.headlineMd().copyWith(fontSize: 19),
             ),
             Text(
               player.club,
@@ -362,8 +362,9 @@ class RankingRow extends StatelessWidget {
                     player.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.titleMd(),
+                    style: AppTypography.headlineMd().copyWith(fontSize: 18),
                   ),
+                  const SizedBox(height: 1),
                   Text(
                     '${player.club} · ${player.league}',
                     maxLines: 1,
