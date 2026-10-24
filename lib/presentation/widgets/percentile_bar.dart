@@ -34,7 +34,7 @@ class PercentileBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final clamped = value.clamp(0, 100).toDouble();
-    final fill = fillColor ?? (_isHigh ? AppColors.forest : AppColors.sage);
+    final fill = fillColor ?? (_isHigh ? AppColors.lime : AppColors.sage);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -46,8 +46,9 @@ class PercentileBar extends StatelessWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: AppTypography.titleMd(color: AppColors.ink)
-                      .copyWith(fontSize: 14),
+                  style: AppTypography.titleMd(
+                    color: AppColors.ink,
+                  ).copyWith(fontSize: 14),
                 ),
               ),
               if (showLevelBadge && level != null) ...[
@@ -56,8 +57,9 @@ class PercentileBar extends StatelessWidget {
               ],
               Text(
                 '${clamped.toStringAsFixed(0)}%',
-                style: AppTypography.statMd(color: AppColors.ink)
-                    .copyWith(fontSize: 18),
+                style: AppTypography.statMd(
+                  color: AppColors.ink,
+                ).copyWith(fontSize: 18),
               ),
             ],
           ),
@@ -67,7 +69,7 @@ class PercentileBar extends StatelessWidget {
             child: LinearProgressIndicator(
               value: clamped / 100,
               minHeight: 7,
-              backgroundColor: const Color(0x26728C5A),
+              backgroundColor: AppColors.barTrack,
               valueColor: AlwaysStoppedAnimation<Color>(fill),
             ),
           ),
@@ -86,7 +88,7 @@ class _LevelBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final normalized = level.toLowerCase();
     final (bg, fg) = switch (normalized) {
-      'high' => (AppColors.lime, AppColors.ink),
+      'high' => (AppColors.lime, AppColors.onAccent),
       'medium' => (AppColors.surfaceContainer, AppColors.sage),
       _ => (AppColors.surfaceHigh, AppColors.sageSoft),
     };

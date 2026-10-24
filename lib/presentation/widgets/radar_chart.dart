@@ -104,7 +104,7 @@ class _RadarPainter extends CustomPainter {
     final gridPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
-      ..color = const Color(0x33728C5A);
+      ..color = AppColors.chartGrid;
 
     for (var ring = 1; ring <= 4; ring++) {
       final ratio = ring / 4;

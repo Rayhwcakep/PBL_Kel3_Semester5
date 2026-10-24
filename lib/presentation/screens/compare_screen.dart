@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -56,7 +56,9 @@ class CompareScreen extends StatelessWidget {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.margin,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -102,27 +104,43 @@ class CompareScreen extends StatelessWidget {
             else ...[
               const SizedBox(height: AppSpacing.lg),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
-                child: _RadarComparison(left: compare.left!, right: compare.right!),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.margin,
+                ),
+                child: _RadarComparison(
+                  left: compare.left!,
+                  right: compare.right!,
+                ),
               ),
               const SizedBox(height: AppSpacing.md),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.margin,
+                ),
                 child: _HeadToHead(left: compare.left!, right: compare.right!),
               ),
               const SizedBox(height: AppSpacing.md),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
-                child: _ProfileComparison(left: compare.left!, right: compare.right!),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.margin,
+                ),
+                child: _ProfileComparison(
+                  left: compare.left!,
+                  right: compare.right!,
+                ),
               ),
               const SizedBox(height: AppSpacing.md),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.margin,
+                ),
                 child: _VerdictCard(left: compare.left!, right: compare.right!),
               ),
               const SizedBox(height: AppSpacing.md),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.margin,
+                ),
                 child: PillButton(
                   label: 'Add both to Shortlist',
                   icon: Icons.bookmark_add_outlined,
@@ -235,11 +253,7 @@ class _SlotCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 6),
-              CircleIconButton(
-                icon: Icons.close,
-                size: 36,
-                onPressed: onClear,
-              ),
+              CircleIconButton(icon: Icons.close, size: 36, onPressed: onClear),
             ],
           ),
         ],
@@ -275,14 +289,14 @@ class _RadarComparison extends StatelessWidget {
                 RadarSeries(
                   label: left.name,
                   values: RadarMetric.all.map(left.percentile).toList(),
-                  fillColor: AppColors.forest.withValues(alpha: 0.18),
-                  strokeColor: AppColors.forest,
+                  fillColor: AppColors.playerAFill,
+                  strokeColor: AppColors.playerA,
                 ),
                 RadarSeries(
                   label: right.name,
                   values: RadarMetric.all.map(right.percentile).toList(),
-                  fillColor: AppColors.lime.withValues(alpha: 0.45),
-                  strokeColor: AppColors.sage,
+                  fillColor: AppColors.playerBFill,
+                  strokeColor: AppColors.playerB,
                 ),
               ],
             ),
@@ -290,9 +304,9 @@ class _RadarComparison extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
-              _LegendDot(color: AppColors.forest, label: left.name),
+              _LegendDot(color: AppColors.playerA, label: left.name),
               const SizedBox(width: AppSpacing.md),
-              _LegendDot(color: AppColors.lime, label: right.name),
+              _LegendDot(color: AppColors.playerB, label: right.name),
             ],
           ),
         ],
@@ -428,12 +442,16 @@ class _ValueTile extends StatelessWidget {
         color: highlight ? AppColors.lime : AppColors.surfaceLow,
         borderRadius: AppRadius.pillBorder,
         border: Border.all(
-          color: highlight ? AppColors.forest : Colors.transparent,
+          color: highlight
+              ? AppColors.onAccent.withValues(alpha: 0.25)
+              : Colors.transparent,
         ),
       ),
       child: Text(
         value.toStringAsFixed(2),
-        style: AppTypography.statMd().copyWith(fontSize: 18),
+        style: AppTypography.statMd(
+          color: highlight ? AppColors.onAccent : AppColors.ink,
+        ).copyWith(fontSize: 18),
       ),
     );
   }
@@ -462,7 +480,10 @@ class _ProfileComparison extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text('Profile Comparison', style: AppTypography.headlineMd()),
+                child: Text(
+                  'Profile Comparison',
+                  style: AppTypography.headlineMd(),
+                ),
               ),
               const OverlineLabel('Contract & Value'),
             ],
@@ -492,7 +513,10 @@ class _ProfileRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: 10,
+      ),
       decoration: BoxDecoration(
         color: AppColors.surfaceLow,
         borderRadius: AppRadius.pillBorder,
@@ -575,12 +599,16 @@ class _VerdictCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.lightbulb_outline, size: 17, color: AppColors.ink),
+                const Icon(
+                  Icons.lightbulb_outline,
+                  size: 17,
+                  color: AppColors.onAccent,
+                ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
                     '${winner.name}: pilihan lebih baik untuk peran ini',
-                    style: AppTypography.labelLg(),
+                    style: AppTypography.labelLg(color: AppColors.onAccent),
                   ),
                 ),
               ],

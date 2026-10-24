@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
@@ -91,7 +91,10 @@ class GreetingHeader extends StatelessWidget {
             children: [
               Text(greeting, style: AppTypography.headlineLg()),
               const SizedBox(height: 2),
-              Text(subtitle, style: AppTypography.labelLg(color: AppColors.sage)),
+              Text(
+                subtitle,
+                style: AppTypography.labelLg(color: AppColors.sage),
+              ),
             ],
           ),
         ),
@@ -137,7 +140,7 @@ class SearchPill extends StatelessWidget {
         if (onFilterTap != null) ...[
           const SizedBox(width: AppSpacing.sm),
           Material(
-            color: AppColors.forest,
+            color: AppColors.lime,
             borderRadius: AppRadius.pillBorder,
             child: InkWell(
               onTap: onFilterTap,
@@ -145,7 +148,7 @@ class SearchPill extends StatelessWidget {
               child: const SizedBox(
                 width: 48,
                 height: 48,
-                child: Icon(Icons.tune, color: AppColors.canvas, size: 20),
+                child: Icon(Icons.tune, color: AppColors.onAccent, size: 20),
               ),
             ),
           ),
@@ -168,12 +171,18 @@ class CanvasBackground extends StatelessWidget {
         Positioned(
           top: -48,
           left: -40,
-          child: _Glow(color: AppColors.secondaryFixed.withValues(alpha: 0.4), size: 190),
+          child: _Glow(
+            color: AppColors.lime.withValues(alpha: 0.07),
+            size: 190,
+          ),
         ),
         Positioned(
           top: 16,
           right: -48,
-          child: _Glow(color: AppColors.surfaceHigh.withValues(alpha: 0.6), size: 176),
+          child: _Glow(
+            color: AppColors.surfaceHigh.withValues(alpha: 0.6),
+            size: 176,
+          ),
         ),
         child,
       ],

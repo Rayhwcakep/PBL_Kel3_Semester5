@@ -10,7 +10,7 @@ class StatBar extends StatelessWidget {
     super.key,
     required this.label,
     required this.value,
-    this.color = AppColors.forest,
+    this.color = AppColors.lime,
     this.showValue = true,
   });
 
@@ -28,7 +28,10 @@ class StatBar extends StatelessWidget {
         children: [
           SizedBox(
             width: 92,
-            child: Text(label, style: AppTypography.bodySm(color: AppColors.sage)),
+            child: Text(
+              label,
+              style: AppTypography.bodySm(color: AppColors.sage),
+            ),
           ),
           Expanded(
             child: ClipRRect(
@@ -36,7 +39,7 @@ class StatBar extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: clamped / 100,
                 minHeight: 7,
-                backgroundColor: const Color(0x26728C5A),
+                backgroundColor: AppColors.barTrack,
                 valueColor: AlwaysStoppedAnimation<Color>(color),
               ),
             ),
@@ -48,8 +51,9 @@ class StatBar extends StatelessWidget {
               child: Text(
                 clamped.toStringAsFixed(0),
                 textAlign: TextAlign.right,
-                style: AppTypography.titleMd(color: AppColors.ink)
-                    .copyWith(fontSize: 14),
+                style: AppTypography.titleMd(
+                  color: AppColors.ink,
+                ).copyWith(fontSize: 14),
               ),
             ),
           ],

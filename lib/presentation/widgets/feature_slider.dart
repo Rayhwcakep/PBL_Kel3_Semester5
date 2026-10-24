@@ -31,14 +31,17 @@ class FeatureSlider extends StatelessWidget {
                 child: Text(feature.label, style: AppTypography.titleMd()),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 3,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.lime,
                   borderRadius: AppRadius.pillBorder,
                 ),
                 child: Text(
                   value.toStringAsFixed(0),
-                  style: AppTypography.labelLg(color: AppColors.ink),
+                  style: AppTypography.labelLg(color: AppColors.onAccent),
                 ),
               ),
             ],
@@ -49,7 +52,7 @@ class FeatureSlider extends StatelessWidget {
             max: 100,
             divisions: 100,
             label: value.toStringAsFixed(0),
-            activeColor: AppColors.forest,
+            activeColor: AppColors.lime,
             onChanged: onChanged,
           ),
           const SizedBox(height: AppSpacing.xs),

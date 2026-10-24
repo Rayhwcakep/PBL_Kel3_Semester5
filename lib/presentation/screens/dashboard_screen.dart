@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -49,7 +49,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          color: AppColors.forest,
+          color: AppColors.lime,
           onRefresh: players.loadPlayers,
           child: ListView(
             padding: const EdgeInsets.only(bottom: AppSpacing.navClearance),
@@ -77,9 +77,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ],
                       ),
                       const SizedBox(height: AppSpacing.md),
-                      SearchPill(
-                        onFilterTap: () => _openTactic(context),
-                      ),
+                      SearchPill(onFilterTap: () => _openTactic(context)),
                     ],
                   ),
                 ),
@@ -110,15 +108,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _openTactic(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const FindByTacticScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const FindByTacticScreen()));
   }
 
   void _openPicker(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => const PlayerPickerScreen(mode: PlayerPickerMode.similar),
+        builder: (_) =>
+            const PlayerPickerScreen(mode: PlayerPickerMode.similar),
       ),
     );
   }
@@ -126,7 +125,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void _openComparePicker(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => const PlayerPickerScreen(mode: PlayerPickerMode.compare),
+        builder: (_) =>
+            const PlayerPickerScreen(mode: PlayerPickerMode.compare),
       ),
     );
   }
@@ -146,9 +146,12 @@ class _ProfileDot extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.forest,
         shape: BoxShape.circle,
-        border: Border.all(color: AppColors.surface, width: 2),
+        border: Border.all(color: AppColors.canvas, width: 2),
       ),
-      child: Text(initials, style: AppTypography.labelLg(color: AppColors.lime)),
+      child: Text(
+        initials,
+        style: AppTypography.labelLg(color: AppColors.lime),
+      ),
     );
   }
 }
@@ -409,9 +412,11 @@ class _ShortlistSummary extends StatelessWidget {
                           )
                         : Stack(
                             children: [
-                              for (var i = 0;
-                                  i < shortlist.length.clamp(0, 4);
-                                  i++)
+                              for (
+                                var i = 0;
+                                i < shortlist.length.clamp(0, 4);
+                                i++
+                              )
                                 Positioned(
                                   left: i * 30.0,
                                   child: PlayerAvatar(
@@ -432,7 +437,9 @@ class _ShortlistSummary extends StatelessWidget {
                                     ),
                                     child: Text(
                                       '+${shortlist.length - 4}',
-                                      style: AppTypography.labelLg(),
+                                      style: AppTypography.labelLg(
+                                        color: AppColors.onAccent,
+                                      ),
                                     ),
                                   ),
                                 ),

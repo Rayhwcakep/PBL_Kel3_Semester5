@@ -63,7 +63,9 @@ class ShortlistScreen extends StatelessWidget {
               )
             else
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.margin,
+                ),
                 child: Column(
                   children: [
                     _ShortlistSummaryCard(
@@ -135,7 +137,7 @@ class _ShortlistSummaryCard extends StatelessWidget {
               children: [
                 Text(
                   '$count pemain dipantau',
-                  style: AppTypography.titleMd(color: AppColors.canvas),
+                  style: AppTypography.titleMd(color: AppColors.onForest),
                 ),
                 Text(
                   'Dossier siap dibandingkan kapan saja',
@@ -151,12 +153,18 @@ class _ShortlistSummaryCard extends StatelessWidget {
               onTap: onAdd,
               borderRadius: AppRadius.pillBorder,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 9,
+                ),
                 child: Row(
                   children: [
-                    const Icon(Icons.add, size: 16, color: AppColors.ink),
+                    const Icon(Icons.add, size: 16, color: AppColors.onAccent),
                     const SizedBox(width: 4),
-                    Text('Tambah', style: AppTypography.labelLg()),
+                    Text(
+                      'Tambah',
+                      style: AppTypography.labelLg(color: AppColors.onAccent),
+                    ),
                   ],
                 ),
               ),

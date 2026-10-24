@@ -72,7 +72,7 @@ class _NavButton extends StatelessWidget {
       button: true,
       label: item.label,
       child: Material(
-        color: active ? AppColors.forest : Colors.transparent,
+        color: active ? AppColors.lime : Colors.transparent,
         borderRadius: AppRadius.pillBorder,
         child: InkWell(
           onTap: onTap,
@@ -82,7 +82,7 @@ class _NavButton extends StatelessWidget {
             child: Icon(
               active ? item.activeIcon : item.icon,
               size: 22,
-              color: active ? AppColors.lime : AppColors.sageSoft,
+              color: active ? AppColors.onAccent : AppColors.sageSoft,
             ),
           ),
         ),
@@ -142,7 +142,7 @@ class _LabeledButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: active ? AppColors.forest : Colors.transparent,
+      color: active ? AppColors.lime : Colors.transparent,
       borderRadius: AppRadius.pillBorder,
       child: InkWell(
         onTap: onTap,
@@ -155,13 +155,13 @@ class _LabeledButton extends StatelessWidget {
               Icon(
                 active ? item.activeIcon : item.icon,
                 size: 20,
-                color: active ? AppColors.lime : AppColors.sageSoft,
+                color: active ? AppColors.onAccent : AppColors.sageSoft,
               ),
               if (active) ...[
                 const SizedBox(width: AppSpacing.sm),
                 Text(
                   item.label,
-                  style: AppTypography.labelLg(color: AppColors.lime),
+                  style: AppTypography.labelLg(color: AppColors.onAccent),
                 ),
               ],
             ],

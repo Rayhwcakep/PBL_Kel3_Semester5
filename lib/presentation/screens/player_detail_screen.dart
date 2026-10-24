@@ -114,7 +114,9 @@ class PlayerDetailScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            isShortlisted ? Icons.bookmark : Icons.bookmark_border,
+                            isShortlisted
+                                ? Icons.bookmark
+                                : Icons.bookmark_border,
                             size: 19,
                             color: AppColors.lime,
                           ),
@@ -173,8 +175,9 @@ class _DossierHero extends StatelessWidget {
           Text(
             player.name,
             textAlign: TextAlign.center,
-            style: AppTypography.displayLg(color: AppColors.canvas)
-                .copyWith(fontSize: 32, height: 1.1),
+            style: AppTypography.displayLg(
+              color: AppColors.onForest,
+            ).copyWith(fontSize: 32, height: 1.1),
           ),
           const SizedBox(height: 4),
           Row(
@@ -226,10 +229,13 @@ class _HeroChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.canvas.withValues(alpha: 0.12),
+        color: AppColors.onForest.withValues(alpha: 0.12),
         borderRadius: AppRadius.pillBorder,
       ),
-      child: Text(label, style: AppTypography.labelMd(color: AppColors.canvas)),
+      child: Text(
+        label,
+        style: AppTypography.labelMd(color: AppColors.onForest),
+      ),
     );
   }
 }
@@ -250,10 +256,7 @@ class _ValuationCard extends StatelessWidget {
               children: [
                 const OverlineLabel('Estimated Valuation'),
                 const SizedBox(height: 4),
-                Text(
-                  player.marketValueLabel,
-                  style: AppTypography.statXl(),
-                ),
+                Text(player.marketValueLabel, style: AppTypography.statXl()),
               ],
             ),
           ),
@@ -261,18 +264,25 @@ class _ValuationCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.lime,
                   borderRadius: AppRadius.pillBorder,
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.trending_up, size: 13, color: AppColors.sage),
+                    const Icon(
+                      Icons.trending_up,
+                      size: 13,
+                      color: AppColors.onAccent,
+                    ),
                     const SizedBox(width: 3),
                     Text(
                       '${player.trendLabel} in 12m',
-                      style: AppTypography.labelMd(color: AppColors.ink),
+                      style: AppTypography.labelMd(color: AppColors.onAccent),
                     ),
                   ],
                 ),
@@ -332,8 +342,8 @@ class _ProfileRadarCard extends StatelessWidget {
                 RadarSeries(
                   label: player.name,
                   values: RadarMetric.all.map(player.percentile).toList(),
-                  fillColor: AppColors.lime.withValues(alpha: 0.55),
-                  strokeColor: AppColors.forest,
+                  fillColor: AppColors.playerAFill,
+                  strokeColor: AppColors.playerA,
                 ),
               ],
             ),
@@ -353,12 +363,12 @@ class _ProfileRadarCard extends StatelessWidget {
                     const Icon(
                       Icons.compare_arrows,
                       size: 18,
-                      color: AppColors.forest,
+                      color: AppColors.lime,
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Text(
                       'Compare with another player',
-                      style: AppTypography.labelLg(color: AppColors.forest),
+                      style: AppTypography.labelLg(color: AppColors.lime),
                     ),
                   ],
                 ),
@@ -512,10 +522,13 @@ class _AiDossierCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome, size: 18, color: AppColors.forest),
+              const Icon(Icons.auto_awesome, size: 18, color: AppColors.lime),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: Text('AI Scout Dossier', style: AppTypography.headlineMd()),
+                child: Text(
+                  'AI Scout Dossier',
+                  style: AppTypography.headlineMd(),
+                ),
               ),
               Text(
                 'Regenerate',
@@ -552,12 +565,16 @@ class _AiDossierCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.verified_outlined, size: 18, color: AppColors.ink),
+                const Icon(
+                  Icons.verified_outlined,
+                  size: 18,
+                  color: AppColors.onAccent,
+                ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
                     'RECRUITMENT VERDICT — Recommended, Tier I profile',
-                    style: AppTypography.labelLg(),
+                    style: AppTypography.labelLg(color: AppColors.onAccent),
                   ),
                 ),
               ],
@@ -617,7 +634,10 @@ class _BulletRow extends StatelessWidget {
           Icon(icon, size: 16, color: AppColors.sage),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
-            child: Text(text, style: AppTypography.bodySm(color: AppColors.sage)),
+            child: Text(
+              text,
+              style: AppTypography.bodySm(color: AppColors.sage),
+            ),
           ),
         ],
       ),
@@ -682,9 +702,7 @@ class _SimilarCard extends StatelessWidget {
       width: 176,
       child: ScoutCard(
         onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => PlayerDetailScreen(player: player),
-          ),
+          MaterialPageRoute(builder: (_) => PlayerDetailScreen(player: player)),
         ),
         padding: const EdgeInsets.all(AppSpacing.sm),
         child: Column(

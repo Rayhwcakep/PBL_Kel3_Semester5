@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/config/app_config.dart';
@@ -40,12 +40,16 @@ class ProfileScreen extends StatelessWidget {
               child: const ScreenHeader(title: 'Profile'),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.margin,
+              ),
               child: _ProfileHero(shortlistCount: shortlist.count),
             ),
             const SizedBox(height: AppSpacing.md),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.margin,
+              ),
               child: Row(
                 children: [
                   Expanded(
@@ -76,22 +80,30 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.lg),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.margin,
+              ),
               child: const _ConnectionCard(),
             ),
             const SizedBox(height: AppSpacing.md),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.margin,
+              ),
               child: const _PreferencesCard(),
             ),
             const SizedBox(height: AppSpacing.md),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.margin,
+              ),
               child: const _FeaturesCard(),
             ),
             const SizedBox(height: AppSpacing.md),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.margin,
+              ),
               child: const _AboutCard(),
             ),
           ],
@@ -138,7 +150,7 @@ class _ProfileHero extends StatelessWidget {
                 ),
                 Text(
                   'Scoutify Analyst',
-                  style: AppTypography.headlineMd(color: AppColors.canvas),
+                  style: AppTypography.headlineMd(color: AppColors.onForest),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -259,7 +271,9 @@ class _EndpointRow extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 3),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: method == 'POST' ? AppColors.forest : AppColors.surfaceContainer,
+              color: method == 'POST'
+                  ? AppColors.forest
+                  : AppColors.surfaceContainer,
               borderRadius: AppRadius.pillBorder,
             ),
             child: Text(
@@ -322,7 +336,7 @@ class _SwitchRowState extends State<_SwitchRow> {
       title: Text(widget.label, style: AppTypography.bodyMd()),
       value: _value,
       activeThumbColor: AppColors.lime,
-      activeTrackColor: AppColors.forest,
+      activeTrackColor: AppColors.surfaceHighest,
       onChanged: (value) => setState(() => _value = value),
     );
   }
@@ -348,7 +362,11 @@ class _FeaturesCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.check_circle, size: 17, color: AppColors.forest),
+                  const Icon(
+                    Icons.check_circle,
+                    size: 17,
+                    color: AppColors.lime,
+                  ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: RichText(
@@ -357,8 +375,9 @@ class _FeaturesCard extends StatelessWidget {
                         children: [
                           TextSpan(
                             text: '${feature.label}: ',
-                            style: AppTypography.bodySm(color: AppColors.ink)
-                                .copyWith(fontWeight: FontWeight.w700),
+                            style: AppTypography.bodySm(
+                              color: AppColors.ink,
+                            ).copyWith(fontWeight: FontWeight.w700),
                           ),
                           TextSpan(text: feature.description),
                         ],
@@ -423,13 +442,17 @@ class _InfoRow extends StatelessWidget {
         children: [
           SizedBox(
             width: 84,
-            child: Text(label, style: AppTypography.bodySm(color: AppColors.sageSoft)),
+            child: Text(
+              label,
+              style: AppTypography.bodySm(color: AppColors.sageSoft),
+            ),
           ),
           Expanded(
             child: Text(
               value,
-              style: AppTypography.bodySm(color: AppColors.onSurface)
-                  .copyWith(fontWeight: FontWeight.w600),
+              style: AppTypography.bodySm(
+                color: AppColors.onSurface,
+              ).copyWith(fontWeight: FontWeight.w600),
             ),
           ),
         ],

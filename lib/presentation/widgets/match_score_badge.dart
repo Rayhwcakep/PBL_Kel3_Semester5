@@ -7,11 +7,7 @@ import '../../core/theme/app_typography.dart';
 
 /// Lencana melingkar skor kemiripan KNN (mis. "88 MATCH").
 class MatchScoreBadge extends StatelessWidget {
-  const MatchScoreBadge({
-    super.key,
-    required this.similarity,
-    this.size = 46,
-  });
+  const MatchScoreBadge({super.key, required this.similarity, this.size = 46});
 
   /// Skor 0-1.
   final double similarity;
@@ -32,15 +28,15 @@ class MatchScoreBadge extends StatelessWidget {
             children: [
               Text(
                 '$percent',
-                style: AppTypography.statMd(color: AppColors.ink).copyWith(
-                  fontSize: size * 0.34,
-                  height: 1,
-                ),
+                style: AppTypography.statMd(
+                  color: AppColors.ink,
+                ).copyWith(fontSize: size * 0.34, height: 1),
               ),
               Text(
                 'MATCH',
-                style: AppTypography.overline(color: AppColors.sageSoft)
-                    .copyWith(fontSize: size * 0.15, letterSpacing: 0.2),
+                style: AppTypography.overline(
+                  color: AppColors.sageSoft,
+                ).copyWith(fontSize: size * 0.15, letterSpacing: 0.2),
               ),
             ],
           ),
@@ -64,13 +60,13 @@ class _RingPainter extends CustomPainter {
     final track = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke
-      ..color = const Color(0x26728C5A);
+      ..color = AppColors.barTrack;
 
     final fill = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke
       ..strokeCap = StrokeCap.round
-      ..color = AppColors.forest;
+      ..color = AppColors.lime;
 
     canvas.drawCircle(center, radius, track);
     canvas.drawArc(

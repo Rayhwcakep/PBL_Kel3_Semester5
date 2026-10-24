@@ -61,7 +61,7 @@ class PlayerAvatar extends StatelessWidget {
                 child: const Icon(
                   Icons.verified,
                   size: 14,
-                  color: AppColors.forest,
+                  color: AppColors.lime,
                 ),
               ),
             ),
@@ -74,9 +74,9 @@ class PlayerAvatar extends StatelessWidget {
     return Center(
       child: Text(
         player.initials,
-        style: AppTypography.titleMd(color: AppColors.ink).copyWith(
-          fontSize: size * 0.32,
-        ),
+        style: AppTypography.titleMd(
+          color: AppColors.ink,
+        ).copyWith(fontSize: size * 0.32),
       ),
     );
   }

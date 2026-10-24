@@ -55,7 +55,9 @@ class PlayerResultTile extends StatelessWidget {
                         player.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.headlineMd().copyWith(fontSize: 19),
+                        style: AppTypography.headlineMd().copyWith(
+                          fontSize: 19,
+                        ),
                       ),
                     ),
                     if (player.positionShort.isNotEmpty) ...[
@@ -63,7 +65,7 @@ class PlayerResultTile extends StatelessWidget {
                       SoftChip(
                         player.positionShort,
                         background: AppColors.lime,
-                        foreground: AppColors.ink,
+                        foreground: AppColors.onAccent,
                       ),
                     ],
                   ],
@@ -149,7 +151,7 @@ class _RankBadge extends StatelessWidget {
       ),
       child: Text(
         '$rank',
-        style: AppTypography.labelLg(color: AppColors.canvas),
+        style: AppTypography.labelLg(color: AppColors.onForest),
       ),
     );
   }
@@ -199,7 +201,7 @@ class _MiniAction extends StatelessWidget {
           child: Icon(
             icon,
             size: 16,
-            color: active ? AppColors.ink : AppColors.sage,
+            color: active ? AppColors.onAccent : AppColors.sage,
           ),
         ),
       ),
@@ -228,13 +230,13 @@ class TrendBadge extends StatelessWidget {
           Icon(
             positive ? Icons.trending_up : Icons.trending_down,
             size: 13,
-            color: positive ? AppColors.sage : AppColors.error,
+            color: positive ? AppColors.onAccent : AppColors.error,
           ),
           const SizedBox(width: 3),
           Text(
             '${positive ? '+' : ''}${percent.toStringAsFixed(0)}%',
             style: AppTypography.labelMd(
-              color: positive ? AppColors.ink : AppColors.error,
+              color: positive ? AppColors.onAccent : AppColors.error,
             ),
           ),
         ],
@@ -245,11 +247,7 @@ class TrendBadge extends StatelessWidget {
 
 /// Kartu pemain untuk carousel "Rising Value" di beranda.
 class RisingValueCard extends StatelessWidget {
-  const RisingValueCard({
-    super.key,
-    required this.player,
-    this.onTap,
-  });
+  const RisingValueCard({super.key, required this.player, this.onTap});
 
   final Player player;
   final VoidCallback? onTap;
@@ -351,7 +349,9 @@ class RankingRow extends StatelessWidget {
             PlayerAvatar(
               player: player,
               size: 40,
-              background: top ? AppColors.primaryFixed : AppColors.surfaceContainer,
+              background: top
+                  ? AppColors.primaryFixed
+                  : AppColors.surfaceContainer,
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(

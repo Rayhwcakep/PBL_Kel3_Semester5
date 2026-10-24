@@ -174,7 +174,7 @@ class _PickerTile extends StatelessWidget {
                       SoftChip(
                         player.positionShort,
                         background: AppColors.lime,
-                        foreground: AppColors.ink,
+                        foreground: AppColors.onAccent,
                       ),
                     ],
                   ],

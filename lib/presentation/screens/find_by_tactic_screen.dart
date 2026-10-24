@@ -30,9 +30,8 @@ class _FindByTacticScreenState extends State<FindByTacticScreen> {
   double _maxValue = 75;
   final Set<String> _competitions = {'Premier League', 'Bundesliga'};
 
-  TacticalArchetype get _archetype => mockArchetypes.firstWhere(
-        (item) => item.id == _archetypeId,
-      );
+  TacticalArchetype get _archetype =>
+      mockArchetypes.firstWhere((item) => item.id == _archetypeId);
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +47,10 @@ class _FindByTacticScreenState extends State<FindByTacticScreen> {
           TextButton.icon(
             onPressed: _reset,
             icon: const Icon(Icons.refresh, size: 17),
-            label: Text('Reset', style: AppTypography.labelLg(color: AppColors.sage)),
+            label: Text(
+              'Reset',
+              style: AppTypography.labelLg(color: AppColors.sage),
+            ),
           ),
           const SizedBox(width: AppSpacing.sm),
         ],
@@ -136,9 +138,7 @@ class _FindByTacticScreenState extends State<FindByTacticScreen> {
       maxValue: _maxValue,
     );
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const DiscoverScreen(embedded: false),
-      ),
+      MaterialPageRoute(builder: (_) => const DiscoverScreen(embedded: false)),
     );
   }
 }
@@ -193,18 +193,22 @@ class _ToggleTab extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 11),
       decoration: BoxDecoration(
-        color: selected ? AppColors.forest : Colors.transparent,
+        color: selected ? AppColors.lime : Colors.transparent,
         borderRadius: AppRadius.pillBorder,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 17, color: selected ? AppColors.lime : AppColors.sage),
+          Icon(
+            icon,
+            size: 17,
+            color: selected ? AppColors.onAccent : AppColors.sage,
+          ),
           const SizedBox(width: 6),
           Text(
             label,
             style: AppTypography.labelLg(
-              color: selected ? AppColors.lime : AppColors.sage,
+              color: selected ? AppColors.onAccent : AppColors.sage,
             ),
           ),
         ],
@@ -320,7 +324,7 @@ class _ArchetypeTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final background = selected ? AppColors.lime : AppColors.surface;
-    final foreground = selected ? AppColors.ink : AppColors.sage;
+    final foreground = selected ? AppColors.onAccent : AppColors.sage;
 
     return Material(
       color: background,
@@ -425,10 +429,7 @@ class _DnaMatrix extends StatelessWidget {
                   style: AppTypography.headlineMd(),
                 ),
               ),
-              const MetricBadge(
-                label: 'ML Adjusted',
-                icon: Icons.auto_awesome,
-              ),
+              const MetricBadge(label: 'ML Adjusted', icon: Icons.auto_awesome),
               const SizedBox(width: AppSpacing.sm),
               Column(
                 children: [
@@ -508,15 +509,18 @@ class _SearchEnvelope extends StatelessWidget {
               '${ageRange.start.round()}',
               '${ageRange.end.round()}',
             ),
-            activeColor: AppColors.forest,
-            inactiveColor: const Color(0x26728C5A),
+            activeColor: AppColors.lime,
+            inactiveColor: AppColors.barTrack,
             onChanged: onAgeChanged,
           ),
           const SizedBox(height: AppSpacing.sm),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Maximum Transfer Valuation', style: AppTypography.titleMd()),
+              Text(
+                'Maximum Transfer Valuation',
+                style: AppTypography.titleMd(),
+              ),
               MetricBadge(label: '€${maxValue.toStringAsFixed(0)}M'),
             ],
           ),
@@ -525,8 +529,8 @@ class _SearchEnvelope extends StatelessWidget {
             min: 0,
             max: 150,
             divisions: 30,
-            activeColor: AppColors.forest,
-            inactiveColor: const Color(0x26728C5A),
+            activeColor: AppColors.lime,
+            inactiveColor: AppColors.barTrack,
             onChanged: onValueChanged,
           ),
           Row(
@@ -572,7 +576,7 @@ class _IndexMatchPreview extends StatelessWidget {
           const CircleAvatar(
             radius: 22,
             backgroundColor: AppColors.primaryFixed,
-            child: Icon(Icons.person, color: AppColors.forest),
+            child: Icon(Icons.person, color: AppColors.lime),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
@@ -590,7 +594,10 @@ class _IndexMatchPreview extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text('Vinicius Jr. Style Cohort', style: AppTypography.titleMd()),
+                Text(
+                  'Vinicius Jr. Style Cohort',
+                  style: AppTypography.titleMd(),
+                ),
                 Text(
                   '42 candidates align with inverted winger profile',
                   style: AppTypography.bodySm(color: AppColors.sageSoft),

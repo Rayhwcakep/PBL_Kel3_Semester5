@@ -81,7 +81,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
           ),
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.margin,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -113,13 +115,17 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             if (base != null) ...[
               const SizedBox(height: AppSpacing.md),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.margin,
+                ),
                 child: _AnchorCard(player: base),
               ),
             ],
             const SizedBox(height: AppSpacing.md),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.margin,
+              ),
               child: _FilterRow(
                 criteria: scouting.criteria,
                 leagues: players.leagues,
@@ -130,7 +136,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
             ),
             const SizedBox(height: AppSpacing.md),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.margin,
+              ),
               child: _SortRow(
                 current: scouting.criteria.sortBy,
                 onChanged: (value) {
@@ -167,7 +175,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               )
             else ...[
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.margin,
+                ),
                 child: SectionHeader(
                   title: '${results.length} Similar Players',
                   trailing: const MetricBadge(
@@ -180,7 +190,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               ),
               const SizedBox(height: AppSpacing.sm),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.margin,
+                ),
                 child: Column(
                   children: [
                     for (final result in results) ...[
@@ -206,7 +218,9 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.margin),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.margin,
+                ),
                 child: Text(
                   'Dinormalisasi pada bobot radar per 90 menit.',
                   style: AppTypography.bodySm(color: AppColors.sageSoft),
@@ -296,7 +310,7 @@ class _ToggleTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.forest : Colors.transparent,
+      color: selected ? AppColors.lime : Colors.transparent,
       borderRadius: AppRadius.pillBorder,
       child: InkWell(
         onTap: onTap,
@@ -309,13 +323,13 @@ class _ToggleTab extends StatelessWidget {
               Icon(
                 icon,
                 size: 17,
-                color: selected ? AppColors.lime : AppColors.sage,
+                color: selected ? AppColors.onAccent : AppColors.sage,
               ),
               const SizedBox(width: 6),
               Text(
                 label,
                 style: AppTypography.labelLg(
-                  color: selected ? AppColors.lime : AppColors.sage,
+                  color: selected ? AppColors.onAccent : AppColors.sage,
                 ),
               ),
             ],
@@ -346,7 +360,10 @@ class _BaseSelector extends StatelessWidget {
         onTap: onTap,
         borderRadius: AppRadius.pillBorder,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: 12,
+          ),
           decoration: BoxDecoration(
             borderRadius: AppRadius.pillBorder,
             border: Border.all(color: AppColors.cardBorder),
@@ -371,7 +388,11 @@ class _BaseSelector extends StatelessWidget {
                   customBorder: const CircleBorder(),
                   child: const Padding(
                     padding: EdgeInsets.all(4),
-                    child: Icon(Icons.close, size: 18, color: AppColors.sageSoft),
+                    child: Icon(
+                      Icons.close,
+                      size: 18,
+                      color: AppColors.sageSoft,
+                    ),
                   ),
                 ),
             ],
@@ -424,14 +445,18 @@ class _AnchorCard extends StatelessWidget {
                       player.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.headlineMd(color: AppColors.canvas),
+                      style: AppTypography.headlineMd(
+                        color: AppColors.onForest,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       '${player.club} · ${player.league} · ${player.age}y',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bodySm(color: AppColors.onForestMuted),
+                      style: AppTypography.bodySm(
+                        color: AppColors.onForestMuted,
+                      ),
                     ),
                   ],
                 ),
@@ -465,11 +490,13 @@ class _AnchorCard extends StatelessWidget {
                   children: [
                     Text(
                       'Est. Market Value',
-                      style: AppTypography.bodySm(color: AppColors.onForestMuted),
+                      style: AppTypography.bodySm(
+                        color: AppColors.onForestMuted,
+                      ),
                     ),
                     Text(
                       player.marketValueLabel,
-                      style: AppTypography.statXl(color: AppColors.canvas),
+                      style: AppTypography.statXl(color: AppColors.onForest),
                     ),
                   ],
                 ),
@@ -480,11 +507,13 @@ class _AnchorCard extends StatelessWidget {
                 children: [
                   Text(
                     '12',
-                    style: AppTypography.statMd(color: AppColors.canvas),
+                    style: AppTypography.statMd(color: AppColors.onForest),
                   ),
                   Text(
                     'Metrics',
-                    style: AppTypography.labelMd(color: AppColors.onForestMuted),
+                    style: AppTypography.labelMd(
+                      color: AppColors.onForestMuted,
+                    ),
                   ),
                 ],
               ),
@@ -565,9 +594,14 @@ class _DropdownPill<T> extends StatelessWidget {
     return PopupMenuButton<T?>(
       onSelected: onSelected,
       color: AppColors.surface,
-      shape: const RoundedRectangleBorder(borderRadius: AppRadius.controlBorder),
+      shape: const RoundedRectangleBorder(
+        borderRadius: AppRadius.controlBorder,
+      ),
       itemBuilder: (context) => [
-        PopupMenuItem<T?>(value: null, child: Text('Semua', style: AppTypography.bodyMd())),
+        PopupMenuItem<T?>(
+          value: null,
+          child: Text('Semua', style: AppTypography.bodyMd()),
+        ),
         for (final item in items)
           PopupMenuItem<T?>(
             value: item,
@@ -586,7 +620,11 @@ class _DropdownPill<T> extends StatelessWidget {
           children: [
             Text(label, style: AppTypography.labelLg(color: AppColors.sage)),
             const SizedBox(width: 4),
-            const Icon(Icons.keyboard_arrow_down, size: 17, color: AppColors.sage),
+            const Icon(
+              Icons.keyboard_arrow_down,
+              size: 17,
+              color: AppColors.sage,
+            ),
           ],
         ),
       ),

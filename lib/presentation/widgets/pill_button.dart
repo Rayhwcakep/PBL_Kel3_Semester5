@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
@@ -32,20 +32,20 @@ class PillButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final (background, foreground, border) = switch (variant) {
       PillButtonVariant.primary => (
-          AppColors.forest,
-          AppColors.canvas,
-          Colors.transparent,
-        ),
+        AppColors.lime,
+        AppColors.onAccent,
+        Colors.transparent,
+      ),
       PillButtonVariant.secondary => (
-          AppColors.surface,
-          AppColors.ink,
-          AppColors.cardBorder,
-        ),
+        AppColors.surface,
+        AppColors.ink,
+        AppColors.cardBorder,
+      ),
       PillButtonVariant.lime => (
-          AppColors.lime,
-          AppColors.ink,
-          Colors.transparent,
-        ),
+        AppColors.lime,
+        AppColors.onAccent,
+        Colors.transparent,
+      ),
     };
 
     final child = Row(

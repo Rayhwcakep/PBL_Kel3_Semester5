@@ -23,8 +23,8 @@ class FilterChipPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background = selected ? AppColors.forest : AppColors.surface;
-    final foreground = selected ? AppColors.canvas : AppColors.sage;
+    final background = selected ? AppColors.lime : AppColors.surface;
+    final foreground = selected ? AppColors.onAccent : AppColors.sage;
 
     return Material(
       color: background,
@@ -66,7 +66,7 @@ class MetricBadge extends StatelessWidget {
     required this.label,
     this.icon,
     this.background = AppColors.lime,
-    this.foreground = AppColors.ink,
+    this.foreground = AppColors.onAccent,
   });
 
   final String label;
@@ -89,10 +89,7 @@ class MetricBadge extends StatelessWidget {
             Icon(icon, size: 13, color: foreground),
             const SizedBox(width: 4),
           ],
-          Text(
-            label,
-            style: AppTypography.labelMd(color: foreground),
-          ),
+          Text(label, style: AppTypography.labelMd(color: foreground)),
         ],
       ),
     );
@@ -136,10 +133,7 @@ class SoftChip extends StatelessWidget {
         color: background,
         borderRadius: AppRadius.pillBorder,
       ),
-      child: Text(
-        label,
-        style: AppTypography.labelMd(color: foreground),
-      ),
+      child: Text(label, style: AppTypography.labelMd(color: foreground)),
     );
   }
 }

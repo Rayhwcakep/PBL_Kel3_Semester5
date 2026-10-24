@@ -25,13 +25,13 @@ class QuickActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background = hero ? AppColors.forest : AppColors.lime;
-    final titleColor = hero ? AppColors.canvas : AppColors.ink;
+    final background = hero ? AppColors.forest : AppColors.surfaceHigh;
+    final titleColor = hero ? AppColors.onForest : AppColors.ink;
     final subtitleColor = hero ? AppColors.onForestMuted : AppColors.sage;
     final iconBg = hero
         ? AppColors.sage.withValues(alpha: 0.3)
-        : AppColors.ink.withValues(alpha: 0.1);
-    final iconColor = hero ? AppColors.lime : AppColors.ink;
+        : AppColors.lime.withValues(alpha: 0.14);
+    final iconColor = AppColors.lime;
 
     return Material(
       color: background,
@@ -51,7 +51,10 @@ class QuickActionCard extends StatelessWidget {
                   Container(
                     width: 40,
                     height: 40,
-                    decoration: BoxDecoration(color: iconBg, shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                      color: iconBg,
+                      shape: BoxShape.circle,
+                    ),
                     child: Icon(icon, size: 21, color: iconColor),
                   ),
                   Icon(
@@ -62,15 +65,9 @@ class QuickActionCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
-              Text(
-                title,
-                style: AppTypography.titleMd(color: titleColor),
-              ),
+              Text(title, style: AppTypography.titleMd(color: titleColor)),
               const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: AppTypography.bodySm(color: subtitleColor),
-              ),
+              Text(subtitle, style: AppTypography.bodySm(color: subtitleColor)),
             ],
           ),
         ),
