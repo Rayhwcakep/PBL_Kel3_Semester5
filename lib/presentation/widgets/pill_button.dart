@@ -98,16 +98,16 @@ class CircleIconButton extends StatelessWidget {
     super.key,
     required this.icon,
     this.onPressed,
-    this.background = AppColors.surface,
-    this.foreground = AppColors.ink,
+    this.background,
+    this.foreground,
     this.size = 44,
     this.showBorder = true,
   });
 
   final IconData icon;
   final VoidCallback? onPressed;
-  final Color background;
-  final Color foreground;
+  final Color? background;
+  final Color? foreground;
   final double size;
   final bool showBorder;
 
@@ -117,7 +117,7 @@ class CircleIconButton extends StatelessWidget {
       width: size,
       height: size,
       child: Material(
-        color: background,
+        color: background ?? AppColors.surface,
         shape: CircleBorder(
           side: BorderSide(
             color: showBorder ? AppColors.cardBorder : Colors.transparent,
@@ -126,7 +126,11 @@ class CircleIconButton extends StatelessWidget {
         child: InkWell(
           onTap: onPressed,
           customBorder: const CircleBorder(),
-          child: Icon(icon, size: size * 0.45, color: foreground),
+          child: Icon(
+            icon,
+            size: size * 0.45,
+            color: foreground ?? AppColors.ink,
+          ),
         ),
       ),
     );

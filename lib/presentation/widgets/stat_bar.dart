@@ -10,13 +10,13 @@ class StatBar extends StatelessWidget {
     super.key,
     required this.label,
     required this.value,
-    this.color = AppColors.lime,
+    this.color,
     this.showValue = true,
   });
 
   final String label;
   final double value;
-  final Color color;
+  final Color? color;
   final bool showValue;
 
   @override
@@ -40,7 +40,9 @@ class StatBar extends StatelessWidget {
                 value: clamped / 100,
                 minHeight: 7,
                 backgroundColor: AppColors.barTrack,
-                valueColor: AlwaysStoppedAnimation<Color>(color),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  color ?? AppColors.lime,
+                ),
               ),
             ),
           ),

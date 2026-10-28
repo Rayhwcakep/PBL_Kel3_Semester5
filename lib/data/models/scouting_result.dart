@@ -65,9 +65,7 @@ class ScoutingResult {
     double prediction = 0,
   }) {
     return ScoutingResult(
-      player: Player.fromJson(
-        (json['player'] as Map).cast<String, dynamic>(),
-      ),
+      player: Player.fromJson((json['player'] as Map).cast<String, dynamic>()),
       similarity: (json['similarity'] as num?)?.toDouble() ?? 0,
       distance: (json['distance'] as num?)?.toDouble() ?? 0,
       rank: (json['rank'] as num?)?.toInt() ?? 0,

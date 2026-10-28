@@ -13,11 +13,15 @@ class AppRadius {
   /// Pill penuh untuk tombol, chip, dan navigasi.
   static const double pill = 9999;
 
-  static const BorderRadius cardBorder = BorderRadius.all(Radius.circular(card));
-  static const BorderRadius controlBorder =
-      BorderRadius.all(Radius.circular(control));
-  static const BorderRadius pillBorder =
-      BorderRadius.all(Radius.circular(pill));
+  static const BorderRadius cardBorder = BorderRadius.all(
+    Radius.circular(card),
+  );
+  static const BorderRadius controlBorder = BorderRadius.all(
+    Radius.circular(control),
+  );
+  static const BorderRadius pillBorder = BorderRadius.all(
+    Radius.circular(pill),
+  );
 }
 
 /// Ritme spasi 8pt.

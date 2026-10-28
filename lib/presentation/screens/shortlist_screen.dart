@@ -129,7 +129,7 @@ class _ShortlistSummaryCard extends StatelessWidget {
       color: AppColors.forest,
       child: Row(
         children: [
-          const Icon(Icons.bookmark, color: AppColors.lime, size: 26),
+          Icon(Icons.bookmark, color: AppColors.lime, size: 26),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
@@ -159,7 +159,7 @@ class _ShortlistSummaryCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.add, size: 16, color: AppColors.onAccent),
+                    Icon(Icons.add, size: 16, color: AppColors.onAccent),
                     const SizedBox(width: 4),
                     Text(
                       'Tambah',

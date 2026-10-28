@@ -133,7 +133,7 @@ class _ProfileHero extends StatelessWidget {
             width: 64,
             height: 64,
             alignment: Alignment.center,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppColors.lime,
               shape: BoxShape.circle,
             ),
@@ -362,11 +362,7 @@ class _FeaturesCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(
-                    Icons.check_circle,
-                    size: 17,
-                    color: AppColors.lime,
-                  ),
+                  Icon(Icons.check_circle, size: 17, color: AppColors.lime),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: RichText(

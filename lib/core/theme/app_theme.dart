@@ -5,26 +5,39 @@ import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
 
-/// Tema Material 3 "Pitch Naturalism" — varian gelap modern.
+/// Tema Material 3 "Pitch Naturalism" �?" varian gelap & terang.
 class AppTheme {
   const AppTheme._();
 
-  /// Tema default aplikasi (dark).
-  static ThemeData get dark => _build();
+  /// Tema gelap modern (default).
+  static ThemeData get dark {
+    AppColors.use(Brightness.dark);
+    return _build(Brightness.dark);
+  }
 
-  /// Alias agar pemanggilan lama `AppTheme.light` tetap berjalan.
-  static ThemeData get light => _build();
+  /// Tema terang.
+  static ThemeData get light {
+    AppColors.use(Brightness.light);
+    return _build(Brightness.light);
+  }
 
-  static ThemeData _build() {
+  /// Bangun tema untuk brightness tertentu tanpa mengubah palet global.
+  static ThemeData build(Brightness brightness) {
+    AppColors.use(brightness);
+    return _build(brightness);
+  }
+
+  static ThemeData _build(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
     final scheme = ColorScheme.fromSeed(
       seedColor: AppColors.lime,
-      brightness: Brightness.dark,
+      brightness: brightness,
       primary: AppColors.lime,
       onPrimary: AppColors.onAccent,
       primaryContainer: AppColors.forest,
       onPrimaryContainer: AppColors.onForest,
       secondary: AppColors.sage,
-      onSecondary: AppColors.onAccent,
+      onSecondary: isDark ? AppColors.onAccent : Colors.white,
       tertiary: AppColors.playerB,
       onTertiary: AppColors.onAccent,
       surface: AppColors.surface,
@@ -37,15 +50,18 @@ class AppTheme {
       outline: AppColors.outline,
       outlineVariant: AppColors.outlineVariant,
       error: AppColors.error,
-      onError: AppColors.onAccent,
+      onError: isDark ? AppColors.onAccent : Colors.white,
       errorContainer: AppColors.errorContainer,
       onErrorContainer: AppColors.error,
     );
 
-    return ThemeData(
+    final base = ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: brightness,
       colorScheme: scheme,
+    );
+
+    return base.copyWith(
       scaffoldBackgroundColor: AppColors.canvas,
       canvasColor: AppColors.canvas,
       splashFactory: InkRipple.splashFactory,
@@ -61,14 +77,16 @@ class AppTheme {
         labelLarge: AppTypography.labelLg(),
         labelMedium: AppTypography.labelMd(),
       ),
-      iconTheme: const IconThemeData(color: AppColors.onSurface),
-      appBarTheme: const AppBarTheme(
+      iconTheme: IconThemeData(color: AppColors.onSurface),
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.canvas,
         foregroundColor: AppColors.ink,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        systemOverlayStyle: SystemUiOverlayStyle.light,
+        systemOverlayStyle: isDark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
       ),
       cardTheme: CardThemeData(
         color: AppColors.surface,
@@ -76,7 +94,7 @@ class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: AppRadius.cardBorder,
-          side: const BorderSide(color: AppColors.cardBorder, width: 1),
+          side: BorderSide(color: AppColors.cardBorder, width: 1),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -91,13 +109,13 @@ class AppTheme {
         ),
         border: OutlineInputBorder(
           borderRadius: AppRadius.pillBorder,
-          borderSide: const BorderSide(color: AppColors.cardBorder),
+          borderSide: BorderSide(color: AppColors.cardBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: AppRadius.pillBorder,
-          borderSide: const BorderSide(color: AppColors.cardBorder),
+          borderSide: BorderSide(color: AppColors.cardBorder),
         ),
-        focusedBorder: const OutlineInputBorder(
+        focusedBorder: OutlineInputBorder(
           borderRadius: AppRadius.pillBorder,
           borderSide: BorderSide(color: AppColors.lime, width: 1.6),
         ),
@@ -119,7 +137,7 @@ class AppTheme {
           foregroundColor: AppColors.ink,
           backgroundColor: AppColors.surface,
           minimumSize: const Size.fromHeight(52),
-          side: const BorderSide(color: AppColors.cardBorder, width: 1.5),
+          side: BorderSide(color: AppColors.cardBorder, width: 1.5),
           shape: const RoundedRectangleBorder(
             borderRadius: AppRadius.pillBorder,
           ),
@@ -135,7 +153,7 @@ class AppTheme {
       iconButtonTheme: IconButtonThemeData(
         style: IconButton.styleFrom(foregroundColor: AppColors.onSurface),
       ),
-      dividerTheme: const DividerThemeData(
+      dividerTheme: DividerThemeData(
         color: AppColors.cardBorder,
         thickness: 1,
         space: 1,
@@ -145,7 +163,7 @@ class AppTheme {
         contentTextStyle: AppTypography.bodyMd(color: AppColors.onSurface),
         actionTextColor: AppColors.lime,
         behavior: SnackBarBehavior.floating,
-        shape: const RoundedRectangleBorder(
+        shape: RoundedRectangleBorder(
           borderRadius: AppRadius.controlBorder,
           side: BorderSide(color: AppColors.cardBorder),
         ),
@@ -155,35 +173,39 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         shape: const RoundedRectangleBorder(borderRadius: AppRadius.cardBorder),
       ),
-      bottomSheetTheme: const BottomSheetThemeData(
+      bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: AppColors.surface,
         surfaceTintColor: Colors.transparent,
         modalBackgroundColor: AppColors.surface,
-        modalBarrierColor: Color(0xB3000000),
-        shape: RoundedRectangleBorder(
+        modalBarrierColor: isDark
+            ? const Color(0xB3000000)
+            : const Color(0x66000000),
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
+      progressIndicatorTheme: ProgressIndicatorThemeData(
         color: AppColors.lime,
         linearTrackColor: AppColors.barTrack,
         circularTrackColor: AppColors.barTrack,
       ),
-      sliderTheme: const SliderThemeData(
+      sliderTheme: SliderThemeData(
         activeTrackColor: AppColors.lime,
         inactiveTrackColor: AppColors.barTrack,
         thumbColor: AppColors.lime,
-        overlayColor: Color(0x1FC8F26C),
+        overlayColor: AppColors.lime.withValues(alpha: 0.12),
         valueIndicatorColor: AppColors.lime,
         valueIndicatorTextStyle: TextStyle(color: AppColors.onAccent),
       ),
-      textSelectionTheme: const TextSelectionThemeData(
+      textSelectionTheme: TextSelectionThemeData(
         cursorColor: AppColors.lime,
-        selectionColor: Color(0x4DC8F26C),
+        selectionColor: AppColors.lime.withValues(alpha: 0.3),
         selectionHandleColor: AppColors.lime,
       ),
-      scrollbarTheme: const ScrollbarThemeData(
-        thumbColor: WidgetStatePropertyAll(Color(0x4DA8BFA2)),
+      scrollbarTheme: ScrollbarThemeData(
+        thumbColor: WidgetStatePropertyAll(
+          AppColors.sage.withValues(alpha: 0.4),
+        ),
       ),
     );
   }

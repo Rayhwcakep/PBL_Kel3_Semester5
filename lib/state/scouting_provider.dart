@@ -10,7 +10,7 @@ import '../data/repositories/scouting_repository.dart';
 /// Menyimpan keadaan form pencarian dan hasil KNN + SHAP.
 class ScoutingProvider extends ChangeNotifier {
   ScoutingProvider({ScoutingRepository? repository})
-      : _repository = repository ?? ScoutingRepository();
+    : _repository = repository ?? ScoutingRepository();
 
   final ScoutingRepository _repository;
 
@@ -33,10 +33,7 @@ class ScoutingProvider extends ChangeNotifier {
     final values = <PlayerFeature, double>{
       for (final feature in PlayerFeature.values) feature: player.stat(feature),
     };
-    _criteria = _criteria.copyWith(
-      values: values,
-      basePlayerId: player.id,
-    );
+    _criteria = _criteria.copyWith(values: values, basePlayerId: player.id);
     notifyListeners();
   }
 

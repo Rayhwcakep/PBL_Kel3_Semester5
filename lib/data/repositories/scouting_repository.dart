@@ -13,10 +13,11 @@ import '../services/scouting_service.dart';
 /// `useMockData = false`.
 class ScoutingRepository {
   ScoutingRepository({ScoutingService? service})
-      : _service = service ??
-            (AppConfig.useMockData
-                ? MockScoutingService()
-                : ApiScoutingService());
+    : _service =
+          service ??
+          (AppConfig.useMockData
+              ? MockScoutingService()
+              : ApiScoutingService());
 
   final ScoutingService _service;
 

@@ -24,8 +24,9 @@ class ScoutingCriteria {
     this.maxValue,
     this.sortBy = ScoutSortBy.similarity,
     this.topK = 5,
-  }) : values = values ??
-            {for (final feature in PlayerFeature.values) feature: 60.0};
+  }) : values =
+           values ??
+           {for (final feature in PlayerFeature.values) feature: 60.0};
 
   /// Nilai target tiap fitur (0 - 100).
   final Map<PlayerFeature, double> values;
@@ -69,8 +70,9 @@ class ScoutingCriteria {
   }) {
     return ScoutingCriteria(
       values: values ?? this.values,
-      basePlayerId:
-          clearBasePlayer ? null : (basePlayerId ?? this.basePlayerId),
+      basePlayerId: clearBasePlayer
+          ? null
+          : (basePlayerId ?? this.basePlayerId),
       position: clearPosition ? null : (position ?? this.position),
       league: clearLeague ? null : (league ?? this.league),
       maxAge: clearMaxAge ? null : (maxAge ?? this.maxAge),
@@ -81,15 +83,15 @@ class ScoutingCriteria {
   }
 
   Map<String, dynamic> toJson() => {
-        'criteria': {
-          for (final entry in values.entries) entry.key.jsonKey: entry.value,
-        },
-        'base_player_id': basePlayerId,
-        'position': position,
-        'league': league,
-        'max_age': maxAge,
-        'max_value': maxValue,
-        'sort_by': sortBy.name,
-        'top_k': topK,
-      };
+    'criteria': {
+      for (final entry in values.entries) entry.key.jsonKey: entry.value,
+    },
+    'base_player_id': basePlayerId,
+    'position': position,
+    'league': league,
+    'max_age': maxAge,
+    'max_value': maxValue,
+    'sort_by': sortBy.name,
+    'top_k': topK,
+  };
 }

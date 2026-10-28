@@ -23,16 +23,21 @@ class FilterChipPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background = selected ? AppColors.lime : AppColors.surface;
-    final foreground = selected ? AppColors.onAccent : AppColors.sage;
+    final selectedBg = AppColors.forest;
+    final selectedFg = AppColors.isDark ? AppColors.lime : AppColors.onForest;
+    final background = selected ? selectedBg : AppColors.surface;
+    final foreground = selected ? selectedFg : AppColors.sage;
+    final borderColor = selected
+        ? (AppColors.isDark
+              ? AppColors.lime.withValues(alpha: 0.45)
+              : AppColors.forest)
+        : AppColors.cardBorder;
 
     return Material(
       color: background,
       shape: RoundedRectangleBorder(
         borderRadius: AppRadius.pillBorder,
-        side: BorderSide(
-          color: selected ? Colors.transparent : AppColors.cardBorder,
-        ),
+        side: BorderSide(color: borderColor),
       ),
       child: InkWell(
         onTap: onTap,
@@ -65,31 +70,39 @@ class MetricBadge extends StatelessWidget {
     super.key,
     required this.label,
     this.icon,
-    this.background = AppColors.lime,
-    this.foreground = AppColors.onAccent,
+    this.background,
+    this.foreground,
   });
 
   final String label;
   final IconData? icon;
-  final Color background;
-  final Color foreground;
+  final Color? background;
+  final Color? foreground;
 
   @override
   Widget build(BuildContext context) {
+    final bg =
+        background ??
+        (AppColors.isDark ? AppColors.primaryFixed : AppColors.lime);
+    final fg =
+        foreground ?? (AppColors.isDark ? AppColors.lime : AppColors.onAccent);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: background,
+        color: bg,
         borderRadius: AppRadius.pillBorder,
+        border: background == null && AppColors.isDark
+            ? Border.all(color: AppColors.lime.withValues(alpha: 0.35))
+            : null,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 13, color: foreground),
+            Icon(icon, size: 13, color: fg),
             const SizedBox(width: 4),
           ],
-          Text(label, style: AppTypography.labelMd(color: foreground)),
+          Text(label, style: AppTypography.labelMd(color: fg)),
         ],
       ),
     );
@@ -114,26 +127,24 @@ class OverlineLabel extends StatelessWidget {
 
 /// Chip netral untuk label kecil pada kartu (mis. "RW · 18y").
 class SoftChip extends StatelessWidget {
-  const SoftChip(
-    this.label, {
-    super.key,
-    this.background = AppColors.surfaceContainer,
-    this.foreground = AppColors.sage,
-  });
+  const SoftChip(this.label, {super.key, this.background, this.foreground});
 
   final String label;
-  final Color background;
-  final Color foreground;
+  final Color? background;
+  final Color? foreground;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: background,
+        color: background ?? AppColors.surfaceContainer,
         borderRadius: AppRadius.pillBorder,
       ),
-      child: Text(label, style: AppTypography.labelMd(color: foreground)),
+      child: Text(
+        label,
+        style: AppTypography.labelMd(color: foreground ?? AppColors.sage),
+      ),
     );
   }
 }

@@ -7,7 +7,7 @@ import '../data/repositories/scouting_repository.dart';
 /// Memuat dan menyimpan daftar pemain pada dataset.
 class PlayerProvider extends ChangeNotifier {
   PlayerProvider({ScoutingRepository? repository})
-      : _repository = repository ?? ScoutingRepository();
+    : _repository = repository ?? ScoutingRepository();
 
   final ScoutingRepository _repository;
 
@@ -27,12 +27,13 @@ class PlayerProvider extends ChangeNotifier {
 
   /// Daftar liga unik dari dataset.
   List<String> get leagues {
-    final unique = _players
-        .map((p) => p.league)
-        .where((l) => l.isNotEmpty)
-        .toSet()
-        .toList()
-      ..sort();
+    final unique =
+        _players
+            .map((p) => p.league)
+            .where((l) => l.isNotEmpty)
+            .toSet()
+            .toList()
+          ..sort();
     return unique;
   }
 
@@ -48,8 +49,7 @@ class PlayerProvider extends ChangeNotifier {
     final filtered = _players.where((p) {
       if (positionGroup == null) return true;
       return p.positionGroup == positionGroup;
-    }).toList()
-      ..sort((a, b) => b.xgXaPer90.compareTo(a.xgXaPer90));
+    }).toList()..sort((a, b) => b.xgXaPer90.compareTo(a.xgXaPer90));
     return filtered.take(limit).toList();
   }
 

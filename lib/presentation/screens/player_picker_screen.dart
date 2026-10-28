@@ -194,7 +194,7 @@ class _PickerTile extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: AppColors.sageSoft),
+          Icon(Icons.chevron_right, color: AppColors.sageSoft),
         ],
       ),
     );

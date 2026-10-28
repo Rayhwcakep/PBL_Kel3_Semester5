@@ -1,4 +1,4 @@
-﻿import '../models/player.dart';
+import '../models/player.dart';
 import '../models/player_feature.dart';
 import '../models/radar_metric.dart';
 
@@ -570,7 +570,11 @@ List<String> get mockPositions {
 
 /// Daftar liga unik.
 List<String> get mockLeagues {
-  final leagues = mockPlayers.map((p) => p.league).where((l) => l.isNotEmpty).toSet().toList();
+  final leagues = mockPlayers
+      .map((p) => p.league)
+      .where((l) => l.isNotEmpty)
+      .toSet()
+      .toList();
   leagues.sort();
   return leagues;
 }

@@ -25,17 +25,28 @@ class QuickActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background = hero ? AppColors.forest : AppColors.surfaceHigh;
+    final background = hero
+        ? AppColors.forest
+        : (AppColors.isDark
+              ? AppColors.surfaceContainer
+              : AppColors.secondaryFixed);
     final titleColor = hero ? AppColors.onForest : AppColors.ink;
     final subtitleColor = hero ? AppColors.onForestMuted : AppColors.sage;
     final iconBg = hero
         ? AppColors.sage.withValues(alpha: 0.3)
-        : AppColors.lime.withValues(alpha: 0.14);
-    final iconColor = AppColors.lime;
+        : (AppColors.isDark
+              ? AppColors.lime.withValues(alpha: 0.14)
+              : AppColors.lime.withValues(alpha: 0.35));
+    final iconColor = hero
+        ? AppColors.lime
+        : (AppColors.isDark ? AppColors.lime : AppColors.forest);
 
     return Material(
       color: background,
-      borderRadius: AppRadius.cardBorder,
+      shape: RoundedRectangleBorder(
+        borderRadius: AppRadius.cardBorder,
+        side: BorderSide(color: hero ? AppColors.forest : AppColors.cardBorder),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: AppRadius.cardBorder,

@@ -54,15 +54,11 @@ class PlayerAvatar extends StatelessWidget {
               bottom: -2,
               child: Container(
                 padding: const EdgeInsets.all(2),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.surface,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.verified,
-                  size: 14,
-                  color: AppColors.lime,
-                ),
+                child: Icon(Icons.verified, size: 14, color: AppColors.lime),
               ),
             ),
         ],

@@ -49,20 +49,26 @@ class MockScoutingService implements ScoutingService {
       if (criteria.league != null && player.league != criteria.league) {
         return false;
       }
-      if (criteria.maxAge != null && player.age > criteria.maxAge!) return false;
-      if (criteria.maxValue != null && player.marketValue > criteria.maxValue!) {
+      if (criteria.maxAge != null && player.age > criteria.maxAge!) {
+        return false;
+      }
+      if (criteria.maxValue != null &&
+          player.marketValue > criteria.maxValue!) {
         return false;
       }
       return true;
     }).toList();
 
-    final queryVector =
-        features.map((f) => (queryValues[f] ?? 0) / 100).toList(growable: false);
+    final queryVector = features
+        .map((f) => (queryValues[f] ?? 0) / 100)
+        .toList(growable: false);
 
     final scored = <ScoutingResult>[];
     for (final player in candidates) {
-      final playerVector =
-          player.toVector(features).map((v) => v / 100).toList(growable: false);
+      final playerVector = player
+          .toVector(features)
+          .map((v) => v / 100)
+          .toList(growable: false);
       final distance = _euclidean(queryVector, playerVector);
       final similarity = 1 / (1 + distance);
       scored.add(
@@ -80,7 +86,8 @@ class MockScoutingService implements ScoutingService {
 
     final base = scored.isEmpty
         ? 0.0
-        : scored.map((r) => r.similarity).reduce((a, b) => a + b) / scored.length;
+        : scored.map((r) => r.similarity).reduce((a, b) => a + b) /
+              scored.length;
 
     final results = <ScoutingResult>[];
     for (var i = 0; i < top.length; i++) {
@@ -95,7 +102,11 @@ class MockScoutingService implements ScoutingService {
       );
     }
 
-    return ScoutResponse(k: criteria.topK, query: queryValues, results: results);
+    return ScoutResponse(
+      k: criteria.topK,
+      query: queryValues,
+      results: results,
+    );
   }
 
   Map<PlayerFeature, double> _resolveQuery(ScoutingCriteria criteria) {

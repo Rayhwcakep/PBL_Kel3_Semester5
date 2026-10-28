@@ -4,7 +4,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
-/// Logo heksagon Scoutify.
+/// Logo aplikasi (gambar logo yang dikirim pengguna).
 class BrandMark extends StatelessWidget {
   const BrandMark({super.key, this.size = 34});
 
@@ -12,14 +12,27 @@ class BrandMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: AppColors.forest,
-        borderRadius: BorderRadius.circular(size * 0.28),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(size * 0.28),
+      child: Image.asset(
+        'assets/images/logo.png',
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: AppColors.forest,
+            borderRadius: BorderRadius.circular(size * 0.28),
+          ),
+          child: Icon(
+            Icons.shield_moon,
+            size: size * 0.55,
+            color: AppColors.lime,
+          ),
+        ),
       ),
-      child: Icon(Icons.shield_moon, size: size * 0.55, color: AppColors.lime),
     );
   }
 }
@@ -133,22 +146,26 @@ class SearchPill extends StatelessWidget {
             style: AppTypography.bodyMd(),
             decoration: InputDecoration(
               hintText: hint,
-              prefixIcon: const Icon(Icons.search, color: AppColors.sageSoft),
+              prefixIcon: Icon(Icons.search, color: AppColors.sageSoft),
             ),
           ),
         ),
         if (onFilterTap != null) ...[
           const SizedBox(width: AppSpacing.sm),
           Material(
-            color: AppColors.lime,
+            color: AppColors.isDark ? AppColors.lime : AppColors.forest,
             borderRadius: AppRadius.pillBorder,
             child: InkWell(
               onTap: onFilterTap,
               borderRadius: AppRadius.pillBorder,
-              child: const SizedBox(
+              child: SizedBox(
                 width: 48,
                 height: 48,
-                child: Icon(Icons.tune, color: AppColors.onAccent, size: 20),
+                child: Icon(
+                  Icons.tune,
+                  color: AppColors.isDark ? AppColors.onAccent : AppColors.lime,
+                  size: 20,
+                ),
               ),
             ),
           ),

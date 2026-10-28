@@ -7,6 +7,7 @@ import '../../core/theme/app_typography.dart';
 import '../../data/models/player.dart';
 import '../../state/player_provider.dart';
 import '../../state/shortlist_provider.dart';
+import '../../state/theme_provider.dart';
 import '../widgets/app_bars.dart';
 import '../widgets/chips.dart';
 import '../widgets/pill_button.dart';
@@ -43,6 +44,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final players = context.watch<PlayerProvider>();
     final shortlist = context.watch<ShortlistProvider>();
+    final theme = context.watch<ThemeProvider>();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -63,11 +65,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 child: CanvasBackground(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GreetingHeader(
-                        greeting: 'Hello, Scout',
-                        subtitle: 'Find your next signing',
+                      ScreenHeader(
+                        title: 'Home',
+                        brand: 'Scoutify',
                         actions: [
+                          CircleIconButton(
+                            icon: theme.isDark
+                                ? Icons.light_mode_outlined
+                                : Icons.dark_mode_outlined,
+                            onPressed: () =>
+                                context.read<ThemeProvider>().toggle(),
+                          ),
                           const CircleIconButton(
                             icon: Icons.notifications_none,
                           ),
@@ -75,6 +85,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             initials: shortlist.count > 0 ? 'SC' : 'SC',
                           ),
                         ],
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      const GreetingHeader(
+                        greeting: 'Hello, Scout',
+                        subtitle: 'Find your next signing',
                       ),
                       const SizedBox(height: AppSpacing.md),
                       SearchPill(onFilterTap: () => _openTactic(context)),
@@ -431,7 +446,7 @@ class _ShortlistSummary extends StatelessWidget {
                                     width: 44,
                                     height: 44,
                                     alignment: Alignment.center,
-                                    decoration: const BoxDecoration(
+                                    decoration: BoxDecoration(
                                       color: AppColors.lime,
                                       shape: BoxShape.circle,
                                     ),

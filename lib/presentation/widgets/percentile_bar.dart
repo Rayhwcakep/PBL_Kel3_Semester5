@@ -88,7 +88,10 @@ class _LevelBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final normalized = level.toLowerCase();
     final (bg, fg) = switch (normalized) {
-      'high' => (AppColors.lime, AppColors.onAccent),
+      'high' =>
+        AppColors.isDark
+            ? (AppColors.primaryFixed, AppColors.lime)
+            : (AppColors.lime, AppColors.onAccent),
       'medium' => (AppColors.surfaceContainer, AppColors.sage),
       _ => (AppColors.surfaceHigh, AppColors.sageSoft),
     };

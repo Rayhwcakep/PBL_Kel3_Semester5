@@ -62,7 +62,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
     final results = response?.results ?? const [];
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: widget.embedded ? Colors.transparent : AppColors.canvas,
       appBar: widget.embedded
           ? null
           : AppBar(
@@ -89,7 +89,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 children: [
                   ScreenHeader(
                     title: 'Find Similar',
-                    actions: const [
+                    actions: [
                       MetricBadge(
                         label: 'AI Matcher',
                         icon: Icons.hub_outlined,
@@ -180,7 +180,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 ),
                 child: SectionHeader(
                   title: '${results.length} Similar Players',
-                  trailing: const MetricBadge(
+                  trailing: MetricBadge(
                     label: 'KNN Vector',
                     icon: Icons.auto_graph,
                     background: AppColors.surfaceContainer,
@@ -370,7 +370,7 @@ class _BaseSelector extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(Icons.search, size: 20, color: AppColors.sageSoft),
+              Icon(Icons.search, size: 20, color: AppColors.sageSoft),
               const SizedBox(width: AppSpacing.sm),
               Text('BASE:', style: AppTypography.overline()),
               const SizedBox(width: AppSpacing.sm),
@@ -386,7 +386,7 @@ class _BaseSelector extends StatelessWidget {
                 InkWell(
                   onTap: onClear,
                   customBorder: const CircleBorder(),
-                  child: const Padding(
+                  child: Padding(
                     padding: EdgeInsets.all(4),
                     child: Icon(
                       Icons.close,
@@ -620,11 +620,7 @@ class _DropdownPill<T> extends StatelessWidget {
           children: [
             Text(label, style: AppTypography.labelLg(color: AppColors.sage)),
             const SizedBox(width: 4),
-            const Icon(
-              Icons.keyboard_arrow_down,
-              size: 17,
-              color: AppColors.sage,
-            ),
+            Icon(Icons.keyboard_arrow_down, size: 17, color: AppColors.sage),
           ],
         ),
       ),

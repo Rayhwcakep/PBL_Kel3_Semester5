@@ -36,7 +36,7 @@ class _FindByTacticScreenState extends State<FindByTacticScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.canvas,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -190,25 +190,29 @@ class _ToggleTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final selectedFg = AppColors.isDark ? AppColors.lime : AppColors.onForest;
+    final foreground = selected ? selectedFg : AppColors.sage;
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 11),
       decoration: BoxDecoration(
-        color: selected ? AppColors.lime : Colors.transparent,
+        color: selected ? AppColors.forest : Colors.transparent,
         borderRadius: AppRadius.pillBorder,
+        border: selected && AppColors.isDark
+            ? Border.all(color: AppColors.lime.withValues(alpha: 0.35))
+            : null,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 17,
-            color: selected ? AppColors.onAccent : AppColors.sage,
-          ),
+          Icon(icon, size: 17, color: foreground),
           const SizedBox(width: 6),
-          Text(
-            label,
-            style: AppTypography.labelLg(
-              color: selected ? AppColors.onAccent : AppColors.sage,
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.labelLg(color: foreground),
             ),
           ),
         ],
@@ -323,8 +327,11 @@ class _ArchetypeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background = selected ? AppColors.lime : AppColors.surface;
-    final foreground = selected ? AppColors.onAccent : AppColors.sage;
+    final background = selected ? AppColors.forest : AppColors.surface;
+    final foreground = selected ? AppColors.onForest : AppColors.sage;
+    final borderColor = selected
+        ? AppColors.lime.withValues(alpha: AppColors.isDark ? 0.5 : 0.8)
+        : AppColors.cardBorder;
 
     return Material(
       color: background,
@@ -336,10 +343,7 @@ class _ArchetypeTile extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.md),
           decoration: BoxDecoration(
             borderRadius: AppRadius.cardBorder,
-            border: Border.all(
-              color: selected ? AppColors.forest : AppColors.cardBorder,
-              width: selected ? 1.5 : 1,
-            ),
+            border: Border.all(color: borderColor, width: selected ? 1.5 : 1),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -352,7 +356,7 @@ class _ArchetypeTile extends StatelessWidget {
                     height: 38,
                     decoration: BoxDecoration(
                       color: selected
-                          ? AppColors.forest
+                          ? AppColors.lime.withValues(alpha: 0.18)
                           : AppColors.surfaceContainer,
                       shape: BoxShape.circle,
                     ),
@@ -366,14 +370,14 @@ class _ArchetypeTile extends StatelessWidget {
                     Container(
                       width: 22,
                       height: 22,
-                      decoration: const BoxDecoration(
-                        color: AppColors.forest,
+                      decoration: BoxDecoration(
+                        color: AppColors.lime,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.check,
                         size: 14,
-                        color: AppColors.lime,
+                        color: AppColors.forest,
                       ),
                     )
                   else
@@ -391,7 +395,7 @@ class _ArchetypeTile extends StatelessWidget {
               if (selected)
                 Text(
                   'ACTIVE MATCH',
-                  style: AppTypography.overline(color: AppColors.sage),
+                  style: AppTypography.overline(color: AppColors.lime),
                 ),
               Text(
                 archetype.name,
@@ -400,7 +404,9 @@ class _ArchetypeTile extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 archetype.description,
-                style: AppTypography.bodySm(color: AppColors.sage),
+                style: AppTypography.bodySm(
+                  color: selected ? AppColors.onForestMuted : AppColors.sage,
+                ),
               ),
             ],
           ),
@@ -486,7 +492,7 @@ class _SearchEnvelope extends StatelessWidget {
                   style: AppTypography.headlineMd(),
                 ),
               ),
-              const Icon(Icons.tune, size: 18, color: AppColors.sage),
+              Icon(Icons.tune, size: 18, color: AppColors.sage),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
@@ -573,7 +579,7 @@ class _IndexMatchPreview extends StatelessWidget {
       color: AppColors.surfaceLow,
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 22,
             backgroundColor: AppColors.primaryFixed,
             child: Icon(Icons.person, color: AppColors.lime),
@@ -605,7 +611,7 @@ class _IndexMatchPreview extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: AppColors.sageSoft),
+          Icon(Icons.chevron_right, color: AppColors.sageSoft),
         ],
       ),
     );

@@ -145,7 +145,7 @@ class _RankBadge extends StatelessWidget {
       width: 26,
       height: 26,
       alignment: Alignment.center,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppColors.forest,
         shape: BoxShape.circle,
       ),
@@ -171,7 +171,7 @@ class _OverallBadge extends StatelessWidget {
           overall.toStringAsFixed(0),
           style: AppTypography.statMd().copyWith(fontSize: 22),
         ),
-        const OverlineLabel('Rating', color: AppColors.sageSoft),
+        OverlineLabel('Rating', color: AppColors.sageSoft),
       ],
     );
   }

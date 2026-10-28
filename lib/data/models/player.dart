@@ -46,16 +46,16 @@ class SeasonMetrics {
   }
 
   factory SeasonMetrics.fromJson(Map<String, dynamic> json) => SeasonMetrics(
-        goals: _d(json['goals']),
-        assists: _d(json['assists']),
-        shots: _d(json['shots']),
-        onTarget: _d(json['on_target']),
-        crossing: _d(json['crossing']),
-        tackles: _d(json['tackles']),
-        interceptions: _d(json['interceptions']),
-        xgPer90: _d(json['xg_per90']),
-        xaPer90: _d(json['xa_per90']),
-      );
+    goals: _d(json['goals']),
+    assists: _d(json['assists']),
+    shots: _d(json['shots']),
+    onTarget: _d(json['on_target']),
+    crossing: _d(json['crossing']),
+    tackles: _d(json['tackles']),
+    interceptions: _d(json['interceptions']),
+    xgPer90: _d(json['xg_per90']),
+    xaPer90: _d(json['xa_per90']),
+  );
 
   static double _d(Object? value) =>
       value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
@@ -165,7 +165,8 @@ class Player {
   /// Kelompok posisi: GK, DF, MF, atau FW. Dipakai untuk filter cepat.
   String get positionGroup {
     final code = positionShort.toUpperCase();
-    if (code.startsWith('GK') || position.toLowerCase().contains('goalkeeper')) {
+    if (code.startsWith('GK') ||
+        position.toLowerCase().contains('goalkeeper')) {
       return 'GK';
     }
     if (code.startsWith('CB') ||
@@ -270,29 +271,29 @@ class Player {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'name': name,
-        'club': club,
-        'position': position,
-        'position_short': positionShort,
-        'league': league,
-        'nationality': nationality,
-        'age': age,
-        'height': height,
-        'foot': foot,
-        'contract_until': contractUntil,
-        'market_value': marketValue,
-        'trend_percent': trendPercent,
-        'minutes_played': minutesPlayed,
-        'matches': matches,
-        'stats': {
-          for (final entry in stats.entries) entry.key.jsonKey: entry.value,
-        },
-        'percentiles': {
-          for (final entry in percentiles.entries) entry.key.jsonKey: entry.value,
-        },
-        'image_url': imageUrl,
-      };
+    'id': id,
+    'name': name,
+    'club': club,
+    'position': position,
+    'position_short': positionShort,
+    'league': league,
+    'nationality': nationality,
+    'age': age,
+    'height': height,
+    'foot': foot,
+    'contract_until': contractUntil,
+    'market_value': marketValue,
+    'trend_percent': trendPercent,
+    'minutes_played': minutesPlayed,
+    'matches': matches,
+    'stats': {
+      for (final entry in stats.entries) entry.key.jsonKey: entry.value,
+    },
+    'percentiles': {
+      for (final entry in percentiles.entries) entry.key.jsonKey: entry.value,
+    },
+    'image_url': imageUrl,
+  };
 
   static double _d(Object? value) {
     if (value is num) return value.toDouble();

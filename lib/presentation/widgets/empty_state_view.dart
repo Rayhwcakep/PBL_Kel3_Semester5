@@ -31,7 +31,11 @@ class EmptyStateView extends StatelessWidget {
           children: [
             Icon(icon, size: 48, color: AppColors.sageSoft),
             const SizedBox(height: 12),
-            Text(title, textAlign: TextAlign.center, style: AppTypography.titleMd()),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: AppTypography.titleMd(),
+            ),
             if (message != null) ...[
               const SizedBox(height: 6),
               Text(

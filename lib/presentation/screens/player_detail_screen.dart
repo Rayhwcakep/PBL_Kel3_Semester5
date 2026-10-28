@@ -274,7 +274,7 @@ class _ValuationCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.trending_up,
                       size: 13,
                       color: AppColors.onAccent,
@@ -360,11 +360,7 @@ class _ProfileRadarCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
-                      Icons.compare_arrows,
-                      size: 18,
-                      color: AppColors.lime,
-                    ),
+                    Icon(Icons.compare_arrows, size: 18, color: AppColors.lime),
                     const SizedBox(width: AppSpacing.sm),
                     Text(
                       'Compare with another player',
@@ -443,7 +439,7 @@ class _SeasonStatsCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.schedule, size: 17, color: AppColors.sage),
+                Icon(Icons.schedule, size: 17, color: AppColors.sage),
                 const SizedBox(width: AppSpacing.sm),
                 Text('Minutes Played:', style: AppTypography.bodySm()),
                 const SizedBox(width: 6),
@@ -522,7 +518,7 @@ class _AiDossierCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_awesome, size: 18, color: AppColors.lime),
+              Icon(Icons.auto_awesome, size: 18, color: AppColors.lime),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
                 child: Text(
@@ -565,7 +561,7 @@ class _AiDossierCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.verified_outlined,
                   size: 18,
                   color: AppColors.onAccent,

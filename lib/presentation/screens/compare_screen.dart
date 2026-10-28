@@ -147,7 +147,9 @@ class CompareScreen extends StatelessWidget {
                   onPressed: () {
                     final shortlist = context.read<ShortlistProvider>();
                     for (final player in [compare.left!, compare.right!]) {
-                      if (!shortlist.contains(player.id)) shortlist.toggle(player);
+                      if (!shortlist.contains(player.id)) {
+                        shortlist.toggle(player);
+                      }
                     }
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -208,7 +210,7 @@ class _SlotCard extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.cardBorder),
               ),
-              child: const Icon(Icons.add, color: AppColors.sage),
+              child: Icon(Icons.add, color: AppColors.sage),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text('Pemain $side', style: AppTypography.titleMd()),
@@ -599,7 +601,7 @@ class _VerdictCard extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.lightbulb_outline,
                   size: 17,
                   color: AppColors.onAccent,

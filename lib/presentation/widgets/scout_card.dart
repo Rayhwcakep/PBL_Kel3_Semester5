@@ -11,16 +11,16 @@ class ScoutCard extends StatelessWidget {
     required this.child,
     this.padding = const EdgeInsets.all(AppSpacing.md),
     this.onTap,
-    this.color = AppColors.surface,
-    this.borderColor = AppColors.cardBorder,
+    this.color,
+    this.borderColor,
     this.shadow = true,
   });
 
   final Widget child;
   final EdgeInsetsGeometry padding;
   final VoidCallback? onTap;
-  final Color color;
-  final Color borderColor;
+  final Color? color;
+  final Color? borderColor;
   final bool shadow;
 
   @override
@@ -28,9 +28,9 @@ class ScoutCard extends StatelessWidget {
     final content = Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: color,
+        color: color ?? AppColors.surface,
         borderRadius: AppRadius.cardBorder,
-        border: Border.all(color: borderColor),
+        border: Border.all(color: borderColor ?? AppColors.cardBorder),
         boxShadow: shadow ? AppColors.cardShadow : null,
       ),
       child: child,
