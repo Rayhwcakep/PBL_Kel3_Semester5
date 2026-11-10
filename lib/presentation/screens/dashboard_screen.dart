@@ -19,6 +19,7 @@ import '../widgets/section_header.dart';
 import 'find_by_tactic_screen.dart';
 import 'player_detail_screen.dart';
 import 'player_picker_screen.dart';
+import 'profile_screen.dart';
 
 /// Beranda Scoutify: ringkasan, aksi cepat, dan sorotan pemain.
 class DashboardScreen extends StatefulWidget {
@@ -78,11 +79,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             onPressed: () =>
                                 context.read<ThemeProvider>().toggle(),
                           ),
-                          const CircleIconButton(
+                          CircleIconButton(
                             icon: Icons.notifications_none,
+                            onPressed: () =>
+                                _showNotifications(context, shortlist.count),
                           ),
                           _ProfileDot(
-                            initials: shortlist.count > 0 ? 'SC' : 'SC',
+                            initials: 'SC',
+                            onTap: () => _openProfile(context),
                           ),
                         ],
                       ),
@@ -145,27 +149,124 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+
+  void _openProfile(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const ProfileScreen()),
+    );
+  }
+
+  void _showNotifications(BuildContext context, int shortlistCount) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.surfaceLow,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.card)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Scouting Alerts', style: AppTypography.titleLg()),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: () => Navigator.of(ctx).pop(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _buildNotificationItem(
+                icon: Icons.hub_outlined,
+                title: 'ML Matching Engine Ready',
+                subtitle: 'Algoritma KNN & kalkulasi SHAP aktif untuk analisis kemiripan.',
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _buildNotificationItem(
+                icon: Icons.bookmark_outline,
+                title: 'Watchlist Status',
+                subtitle: shortlistCount > 0
+                    ? '$shortlistCount pemain aktif dalam daftar pantau Anda.'
+                    : 'Shortlist masih kosong. Cari dan simpan pemain potensial.',
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _buildNotificationItem(
+                icon: Icons.trending_up,
+                title: 'Market Trends Updated',
+                subtitle: 'Kenaikan nilai pasar pemain U21 telah diperbarui dari bursa terkini.',
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNotificationItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppRadius.cardBorder,
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: AppColors.lime, size: 22),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTypography.titleMd()),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: AppTypography.bodySm(color: AppColors.onForestMuted),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _ProfileDot extends StatelessWidget {
-  const _ProfileDot({required this.initials});
+  const _ProfileDot({required this.initials, this.onTap});
 
   final String initials;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 40,
-      height: 40,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: AppColors.forest,
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.canvas, width: 2),
-      ),
-      child: Text(
-        initials,
-        style: AppTypography.labelLg(color: AppColors.lime),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        width: 40,
+        height: 40,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: AppColors.forest,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.canvas, width: 2),
+        ),
+        child: Text(
+          initials,
+          style: AppTypography.labelLg(color: AppColors.lime),
+        ),
       ),
     );
   }

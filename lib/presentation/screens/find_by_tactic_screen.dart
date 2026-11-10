@@ -134,9 +134,12 @@ class _FindByTacticScreenState extends State<FindByTacticScreen> {
     };
     scouting.applyCriteria(
       values: values,
+      position: _positionGroup,
+      league: _competitions.isNotEmpty ? _competitions.first : null,
       maxAge: _ageRange.end.round(),
       maxValue: _maxValue,
     );
+    scouting.runScout();
     Navigator.of(context).push(
       MaterialPageRoute(builder: (_) => const DiscoverScreen(embedded: false)),
     );
@@ -162,6 +165,7 @@ class _ModeToggle extends StatelessWidget {
               label: 'By Tactic',
               icon: Icons.format_shapes,
               selected: true,
+              onTap: () {},
             ),
           ),
           Expanded(
@@ -169,6 +173,17 @@ class _ModeToggle extends StatelessWidget {
               label: 'Similar Player',
               icon: Icons.hub_outlined,
               selected: false,
+              onTap: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                } else {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (_) => const DiscoverScreen(embedded: false),
+                    ),
+                  );
+                }
+              },
             ),
           ),
         ],
@@ -182,40 +197,49 @@ class _ToggleTab extends StatelessWidget {
     required this.label,
     required this.icon,
     required this.selected,
+    this.onTap,
   });
 
   final String label;
   final IconData icon;
   final bool selected;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final selectedFg = AppColors.isDark ? AppColors.lime : AppColors.onForest;
     final foreground = selected ? selectedFg : AppColors.sage;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 11),
-      decoration: BoxDecoration(
-        color: selected ? AppColors.forest : Colors.transparent,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: AppRadius.pillBorder,
-        border: selected && AppColors.isDark
-            ? Border.all(color: AppColors.lime.withValues(alpha: 0.35))
-            : null,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 17, color: foreground),
-          const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.labelLg(color: foreground),
-            ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 11),
+          decoration: BoxDecoration(
+            color: selected ? AppColors.forest : Colors.transparent,
+            borderRadius: AppRadius.pillBorder,
+            border: selected && AppColors.isDark
+                ? Border.all(color: AppColors.lime.withValues(alpha: 0.35))
+                : null,
           ),
-        ],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 17, color: foreground),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.labelLg(color: foreground),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -19,6 +19,7 @@ import '../widgets/player_cards.dart';
 import '../widgets/player_avatar.dart';
 import '../widgets/radar_chart.dart';
 import '../widgets/section_header.dart';
+import 'find_by_tactic_screen.dart';
 import 'player_detail_screen.dart';
 import 'player_picker_screen.dart';
 
@@ -277,7 +278,11 @@ class _ModeToggle extends StatelessWidget {
               label: 'By Tactic',
               icon: Icons.format_shapes,
               selected: false,
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const FindByTacticScreen()),
+                );
+              },
             ),
           ),
           Expanded(
