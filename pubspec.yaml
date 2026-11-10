@@ -1,4 +1,4 @@
-﻿name: scout_ml
+name: scout_ml
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -43,6 +43,9 @@ dependencies:
 
   # Font desain Scoutify: Newsreader (serif) + Plus Jakarta Sans.
   google_fonts: ^6.2.1
+
+  # Penyimpanan preferensi dan shortlist lokal agar tidak hilang saat app ditutup.
+  shared_preferences: ^2.3.3
 
 dev_dependencies:
   flutter_test:

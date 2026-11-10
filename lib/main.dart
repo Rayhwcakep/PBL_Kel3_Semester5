@@ -9,6 +9,7 @@ import 'state/shortlist_provider.dart';
 import 'state/theme_provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(
       providers: [

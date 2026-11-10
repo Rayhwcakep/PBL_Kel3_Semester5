@@ -5,19 +5,19 @@ import 'app_colors.dart';
 
 /// Tipografi Scoutify.
 ///
-/// - **Newsreader** (serif) untuk judul editorial, nama pemain, dan angka besar.
+/// - **Poppins** untuk judul editorial, nama pemain, dan angka besar.
 /// - **Plus Jakarta Sans** untuk teks isi, label, dan kontrol.
 class AppTypography {
   const AppTypography._();
 
-  static TextStyle _newsreader({
+  static TextStyle _poppins({
     required double size,
     required FontWeight weight,
     double? height,
     double? letterSpacing,
     Color? color,
   }) {
-    return GoogleFontsnewsreader(
+    return GoogleFonts.poppins(
       fontSize: size,
       fontWeight: weight,
       height: height == null ? null : height / size,
@@ -42,42 +42,42 @@ class AppTypography {
     );
   }
 
-  // --- Editorial (Newsreader) -------------------------------------------
-  static TextStyle displayLg({Color? color}) => _newsreader(
+  // --- Editorial (Poppins) ----------------------------------------------
+  static TextStyle displayLg({Color? color}) => _poppins(
     size: 40,
-    weight: FontWeight.w600,
+    weight: FontWeight.w700,
     height: 48,
     letterSpacing: -0.8,
     color: color ?? AppColors.ink,
   );
 
-  static TextStyle headlineLg({Color? color}) => _newsreader(
+  static TextStyle headlineLg({Color? color}) => _poppins(
     size: 28,
-    weight: FontWeight.w600,
+    weight: FontWeight.w700,
     height: 34,
     letterSpacing: -0.42,
     color: color ?? AppColors.ink,
   );
 
-  static TextStyle headlineMd({Color? color}) => _newsreader(
+  static TextStyle headlineMd({Color? color}) => _poppins(
     size: 22,
-    weight: FontWeight.w600,
+    weight: FontWeight.w700,
     height: 28,
     letterSpacing: -0.22,
     color: color ?? AppColors.ink,
   );
 
-  static TextStyle statXl({Color? color}) => _newsreader(
+  static TextStyle statXl({Color? color}) => _poppins(
     size: 36,
-    weight: FontWeight.w500,
+    weight: FontWeight.w700,
     height: 40,
     letterSpacing: -1.08,
     color: color ?? AppColors.ink,
   );
 
-  static TextStyle statMd({Color? color}) => _newsreader(
+  static TextStyle statMd({Color? color}) => _poppins(
     size: 24,
-    weight: FontWeight.w500,
+    weight: FontWeight.w700,
     height: 28,
     letterSpacing: -0.48,
     color: color ?? AppColors.ink,
