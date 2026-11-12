@@ -174,15 +174,15 @@ class _ModeToggle extends StatelessWidget {
               icon: Icons.hub_outlined,
               selected: false,
               onTap: () {
-                if (Navigator.of(context).canPop()) {
-                  Navigator.of(context).pop();
-                } else {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (_) => const DiscoverScreen(embedded: false),
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    duration: Duration(seconds: 4),
+                    content: Text(
+                      'Atur taktik dan kriteria dulu di halaman ini, lalu tekan Find Players untuk melihat hasil.',
                     ),
-                  );
-                }
+                  ),
+                );
               },
             ),
           ),

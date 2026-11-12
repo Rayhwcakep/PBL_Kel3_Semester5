@@ -16,10 +16,12 @@ import '../widgets/player_avatar.dart';
 import '../widgets/quick_action_card.dart';
 import '../widgets/scout_card.dart';
 import '../widgets/section_header.dart';
+import 'compare_screen.dart';
+import 'discover_screen.dart';
 import 'find_by_tactic_screen.dart';
 import 'player_detail_screen.dart';
-import 'player_picker_screen.dart';
 import 'profile_screen.dart';
+import 'shortlist_screen.dart';
 
 /// Beranda Scoutify: ringkasan, aksi cepat, dan sorotan pemain.
 class DashboardScreen extends StatefulWidget {
@@ -105,8 +107,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: AppSpacing.lg),
               _QuickActions(
                 onTactic: () => _openTactic(context),
-                onSimilar: () => _openPicker(context),
-                onCompare: () => _openComparePicker(context),
+                onSimilar: () => _openSimilar(context),
+                onCompare: () => _openCompare(context),
               ),
               const SizedBox(height: AppSpacing.lg),
               _RisingValue(players: players.risingValue),
@@ -132,28 +134,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ).push(MaterialPageRoute(builder: (_) => const FindByTacticScreen()));
   }
 
-  void _openPicker(BuildContext context) {
+  void _openSimilar(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) =>
-            const PlayerPickerScreen(mode: PlayerPickerMode.similar),
-      ),
+      MaterialPageRoute(builder: (_) => const DiscoverScreen(embedded: false)),
     );
   }
 
-  void _openComparePicker(BuildContext context) {
+  void _openCompare(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) =>
-            const PlayerPickerScreen(mode: PlayerPickerMode.compare),
-      ),
+      MaterialPageRoute(builder: (_) => const CompareScreen(embedded: false)),
     );
   }
 
   void _openProfile(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const ProfileScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const ProfileScreen()));
   }
 
   void _showNotifications(BuildContext context, int shortlistCount) {
@@ -161,7 +157,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       context: context,
       backgroundColor: AppColors.surfaceLow,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.card)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppRadius.card),
+        ),
       ),
       builder: (ctx) {
         return Padding(
@@ -184,7 +182,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _buildNotificationItem(
                 icon: Icons.hub_outlined,
                 title: 'ML Matching Engine Ready',
-                subtitle: 'Algoritma KNN & kalkulasi SHAP aktif untuk analisis kemiripan.',
+                subtitle:
+                    'Algoritma KNN & kalkulasi SHAP aktif untuk analisis kemiripan.',
               ),
               const SizedBox(height: AppSpacing.sm),
               _buildNotificationItem(
@@ -198,7 +197,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _buildNotificationItem(
                 icon: Icons.trending_up,
                 title: 'Market Trends Updated',
-                subtitle: 'Kenaikan nilai pasar pemain U21 telah diperbarui dari bursa terkini.',
+                subtitle:
+                    'Kenaikan nilai pasar pemain U21 telah diperbarui dari bursa terkini.',
               ),
             ],
           ),
@@ -511,72 +511,171 @@ class _ShortlistSummary extends StatelessWidget {
         children: [
           SectionHeader(
             title: 'Your Shortlist',
-            actionLabel: 'See all (${shortlist.length})',
-            onAction: () {},
+            actionLabel: shortlist.isNotEmpty
+                ? 'See all (${shortlist.length})'
+                : null,
+            onAction: shortlist.isNotEmpty
+                ? () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ShortlistScreen(),
+                      ),
+                    );
+                  }
+                : null,
           ),
           const SizedBox(height: AppSpacing.sm),
-          ScoutCard(
-            child: Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 44,
-                    child: shortlist.isEmpty
-                        ? Text(
-                            'Belum ada pemain dipantau. Tambahkan dari daftar hasil.',
-                            style: AppTypography.bodySm(),
-                          )
-                        : Stack(
-                            children: [
-                              for (
-                                var i = 0;
-                                i < shortlist.length.clamp(0, 4);
-                                i++
-                              )
-                                Positioned(
-                                  left: i * 30.0,
-                                  child: PlayerAvatar(
-                                    player: shortlist[i],
-                                    size: 44,
-                                  ),
-                                ),
-                              if (shortlist.length > 4)
-                                Positioned(
-                                  left: 4 * 30.0,
-                                  child: Container(
-                                    width: 44,
-                                    height: 44,
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.lime,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Text(
-                                      '+${shortlist.length - 4}',
-                                      style: AppTypography.labelLg(
-                                        color: AppColors.onAccent,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
+          if (shortlist.isEmpty)
+            ScoutCard(
+              child: Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.forest,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.bookmark_border,
+                      color: AppColors.lime,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Shortlist masih kosong',
+                          style: AppTypography.titleMd(),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Tandai pemain dari hasil scouting untuk memantau mereka.',
+                          style: AppTypography.bodySm(
+                            color: AppColors.onForestMuted,
                           ),
+                        ),
+                      ],
+                    ),
                   ),
+                ],
+              ),
+            )
+          else
+            SizedBox(
+              height: 114,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                itemCount: shortlist.length,
+                separatorBuilder: (_, _) =>
+                    const SizedBox(width: AppSpacing.sm),
+                itemBuilder: (context, index) {
+                  final player = shortlist[index];
+                  return _ShortlistPlayerCard(player: player);
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ShortlistPlayerCard extends StatefulWidget {
+  const _ShortlistPlayerCard({required this.player});
+
+  final Player player;
+
+  @override
+  State<_ShortlistPlayerCard> createState() => _ShortlistPlayerCardState();
+}
+
+class _ShortlistPlayerCardState extends State<_ShortlistPlayerCard> {
+  bool _isPressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final player = widget.player;
+
+    return AnimatedScale(
+      scale: _isPressed ? 0.96 : 1.0,
+      duration: const Duration(milliseconds: 15),
+      curve: Curves.easeOutQuad,
+      child: Container(
+        width: 215,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppRadius.cardBorder,
+          border: Border.all(color: AppColors.cardBorder),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: AppRadius.cardBorder,
+          child: InkWell(
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => PlayerDetailScreen(player: player),
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                Flexible(
-                  child: Text(
-                    shortlist.isEmpty
-                        ? 'Shortlist kosong'
-                        : '${shortlist.length} dossiers tersimpan',
-                    textAlign: TextAlign.right,
-                    style: AppTypography.bodySm(),
+              );
+            },
+            onTapDown: (_) => setState(() => _isPressed = true),
+            onTapUp: (_) => setState(() => _isPressed = false),
+            onTapCancel: () => setState(() => _isPressed = false),
+            borderRadius: AppRadius.cardBorder,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      PlayerAvatar(player: player, size: 36),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              player.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTypography.titleMd(),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${player.positionShort} · ${player.club}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTypography.bodySm(
+                                color: AppColors.onForestMuted,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        player.marketValueLabel,
+                        style: AppTypography.titleMd(color: AppColors.lime),
+                      ),
+                      TrendBadge(percent: player.trendPercent),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

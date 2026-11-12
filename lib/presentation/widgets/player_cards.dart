@@ -245,71 +245,143 @@ class TrendBadge extends StatelessWidget {
   }
 }
 
-/// Kartu pemain untuk carousel "Rising Value" di beranda.
-class RisingValueCard extends StatelessWidget {
+/// Kartu pemain untuk carousel "Rising Value" di beranda dengan efek animasi hover & press lift.
+class RisingValueCard extends StatefulWidget {
   const RisingValueCard({super.key, required this.player, this.onTap});
 
   final Player player;
   final VoidCallback? onTap;
 
   @override
+  State<RisingValueCard> createState() => _RisingValueCardState();
+}
+
+class _RisingValueCardState extends State<RisingValueCard> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  bool get _isElevated => _isHovered || _isPressed;
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 210,
-      child: ScoutCard(
-        onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                PlayerAvatar(player: player, size: 48),
-                SoftChip(player.shortBadge),
-              ],
+    final player = widget.player;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.96 : 1.0,
+        duration: const Duration(milliseconds: 15),
+        curve: Curves.easeOutQuad,
+        child: AnimatedSlide(
+          offset: Offset(0, _isHovered && !_isPressed ? -0.03 : 0),
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOutCubic,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 120),
+            curve: Curves.easeOutCubic,
+            decoration: BoxDecoration(
+              borderRadius: AppRadius.cardBorder,
+              boxShadow: _isElevated
+                  ? [
+                      BoxShadow(
+                        color: AppColors.forest.withValues(alpha: 0.16),
+                        blurRadius: 16,
+                        offset: const Offset(0, 8),
+                      ),
+                    ]
+                  : const [],
             ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              player.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.headlineMd().copyWith(fontSize: 19),
-            ),
-            Text(
-              player.club,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.bodySm(color: AppColors.sageSoft),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            const Divider(height: 1),
-            const SizedBox(height: AppSpacing.sm),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const OverlineLabel('Valuation'),
-                    Text(
-                      player.marketValueLabel,
-                      style: AppTypography.statMd().copyWith(fontSize: 20),
-                    ),
-                  ],
+            child: SizedBox(
+              width: 210,
+              child: Material(
+                color: AppColors.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppRadius.cardBorder,
+                  side: BorderSide(
+                    color: _isElevated
+                        ? AppColors.lime.withValues(alpha: 0.5)
+                        : AppColors.cardBorder,
+                    width: _isElevated ? 1.5 : 1,
+                  ),
                 ),
-                TrendBadge(percent: player.trendPercent),
-              ],
+                child: InkWell(
+                  onTap: widget.onTap,
+                  onTapDown: (_) => setState(() => _isPressed = true),
+                  onTapUp: (_) => setState(() => _isPressed = false),
+                  onTapCancel: () => setState(() => _isPressed = false),
+                  borderRadius: AppRadius.cardBorder,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            PlayerAvatar(player: player, size: 48),
+                            SoftChip(player.shortBadge),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          player.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.headlineMd().copyWith(
+                            fontSize: 19,
+                          ),
+                        ),
+                        Text(
+                          player.club,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.bodySm(
+                            color: AppColors.sageSoft,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        const Divider(height: 1),
+                        const SizedBox(height: AppSpacing.sm),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const OverlineLabel('Valuation'),
+                                  Text(
+                                    player.marketValueLabel,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTypography.statMd().copyWith(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            TrendBadge(percent: player.trendPercent),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-/// Baris peringkat untuk "Top Performers".
-class RankingRow extends StatelessWidget {
+/// Baris peringkat untuk "Top Performers" dengan animasi sentuhan & pergeseran interaktif.
+class RankingRow extends StatefulWidget {
   const RankingRow({
     super.key,
     required this.rank,
@@ -326,69 +398,115 @@ class RankingRow extends StatelessWidget {
   final VoidCallback? onTap;
 
   @override
+  State<RankingRow> createState() => _RankingRowState();
+}
+
+class _RankingRowState extends State<RankingRow> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  bool get _isActive => _isHovered || _isPressed;
+
+  @override
   Widget build(BuildContext context) {
-    final top = rank == 1;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: AppRadius.controlBorder,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-        child: Row(
-          children: [
-            SizedBox(
-              width: 24,
-              child: Text(
-                '$rank',
-                textAlign: TextAlign.center,
-                style: AppTypography.statMd(
-                  color: top ? AppColors.ink : AppColors.sageSoft,
-                ).copyWith(fontSize: 20),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            PlayerAvatar(
-              player: player,
-              size: 40,
-              background: top
-                  ? AppColors.primaryFixed
-                  : AppColors.surfaceContainer,
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    final top = widget.rank == 1;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedSlide(
+        offset: Offset(_isActive ? 0.015 : 0, 0),
+        duration: const Duration(milliseconds: 90),
+        curve: Curves.easeOutCubic,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 90),
+          curve: Curves.easeOutCubic,
+          decoration: BoxDecoration(
+            color: _isActive
+                ? (AppColors.isDark
+                      ? AppColors.surfaceHigh.withValues(alpha: 0.6)
+                      : AppColors.surfaceLow)
+                : Colors.transparent,
+            borderRadius: AppRadius.controlBorder,
+          ),
+          child: InkWell(
+            onTap: widget.onTap,
+            onTapDown: (_) => setState(() => _isPressed = true),
+            onTapUp: (_) => setState(() => _isPressed = false),
+            onTapCancel: () => setState(() => _isPressed = false),
+            borderRadius: AppRadius.controlBorder,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+              child: Row(
                 children: [
-                  Text(
-                    player.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.headlineMd().copyWith(fontSize: 18),
+                  AnimatedScale(
+                    scale: _isActive ? 1.15 : 1.0,
+                    duration: const Duration(milliseconds: 15),
+                    curve: Curves.easeOutQuad,
+                    child: SizedBox(
+                      width: 24,
+                      child: Text(
+                        '${widget.rank}',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.statMd(
+                          color: _isActive
+                              ? AppColors.lime
+                              : (top ? AppColors.ink : AppColors.sageSoft),
+                        ).copyWith(fontSize: 20),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 1),
-                  Text(
-                    '${player.club} · ${player.league}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.bodySm(color: AppColors.sageSoft),
+                  const SizedBox(width: AppSpacing.sm),
+                  PlayerAvatar(
+                    player: widget.player,
+                    size: 40,
+                    background: top
+                        ? AppColors.primaryFixed
+                        : AppColors.surfaceContainer,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.player.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.headlineMd().copyWith(
+                            fontSize: 18,
+                          ),
+                        ),
+                        const SizedBox(height: 1),
+                        Text(
+                          '${widget.player.club} · ${widget.player.league}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.bodySm(
+                            color: AppColors.sageSoft,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        widget.value,
+                        style: AppTypography.titleMd().copyWith(fontSize: 15),
+                      ),
+                      Text(
+                        widget.valueLabel,
+                        style: AppTypography.labelMd(color: AppColors.sageSoft),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: AppSpacing.sm),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  value,
-                  style: AppTypography.titleMd().copyWith(fontSize: 15),
-                ),
-                Text(
-                  valueLabel,
-                  style: AppTypography.labelMd(color: AppColors.sageSoft),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );

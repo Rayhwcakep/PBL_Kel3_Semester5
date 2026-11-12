@@ -4,8 +4,8 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
-/// Chip filter pill. Aktif = Dark Forest, non-aktif = putih bergaris Sage.
-class FilterChipPill extends StatelessWidget {
+/// Chip filter pill dengan animasi seleksi & sentuhan snappy (60ms).
+class FilterChipPill extends StatefulWidget {
   const FilterChipPill({
     super.key,
     required this.label,
@@ -22,41 +22,74 @@ class FilterChipPill extends StatelessWidget {
   final IconData? trailingIcon;
 
   @override
+  State<FilterChipPill> createState() => _FilterChipPillState();
+}
+
+class _FilterChipPillState extends State<FilterChipPill> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
     final selectedBg = AppColors.forest;
     final selectedFg = AppColors.isDark ? AppColors.lime : AppColors.onForest;
-    final background = selected ? selectedBg : AppColors.surface;
-    final foreground = selected ? selectedFg : AppColors.sage;
-    final borderColor = selected
+    final background = widget.selected ? selectedBg : AppColors.surface;
+    final foreground = widget.selected ? selectedFg : AppColors.sage;
+    final borderColor = widget.selected
         ? (AppColors.isDark
               ? AppColors.lime.withValues(alpha: 0.45)
               : AppColors.forest)
         : AppColors.cardBorder;
 
-    return Material(
-      color: background,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppRadius.pillBorder,
-        side: BorderSide(color: borderColor),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppRadius.pillBorder,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 16, color: foreground),
-                const SizedBox(width: 6),
-              ],
-              Text(label, style: AppTypography.labelLg(color: foreground)),
-              if (trailingIcon != null) ...[
-                const SizedBox(width: 6),
-                Icon(trailingIcon, size: 16, color: foreground),
-              ],
-            ],
+    return AnimatedScale(
+      scale: _isPressed ? 0.94 : 1.0,
+      duration: const Duration(milliseconds: 15),
+      curve: Curves.easeOutQuad,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOutCubic,
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: AppRadius.pillBorder,
+          border: Border.all(
+            color: borderColor,
+            width: widget.selected ? 1.5 : 1,
+          ),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: AppRadius.pillBorder,
+          child: InkWell(
+            onTap: widget.onTap,
+            onTapDown: widget.onTap == null
+                ? null
+                : (_) => setState(() => _isPressed = true),
+            onTapUp: widget.onTap == null
+                ? null
+                : (_) => setState(() => _isPressed = false),
+            onTapCancel: widget.onTap == null
+                ? null
+                : () => setState(() => _isPressed = false),
+            borderRadius: AppRadius.pillBorder,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.icon != null) ...[
+                    Icon(widget.icon, size: 16, color: foreground),
+                    const SizedBox(width: 6),
+                  ],
+                  Text(
+                    widget.label,
+                    style: AppTypography.labelLg(color: foreground),
+                  ),
+                  if (widget.trailingIcon != null) ...[
+                    const SizedBox(width: 6),
+                    Icon(widget.trailingIcon, size: 16, color: foreground),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
       ),

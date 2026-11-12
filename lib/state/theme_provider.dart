@@ -32,7 +32,10 @@ class ThemeProvider extends ChangeNotifier {
   Future<void> _saveToDisk() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_storageKey, _mode == ThemeMode.light ? 'light' : 'dark');
+      await prefs.setString(
+        _storageKey,
+        _mode == ThemeMode.light ? 'light' : 'dark',
+      );
     } catch (e) {
       debugPrint('Gagal menyimpan preferensi tema: $e');
     }

@@ -19,15 +19,27 @@ import 'player_picker_screen.dart';
 
 /// Halaman Compare — analisis head-to-head dua pemain.
 class CompareScreen extends StatelessWidget {
-  const CompareScreen({super.key});
+  const CompareScreen({super.key, this.embedded = true});
+
+  /// True bila tampil sebagai tab dalam MainShell (tanpa AppBar back).
+  final bool embedded;
 
   @override
   Widget build(BuildContext context) {
     final compare = context.watch<CompareProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: embedded ? Colors.transparent : AppColors.canvas,
+      appBar: embedded
+          ? null
+          : AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
       body: SafeArea(
+        top: embedded,
         bottom: false,
         child: ListView(
           padding: const EdgeInsets.only(bottom: AppSpacing.navClearance),

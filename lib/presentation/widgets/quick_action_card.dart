@@ -4,8 +4,9 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
-/// Kartu aksi cepat pada beranda ("Find by Tactic", "Find Similar", dst).
-class QuickActionCard extends StatelessWidget {
+/// Kartu aksi cepat pada beranda ("Find by Tactic", "Find Similar", dst)
+/// dengan animasi hover/touch lift terangkat secara halus.
+class QuickActionCard extends StatefulWidget {
   const QuickActionCard({
     super.key,
     required this.title,
@@ -24,62 +25,121 @@ class QuickActionCard extends StatelessWidget {
   final bool hero;
 
   @override
+  State<QuickActionCard> createState() => _QuickActionCardState();
+}
+
+class _QuickActionCardState extends State<QuickActionCard> {
+  bool _isHovered = false;
+  bool _isPressed = false;
+
+  bool get _isElevated => _isHovered || _isPressed;
+
+  @override
   Widget build(BuildContext context) {
-    final background = hero
+    final background = widget.hero
         ? AppColors.forest
         : (AppColors.isDark
               ? AppColors.surfaceContainer
               : AppColors.secondaryFixed);
-    final titleColor = hero ? AppColors.onForest : AppColors.ink;
-    final subtitleColor = hero ? AppColors.onForestMuted : AppColors.sage;
-    final iconBg = hero
+    final titleColor = widget.hero ? AppColors.onForest : AppColors.ink;
+    final subtitleColor = widget.hero
+        ? AppColors.onForestMuted
+        : AppColors.sage;
+    final iconBg = widget.hero
         ? AppColors.sage.withValues(alpha: 0.3)
         : (AppColors.isDark
               ? AppColors.lime.withValues(alpha: 0.14)
               : AppColors.lime.withValues(alpha: 0.35));
-    final iconColor = hero
+    final iconColor = widget.hero
         ? AppColors.lime
         : (AppColors.isDark ? AppColors.lime : AppColors.forest);
 
-    return Material(
-      color: background,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppRadius.cardBorder,
-        side: BorderSide(color: hero ? AppColors.forest : AppColors.cardBorder),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppRadius.cardBorder,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: iconBg,
-                      shape: BoxShape.circle,
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedSlide(
+        offset: Offset(0, _isElevated ? -0.04 : 0),
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOutCubic,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOutCubic,
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.cardBorder,
+            boxShadow: _isElevated
+                ? [
+                    BoxShadow(
+                      color: (widget.hero ? AppColors.forest : Colors.black)
+                          .withValues(alpha: 0.2),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
                     ),
-                    child: Icon(icon, size: 21, color: iconColor),
-                  ),
-                  Icon(
-                    Icons.arrow_forward,
-                    size: 18,
-                    color: hero ? AppColors.lime : AppColors.sage,
-                  ),
-                ],
+                  ]
+                : const [],
+          ),
+          child: Material(
+            color: background,
+            shape: RoundedRectangleBorder(
+              borderRadius: AppRadius.cardBorder,
+              side: BorderSide(
+                color: _isElevated && widget.hero
+                    ? AppColors.lime.withValues(alpha: 0.4)
+                    : (widget.hero ? AppColors.forest : AppColors.cardBorder),
+                width: _isElevated ? 1.5 : 1,
               ),
-              const SizedBox(height: AppSpacing.md),
-              Text(title, style: AppTypography.titleMd(color: titleColor)),
-              const SizedBox(height: 2),
-              Text(subtitle, style: AppTypography.bodySm(color: subtitleColor)),
-            ],
+            ),
+            child: InkWell(
+              onTap: widget.onTap,
+              onTapDown: (_) => setState(() => _isPressed = true),
+              onTapUp: (_) => setState(() => _isPressed = false),
+              onTapCancel: () => setState(() => _isPressed = false),
+              borderRadius: AppRadius.cardBorder,
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: iconBg,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(widget.icon, size: 21, color: iconColor),
+                        ),
+                        AnimatedSlide(
+                          offset: Offset(_isElevated ? 0.08 : 0, 0),
+                          duration: const Duration(milliseconds: 120),
+                          curve: Curves.easeOutCubic,
+                          child: Icon(
+                            Icons.arrow_forward,
+                            size: 18,
+                            color: widget.hero
+                                ? AppColors.lime
+                                : AppColors.sage,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      widget.title,
+                      style: AppTypography.titleMd(color: titleColor),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.subtitle,
+                      style: AppTypography.bodySm(color: subtitleColor),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

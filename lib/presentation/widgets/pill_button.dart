@@ -7,8 +7,8 @@ import '../../core/theme/app_typography.dart';
 /// Gaya tombol pill Scoutify.
 enum PillButtonVariant { primary, secondary, lime }
 
-/// Tombol berbentuk pill penuh.
-class PillButton extends StatelessWidget {
+/// Tombol berbentuk pill penuh dengan animasi mikro sentuhan cepat (60ms).
+class PillButton extends StatefulWidget {
   const PillButton({
     super.key,
     required this.label,
@@ -29,8 +29,15 @@ class PillButton extends StatelessWidget {
   final double height;
 
   @override
+  State<PillButton> createState() => _PillButtonState();
+}
+
+class _PillButtonState extends State<PillButton> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    final (background, foreground, border) = switch (variant) {
+    final (background, foreground, border) = switch (widget.variant) {
       PillButtonVariant.primary => (
         AppColors.lime,
         AppColors.onAccent,
@@ -49,42 +56,56 @@ class PillButton extends StatelessWidget {
     };
 
     final child = Row(
-      mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
+      mainAxisSize: widget.expand ? MainAxisSize.max : MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (icon != null) ...[
-          Icon(icon, size: 20, color: foreground),
+        if (widget.icon != null) ...[
+          Icon(widget.icon, size: 20, color: foreground),
           const SizedBox(width: AppSpacing.sm),
         ],
         Flexible(
           child: Text(
-            label,
+            widget.label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.titleMd(color: foreground),
           ),
         ),
-        if (trailingIcon != null) ...[
+        if (widget.trailingIcon != null) ...[
           const SizedBox(width: AppSpacing.sm),
-          Icon(trailingIcon, size: 18, color: foreground),
+          Icon(widget.trailingIcon, size: 18, color: foreground),
         ],
       ],
     );
 
-    return SizedBox(
-      height: height,
-      child: Material(
-        color: background,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadius.pillBorder,
-          side: BorderSide(color: border, width: 1.5),
-        ),
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: AppRadius.pillBorder,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            child: child,
+    return AnimatedScale(
+      scale: _isPressed ? 0.96 : 1.0,
+      duration: const Duration(milliseconds: 15),
+      curve: Curves.easeOutQuad,
+      child: SizedBox(
+        height: widget.height,
+        child: Material(
+          color: background,
+          shape: RoundedRectangleBorder(
+            borderRadius: AppRadius.pillBorder,
+            side: BorderSide(color: border, width: 1.5),
+          ),
+          child: InkWell(
+            onTap: widget.onPressed,
+            onTapDown: widget.onPressed == null
+                ? null
+                : (_) => setState(() => _isPressed = true),
+            onTapUp: widget.onPressed == null
+                ? null
+                : (_) => setState(() => _isPressed = false),
+            onTapCancel: widget.onPressed == null
+                ? null
+                : () => setState(() => _isPressed = false),
+            borderRadius: AppRadius.pillBorder,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: child,
+            ),
           ),
         ),
       ),
@@ -92,8 +113,8 @@ class PillButton extends StatelessWidget {
   }
 }
 
-/// Tombol ikon bulat 44x44.
-class CircleIconButton extends StatelessWidget {
+/// Tombol ikon bulat 44x44 dengan animasi mikro sentuhan cepat (60ms).
+class CircleIconButton extends StatefulWidget {
   const CircleIconButton({
     super.key,
     required this.icon,
@@ -112,24 +133,47 @@ class CircleIconButton extends StatelessWidget {
   final bool showBorder;
 
   @override
+  State<CircleIconButton> createState() => _CircleIconButtonState();
+}
+
+class _CircleIconButtonState extends State<CircleIconButton> {
+  bool _isPressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Material(
-        color: background ?? AppColors.surface,
-        shape: CircleBorder(
-          side: BorderSide(
-            color: showBorder ? AppColors.cardBorder : Colors.transparent,
+    return AnimatedScale(
+      scale: _isPressed ? 0.92 : 1.0,
+      duration: const Duration(milliseconds: 15),
+      curve: Curves.easeOutQuad,
+      child: SizedBox(
+        width: widget.size,
+        height: widget.size,
+        child: Material(
+          color: widget.background ?? AppColors.surface,
+          shape: CircleBorder(
+            side: BorderSide(
+              color: widget.showBorder
+                  ? AppColors.cardBorder
+                  : Colors.transparent,
+            ),
           ),
-        ),
-        child: InkWell(
-          onTap: onPressed,
-          customBorder: const CircleBorder(),
-          child: Icon(
-            icon,
-            size: size * 0.45,
-            color: foreground ?? AppColors.ink,
+          child: InkWell(
+            onTap: widget.onPressed,
+            onTapDown: widget.onPressed == null
+                ? null
+                : (_) => setState(() => _isPressed = true),
+            onTapUp: widget.onPressed == null
+                ? null
+                : (_) => setState(() => _isPressed = false),
+            onTapCancel: widget.onPressed == null
+                ? null
+                : () => setState(() => _isPressed = false),
+            customBorder: const CircleBorder(),
+            child: Icon(
+              widget.icon,
+              size: widget.size * 0.45,
+              color: widget.foreground ?? AppColors.ink,
+            ),
           ),
         ),
       ),
