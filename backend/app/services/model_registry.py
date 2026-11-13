@@ -66,7 +66,11 @@ class ArchetypeModel:
         return len(self.uids)
 
     def similarity(self, distance: float) -> float:
-        """Jarak -> skor 0-100; 50 berarti sejauh pasangan pemain pada umumnya."""
+        """Jarak -> skor 0-100.
+
+        `100 * exp(-jarak / jarak_tipikal)`: mendekati 100 untuk pemain yang
+        sangat mirip, dan sekitar 37 pada jarak tipikal antar pemain searketipe.
+        """
         return float(100.0 * np.exp(-distance / max(self.d_ref, 1e-9)))
 
 

@@ -137,6 +137,12 @@ def _write_portable_knn(source: Path, target: Path) -> None:
             weights = np.asarray(steps[-1][1].weights_, dtype=float)
             steps = steps[:-1]
 
+        # Buang nama kolom yang tersimpan saat fit: kalau tidak, transform dengan
+        # numpy array memunculkan peringatan scikit-learn di runtime.
+        for _, step in steps:
+            if hasattr(step, "feature_names_in_"):
+                del step.feature_names_in_
+
         portable[archetype] = {
             "prep": Pipeline(steps),
             "nn": model["nn"],

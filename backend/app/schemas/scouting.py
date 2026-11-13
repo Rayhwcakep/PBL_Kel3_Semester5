@@ -61,7 +61,13 @@ class ScoutingResultOut(BaseModel):
     """Satu kandidat hasil pencarian."""
 
     rank: int
-    similarity: float = Field(..., description="Skor kemiripan 0-100 (50 = jarak tipikal).")
+    similarity: float = Field(
+        ...,
+        description=(
+            "Skor kemiripan 0-100 = 100 × exp(−jarak / jarak_tipikal arketipe). "
+            "Mendekati 100 untuk pemain sangat mirip, sekitar 37 pada jarak tipikal."
+        ),
+    )
     distance: float = Field(..., description="Jarak KNN (semakin kecil semakin mirip).")
     player: PlayerOut
     why: str | None = Field(

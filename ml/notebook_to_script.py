@@ -38,7 +38,11 @@ Hasil ditulis ke `ml/export/`.
 """
 
 import os
+import sys
 from pathlib import Path
+
+# Windows memakai cp1252 secara default; notebook memakai karakter Σ, ±, →.
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 # Selalu bekerja dari root repo agar path dataset ditemukan.
 os.chdir(Path(__file__).resolve().parents[1])
