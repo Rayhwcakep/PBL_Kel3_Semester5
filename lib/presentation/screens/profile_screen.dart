@@ -331,13 +331,16 @@ class _SwitchRowState extends State<_SwitchRow> {
 
   @override
   Widget build(BuildContext context) {
-    return SwitchListTile.adaptive(
-      contentPadding: EdgeInsets.zero,
-      title: Text(widget.label, style: AppTypography.bodyMd()),
-      value: _value,
-      activeThumbColor: AppColors.lime,
-      activeTrackColor: AppColors.surfaceHighest,
-      onChanged: (value) => setState(() => _value = value),
+    return Material(
+      type: MaterialType.transparency,
+      child: SwitchListTile.adaptive(
+        contentPadding: EdgeInsets.zero,
+        title: Text(widget.label, style: AppTypography.bodyMd()),
+        value: _value,
+        activeThumbColor: AppColors.lime,
+        activeTrackColor: AppColors.surfaceHighest,
+        onChanged: (value) => setState(() => _value = value),
+      ),
     );
   }
 }
