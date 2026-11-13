@@ -46,3 +46,15 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Dataset mentah (Transfermarkt + FBref) terlalu besar untuk git.
+DATASET/
+
+# Python / backend ML
+backend/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Hasil antara pipeline ML; artefak final disimpan di backend/app.
+ml/export/
