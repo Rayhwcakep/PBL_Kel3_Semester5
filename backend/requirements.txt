@@ -1,9 +1,19 @@
-fastapi>=0.115.0
-uvicorn[standard]>=0.30.0
-pydantic>=2.7.0
-pydantic-settings>=2.3.0
-numpy>=1.26.0
-scikit-learn>=1.5.0
-joblib>=1.4.0
-pandas>=2.2.0
-shap>=0.46.0
+# Runtime backend Scoutify (Python 3.11).
+# Dipasang dengan: backend/.venv/Scripts/python.exe -m pip install -r backend/requirements.txt
+
+# --- API ---
+fastapi==0.162.5
+uvicorn[standard]==0.54.0
+pydantic==2.14.3
+pydantic-settings==2.16.3
+
+# --- ML ---
+numpy==2.4.6
+pandas==3.1.1
+scikit-learn==1.9.1
+shap==0.51.0
+joblib==1.6.0
+
+# --- Uji ---
+pytest==9.2.0
+httpx==0.28.1
