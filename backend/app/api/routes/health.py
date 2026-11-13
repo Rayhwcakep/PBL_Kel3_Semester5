@@ -13,10 +13,12 @@ def health() -> dict:
     registry = get_registry()
     settings = get_settings()
     return {
-        "status": "ok",
+        "status": "ok" if registry.ready else "degraded",
         "app": settings.app_name,
         "version": settings.app_version,
         "players_loaded": len(registry.players),
-        "model_ready": registry.ml_ready,
+        "archetypes_loaded": len(registry.archetypes),
+        "model_ready": registry.knn_ready,
         "shap_ready": registry.shap_ready,
+        "errors": registry.load_errors,
     }
