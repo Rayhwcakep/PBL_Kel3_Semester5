@@ -1,0 +1,283 @@
+{
+ "labels": {
+  "GK": "Kiper",
+  "CB": "Bek tengah",
+  "FB": "Bek sayap",
+  "DM": "Gelandang bertahan",
+  "CM": "Gelandang tengah",
+  "AM": "Gelandang serang",
+  "W": "Pemain sayap",
+  "ST": "Striker"
+ },
+ "presets": {
+  "GK": {
+   "shot_stopper": {
+    "label": "Shot stopper",
+    "desc": "Banyak penyelamatan, persentase save tinggi.",
+    "targets": {
+     "save_pct": 90,
+     "saves_p90": 80,
+     "ga_p90": 25,
+     "cs_pct": 50,
+     "sota_p90": 50
+    }
+   },
+   "clean_sheet": {
+    "label": "Penjaga clean sheet",
+    "desc": "Jarang kebobolan, clean sheet tinggi.",
+    "targets": {
+     "cs_pct": 90,
+     "ga_p90": 10,
+     "save_pct": 70,
+     "saves_p90": 50,
+     "sota_p90": 30
+    }
+   }
+  },
+  "CB": {
+   "stopper": {
+    "label": "Bek perebut bola",
+    "desc": "Tekel & intersep tinggi, tidak ikut menyerang.",
+    "targets": {
+     "tklw_p90": 90,
+     "int_p90": 85,
+     "fls_p90": 70,
+     "crs_p90": 10,
+     "ast_p90": 10,
+     "npg_p90": 10,
+     "sh_p90": 10
+    }
+   },
+   "cover": {
+    "label": "Bek penutup ruang",
+    "desc": "Intersep tinggi, sangat disiplin (sedikit pelanggaran).",
+    "targets": {
+     "int_p90": 90,
+     "tklw_p90": 65,
+     "fls_p90": 15,
+     "crs_p90": 20,
+     "ast_p90": 15
+    }
+   }
+  },
+  "FB": {
+   "attacking_fullback": {
+    "label": "Bek sayap menyerang",
+    "desc": "Umpan silang & assist tinggi, aktif naik.",
+    "targets": {
+     "crs_p90": 90,
+     "ast_p90": 80,
+     "fld_p90": 75,
+     "sh_p90": 60,
+     "tklw_p90": 55
+    }
+   },
+   "defensive_fullback": {
+    "label": "Bek sayap bertahan",
+    "desc": "Tekel & intersep tinggi, jarang naik.",
+    "targets": {
+     "tklw_p90": 85,
+     "int_p90": 80,
+     "fls_p90": 65,
+     "crs_p90": 35,
+     "ast_p90": 25
+    }
+   }
+  },
+  "DM": {
+   "destroyer": {
+    "label": "Perusak serangan",
+    "desc": "Tekel & intersep tinggi, banyak pelanggaran taktis.",
+    "targets": {
+     "tklw_p90": 90,
+     "int_p90": 90,
+     "fls_p90": 75,
+     "ast_p90": 25,
+     "npg_p90": 15
+    }
+   },
+   "deep_playmaker": {
+    "label": "Playmaker dalam",
+    "desc": "Distribusi & assist dari belakang, tekel cukup.",
+    "targets": {
+     "ast_p90": 85,
+     "crs_p90": 65,
+     "fld_p90": 60,
+     "tklw_p90": 55,
+     "int_p90": 60
+    }
+   }
+  },
+  "CM": {
+   "box_to_box": {
+    "label": "Box-to-box",
+    "desc": "Seimbang: bertahan sekaligus menyumbang gol & assist.",
+    "targets": {
+     "tklw_p90": 70,
+     "int_p90": 65,
+     "npg_p90": 60,
+     "sh_p90": 60,
+     "ast_p90": 55
+    }
+   },
+   "ball_winner": {
+    "label": "Perebut bola",
+    "desc": "Tekel & intersep tinggi, jarang mencetak gol.",
+    "targets": {
+     "tklw_p90": 90,
+     "int_p90": 90,
+     "fls_p90": 70,
+     "npg_p90": 20,
+     "sh_p90": 20,
+     "ast_p90": 30
+    }
+   },
+   "playmaker": {
+    "label": "Kreator serangan",
+    "desc": "Assist tinggi, sering dilanggar, tekel rendah.",
+    "targets": {
+     "ast_p90": 90,
+     "crs_p90": 70,
+     "fld_p90": 65,
+     "sh_p90": 55,
+     "tklw_p90": 40
+    }
+   }
+  },
+  "AM": {
+   "creator": {
+    "label": "Kreator",
+    "desc": "Assist & umpan silang tinggi, jadi target pelanggaran.",
+    "targets": {
+     "ast_p90": 90,
+     "crs_p90": 75,
+     "fld_p90": 75,
+     "sh_p90": 60,
+     "tklw_p90": 30
+    }
+   },
+   "shadow_striker": {
+    "label": "Striker bayangan",
+    "desc": "Banyak tembakan & gol dari lini kedua.",
+    "targets": {
+     "npg_p90": 85,
+     "sh_p90": 90,
+     "sot_p90": 85,
+     "ast_p90": 55,
+     "tklw_p90": 25
+    }
+   }
+  },
+  "W": {
+   "wide_creator": {
+    "label": "Winger kreator",
+    "desc": "Umpan silang & assist tinggi, sering dilanggar.",
+    "targets": {
+     "crs_p90": 90,
+     "ast_p90": 80,
+     "fld_p90": 85,
+     "sh_p90": 65,
+     "npg_p90": 55
+    }
+   },
+   "inside_forward": {
+    "label": "Winger menusuk",
+    "desc": "Masuk ke dalam untuk menembak & mencetak gol.",
+    "targets": {
+     "npg_p90": 85,
+     "sh_p90": 90,
+     "sot_p90": 85,
+     "ast_p90": 55,
+     "crs_p90": 45
+    }
+   }
+  },
+  "ST": {
+   "poacher": {
+    "label": "Poacher",
+    "desc": "Finisher di kotak penalti: gol & tembakan tinggi.",
+    "targets": {
+     "npg_p90": 90,
+     "sh_p90": 80,
+     "sot_p90": 85,
+     "ast_p90": 30,
+     "crs_p90": 20,
+     "tklw_p90": 20,
+     "int_p90": 20
+    }
+   },
+   "target_forward": {
+    "label": "Target man",
+    "desc": "Menahan bola, sering dilanggar, jadi tumpuan serangan.",
+    "targets": {
+     "fld_p90": 85,
+     "npg_p90": 70,
+     "ast_p90": 60,
+     "sh_p90": 65,
+     "tklw_p90": 35
+    }
+   },
+   "false_nine": {
+    "label": "False nine",
+    "desc": "Turun menjemput bola, lebih banyak membuat peluang.",
+    "targets": {
+     "ast_p90": 90,
+     "crs_p90": 65,
+     "fld_p90": 65,
+     "npg_p90": 50,
+     "sh_p90": 55
+    }
+   }
+  }
+ },
+ "value_models": {
+  "AM": {
+   "r2_test": 0.639,
+   "reliability": "baik",
+   "n": 108,
+   "base_value_eur": 13095443
+  },
+  "CB": {
+   "r2_test": 0.773,
+   "reliability": "baik",
+   "n": 370,
+   "base_value_eur": 7649772
+  },
+  "CM": {
+   "r2_test": 0.549,
+   "reliability": "baik",
+   "n": 268,
+   "base_value_eur": 8742481
+  },
+  "DM": {
+   "r2_test": 0.774,
+   "reliability": "baik",
+   "n": 150,
+   "base_value_eur": 8112260
+  },
+  "FB": {
+   "r2_test": 0.733,
+   "reliability": "baik",
+   "n": 298,
+   "base_value_eur": 6010422
+  },
+  "GK": {
+   "r2_test": 0.504,
+   "reliability": "baik",
+   "n": 131,
+   "base_value_eur": 5041043
+  },
+  "ST": {
+   "r2_test": 0.561,
+   "reliability": "baik",
+   "n": 242,
+   "base_value_eur": 9191828
+  },
+  "W": {
+   "r2_test": 0.575,
+   "reliability": "baik",
+   "n": 283,
+   "base_value_eur": 10601515
+  }
+ }
+}

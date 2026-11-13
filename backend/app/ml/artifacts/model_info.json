@@ -1,0 +1,596 @@
+{
+ "min_minutes": 450,
+ "min_arch_n": 25,
+ "min_effect": 0.03,
+ "min_pct_gap": 10,
+ "labels": {
+  "npg_p90": "Gol non-penalti",
+  "ast_p90": "Assist",
+  "sh_p90": "Tembakan",
+  "sot_p90": "Tembakan on target",
+  "crs_p90": "Umpan silang",
+  "int_p90": "Intersep",
+  "tklw_p90": "Tekel berhasil",
+  "fls_p90": "Pelanggaran dibuat",
+  "fld_p90": "Pelanggaran diterima",
+  "off_p90": "Offside",
+  "save_pct": "Save %",
+  "ga_p90": "Kebobolan",
+  "cs_pct": "Clean sheet %",
+  "saves_p90": "Penyelamatan",
+  "sota_p90": "Tembakan dihadapi"
+ },
+ "ctx_labels": {
+  "Age": "Usia",
+  "Min": "Menit main",
+  "start_rate": "Rasio jadi starter",
+  "plus_p90": "Plus/minus per 90",
+  "crd_p90": "Kartu kuning per 90",
+  "ctx_liga": "Liga"
+ },
+ "good_dir": {
+  "npg_p90": 1,
+  "ast_p90": 1,
+  "sh_p90": 1,
+  "sot_p90": 1,
+  "crs_p90": 1,
+  "int_p90": 1,
+  "tklw_p90": 1,
+  "fld_p90": 1,
+  "fls_p90": -1,
+  "off_p90": -1,
+  "save_pct": 1,
+  "ga_p90": -1,
+  "cs_pct": 1,
+  "saves_p90": 0,
+  "sota_p90": 0
+ },
+ "arch_label": {
+  "GK": "Kiper",
+  "CB": "Bek tengah",
+  "FB": "Bek sayap",
+  "DM": "Gelandang bertahan",
+  "CM": "Gelandang tengah",
+  "AM": "Gelandang serang",
+  "W": "Pemain sayap",
+  "ST": "Striker"
+ },
+ "arch_features": {
+  "GK": [
+   "save_pct",
+   "ga_p90",
+   "cs_pct",
+   "saves_p90",
+   "sota_p90"
+  ],
+  "CB": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ],
+  "FB": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ],
+  "DM": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ],
+  "CM": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ],
+  "AM": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ],
+  "W": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ],
+  "ST": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ]
+ },
+ "feature_weights": {
+  "GK": {
+   "save_pct": 1.5,
+   "ga_p90": 1.3,
+   "cs_pct": 1.2,
+   "saves_p90": 1.0,
+   "sota_p90": 0.8
+  },
+  "CB": {
+   "tklw_p90": 1.5,
+   "int_p90": 1.5,
+   "fls_p90": 1.2,
+   "crs_p90": 0.6,
+   "ast_p90": 0.5,
+   "npg_p90": 0.5,
+   "sh_p90": 0.6,
+   "sot_p90": 0.6,
+   "fld_p90": 0.8,
+   "off_p90": 0.8
+  },
+  "FB": {
+   "crs_p90": 1.4,
+   "ast_p90": 1.3,
+   "tklw_p90": 1.2,
+   "int_p90": 1.1,
+   "npg_p90": 0.7
+  },
+  "DM": {
+   "tklw_p90": 1.4,
+   "int_p90": 1.4,
+   "fls_p90": 1.1,
+   "npg_p90": 0.6,
+   "sh_p90": 0.7,
+   "sot_p90": 0.7
+  },
+  "CM": {
+   "ast_p90": 1.2,
+   "tklw_p90": 1.1,
+   "int_p90": 1.1,
+   "crs_p90": 1.0
+  },
+  "AM": {
+   "ast_p90": 1.4,
+   "sh_p90": 1.2,
+   "sot_p90": 1.2,
+   "fld_p90": 1.1,
+   "tklw_p90": 0.7,
+   "int_p90": 0.7
+  },
+  "W": {
+   "crs_p90": 1.3,
+   "ast_p90": 1.2,
+   "sh_p90": 1.2,
+   "npg_p90": 1.1,
+   "tklw_p90": 0.8
+  },
+  "ST": {
+   "npg_p90": 1.5,
+   "sh_p90": 1.3,
+   "sot_p90": 1.3,
+   "ast_p90": 0.8,
+   "tklw_p90": 0.6,
+   "int_p90": 0.6,
+   "crs_p90": 0.7
+  }
+ },
+ "tactics": {
+  "GK": {
+   "shot_stopper": {
+    "label": "Shot stopper",
+    "desc": "Banyak penyelamatan, persentase save tinggi.",
+    "targets": {
+     "save_pct": 90,
+     "saves_p90": 80,
+     "ga_p90": 25,
+     "cs_pct": 50,
+     "sota_p90": 50
+    }
+   },
+   "clean_sheet": {
+    "label": "Penjaga clean sheet",
+    "desc": "Jarang kebobolan, clean sheet tinggi.",
+    "targets": {
+     "cs_pct": 90,
+     "ga_p90": 10,
+     "save_pct": 70,
+     "saves_p90": 50,
+     "sota_p90": 30
+    }
+   }
+  },
+  "CB": {
+   "stopper": {
+    "label": "Bek perebut bola",
+    "desc": "Tekel & intersep tinggi, tidak ikut menyerang.",
+    "targets": {
+     "tklw_p90": 90,
+     "int_p90": 85,
+     "fls_p90": 70,
+     "crs_p90": 10,
+     "ast_p90": 10,
+     "npg_p90": 10,
+     "sh_p90": 10
+    }
+   },
+   "cover": {
+    "label": "Bek penutup ruang",
+    "desc": "Intersep tinggi, sangat disiplin (sedikit pelanggaran).",
+    "targets": {
+     "int_p90": 90,
+     "tklw_p90": 65,
+     "fls_p90": 15,
+     "crs_p90": 20,
+     "ast_p90": 15
+    }
+   }
+  },
+  "FB": {
+   "attacking_fullback": {
+    "label": "Bek sayap menyerang",
+    "desc": "Umpan silang & assist tinggi, aktif naik.",
+    "targets": {
+     "crs_p90": 90,
+     "ast_p90": 80,
+     "fld_p90": 75,
+     "sh_p90": 60,
+     "tklw_p90": 55
+    }
+   },
+   "defensive_fullback": {
+    "label": "Bek sayap bertahan",
+    "desc": "Tekel & intersep tinggi, jarang naik.",
+    "targets": {
+     "tklw_p90": 85,
+     "int_p90": 80,
+     "fls_p90": 65,
+     "crs_p90": 35,
+     "ast_p90": 25
+    }
+   }
+  },
+  "DM": {
+   "destroyer": {
+    "label": "Perusak serangan",
+    "desc": "Tekel & intersep tinggi, banyak pelanggaran taktis.",
+    "targets": {
+     "tklw_p90": 90,
+     "int_p90": 90,
+     "fls_p90": 75,
+     "ast_p90": 25,
+     "npg_p90": 15
+    }
+   },
+   "deep_playmaker": {
+    "label": "Playmaker dalam",
+    "desc": "Distribusi & assist dari belakang, tekel cukup.",
+    "targets": {
+     "ast_p90": 85,
+     "crs_p90": 65,
+     "fld_p90": 60,
+     "tklw_p90": 55,
+     "int_p90": 60
+    }
+   }
+  },
+  "CM": {
+   "box_to_box": {
+    "label": "Box-to-box",
+    "desc": "Seimbang: bertahan sekaligus menyumbang gol & assist.",
+    "targets": {
+     "tklw_p90": 70,
+     "int_p90": 65,
+     "npg_p90": 60,
+     "sh_p90": 60,
+     "ast_p90": 55
+    }
+   },
+   "ball_winner": {
+    "label": "Perebut bola",
+    "desc": "Tekel & intersep tinggi, jarang mencetak gol.",
+    "targets": {
+     "tklw_p90": 90,
+     "int_p90": 90,
+     "fls_p90": 70,
+     "npg_p90": 20,
+     "sh_p90": 20,
+     "ast_p90": 30
+    }
+   },
+   "playmaker": {
+    "label": "Kreator serangan",
+    "desc": "Assist tinggi, sering dilanggar, tekel rendah.",
+    "targets": {
+     "ast_p90": 90,
+     "crs_p90": 70,
+     "fld_p90": 65,
+     "sh_p90": 55,
+     "tklw_p90": 40
+    }
+   }
+  },
+  "AM": {
+   "creator": {
+    "label": "Kreator",
+    "desc": "Assist & umpan silang tinggi, jadi target pelanggaran.",
+    "targets": {
+     "ast_p90": 90,
+     "crs_p90": 75,
+     "fld_p90": 75,
+     "sh_p90": 60,
+     "tklw_p90": 30
+    }
+   },
+   "shadow_striker": {
+    "label": "Striker bayangan",
+    "desc": "Banyak tembakan & gol dari lini kedua.",
+    "targets": {
+     "npg_p90": 85,
+     "sh_p90": 90,
+     "sot_p90": 85,
+     "ast_p90": 55,
+     "tklw_p90": 25
+    }
+   }
+  },
+  "W": {
+   "wide_creator": {
+    "label": "Winger kreator",
+    "desc": "Umpan silang & assist tinggi, sering dilanggar.",
+    "targets": {
+     "crs_p90": 90,
+     "ast_p90": 80,
+     "fld_p90": 85,
+     "sh_p90": 65,
+     "npg_p90": 55
+    }
+   },
+   "inside_forward": {
+    "label": "Winger menusuk",
+    "desc": "Masuk ke dalam untuk menembak & mencetak gol.",
+    "targets": {
+     "npg_p90": 85,
+     "sh_p90": 90,
+     "sot_p90": 85,
+     "ast_p90": 55,
+     "crs_p90": 45
+    }
+   }
+  },
+  "ST": {
+   "poacher": {
+    "label": "Poacher",
+    "desc": "Finisher di kotak penalti: gol & tembakan tinggi.",
+    "targets": {
+     "npg_p90": 90,
+     "sh_p90": 80,
+     "sot_p90": 85,
+     "ast_p90": 30,
+     "crs_p90": 20,
+     "tklw_p90": 20,
+     "int_p90": 20
+    }
+   },
+   "target_forward": {
+    "label": "Target man",
+    "desc": "Menahan bola, sering dilanggar, jadi tumpuan serangan.",
+    "targets": {
+     "fld_p90": 85,
+     "npg_p90": 70,
+     "ast_p90": 60,
+     "sh_p90": 65,
+     "tklw_p90": 35
+    }
+   },
+   "false_nine": {
+    "label": "False nine",
+    "desc": "Turun menjemput bola, lebih banyak membuat peluang.",
+    "targets": {
+     "ast_p90": 90,
+     "crs_p90": 65,
+     "fld_p90": 65,
+     "npg_p90": 50,
+     "sh_p90": 55
+    }
+   }
+  }
+ },
+ "weakness_ok": {
+  "GK": [
+   "save_pct",
+   "ga_p90",
+   "cs_pct"
+  ],
+  "CB": [
+   "tklw_p90",
+   "int_p90",
+   "fls_p90"
+  ],
+  "FB": [
+   "tklw_p90",
+   "int_p90",
+   "crs_p90",
+   "ast_p90"
+  ],
+  "DM": [
+   "tklw_p90",
+   "int_p90",
+   "fls_p90"
+  ],
+  "CM": [
+   "ast_p90",
+   "tklw_p90",
+   "int_p90",
+   "fld_p90"
+  ],
+  "AM": [
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "fld_p90"
+  ],
+  "W": [
+   "crs_p90",
+   "ast_p90",
+   "npg_p90",
+   "sh_p90"
+  ],
+  "ST": [
+   "npg_p90",
+   "sh_p90",
+   "sot_p90",
+   "ast_p90"
+  ]
+ },
+ "value_models": {
+  "AM": {
+   "r2_test": 0.639,
+   "reliability": "baik",
+   "n": 108,
+   "base_value_eur": 13095443
+  },
+  "CB": {
+   "r2_test": 0.773,
+   "reliability": "baik",
+   "n": 370,
+   "base_value_eur": 7649772
+  },
+  "CM": {
+   "r2_test": 0.549,
+   "reliability": "baik",
+   "n": 268,
+   "base_value_eur": 8742481
+  },
+  "DM": {
+   "r2_test": 0.774,
+   "reliability": "baik",
+   "n": 150,
+   "base_value_eur": 8112260
+  },
+  "FB": {
+   "r2_test": 0.733,
+   "reliability": "baik",
+   "n": 298,
+   "base_value_eur": 6010422
+  },
+  "GK": {
+   "r2_test": 0.504,
+   "reliability": "baik",
+   "n": 131,
+   "base_value_eur": 5041043
+  },
+  "ST": {
+   "r2_test": 0.561,
+   "reliability": "baik",
+   "n": 242,
+   "base_value_eur": 9191828
+  },
+  "W": {
+   "r2_test": 0.575,
+   "reliability": "baik",
+   "n": 283,
+   "base_value_eur": 10601515
+  }
+ },
+ "hexagon_axes": {
+  "outfield": [
+   {
+    "label": "Gol non-penalti",
+    "feature": "npg_p90",
+    "invert": false
+   },
+   {
+    "label": "Assist",
+    "feature": "ast_p90",
+    "invert": false
+   },
+   {
+    "label": "Tembakan",
+    "feature": "sh_p90",
+    "invert": false
+   },
+   {
+    "label": "Umpan silang",
+    "feature": "crs_p90",
+    "invert": false
+   },
+   {
+    "label": "Tekel berhasil",
+    "feature": "tklw_p90",
+    "invert": false
+   },
+   {
+    "label": "Intersep",
+    "feature": "int_p90",
+    "invert": false
+   }
+  ],
+  "GK": [
+   {
+    "label": "Save %",
+    "feature": "save_pct",
+    "invert": false
+   },
+   {
+    "label": "Kebobolan",
+    "feature": "ga_p90",
+    "invert": true
+   },
+   {
+    "label": "Clean sheet %",
+    "feature": "cs_pct",
+    "invert": false
+   },
+   {
+    "label": "Penyelamatan",
+    "feature": "saves_p90",
+    "invert": false
+   },
+   {
+    "label": "Tembakan dihadapi",
+    "feature": "sota_p90",
+    "invert": false
+   }
+  ]
+ }
+}

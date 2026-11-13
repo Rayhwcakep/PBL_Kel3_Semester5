@@ -1,0 +1,305 @@
+{
+ "archetypes": {
+  "GK": [
+   "save_pct",
+   "ga_p90",
+   "cs_pct",
+   "saves_p90",
+   "sota_p90"
+  ],
+  "CB": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ],
+  "FB": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ],
+  "DM": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ],
+  "CM": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ],
+  "AM": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ],
+  "W": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ],
+  "ST": [
+   "npg_p90",
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "crs_p90",
+   "int_p90",
+   "tklw_p90",
+   "fls_p90",
+   "fld_p90",
+   "off_p90"
+  ]
+ },
+ "labels": {
+  "npg_p90": "Gol non-penalti",
+  "ast_p90": "Assist",
+  "sh_p90": "Tembakan",
+  "sot_p90": "Tembakan on target",
+  "crs_p90": "Umpan silang",
+  "int_p90": "Intersep",
+  "tklw_p90": "Tekel berhasil",
+  "fls_p90": "Pelanggaran dibuat",
+  "fld_p90": "Pelanggaran diterima",
+  "off_p90": "Offside",
+  "save_pct": "Save %",
+  "ga_p90": "Kebobolan",
+  "cs_pct": "Clean sheet %",
+  "saves_p90": "Penyelamatan",
+  "sota_p90": "Tembakan dihadapi"
+ },
+ "good_dir": {
+  "npg_p90": 1,
+  "ast_p90": 1,
+  "sh_p90": 1,
+  "sot_p90": 1,
+  "crs_p90": 1,
+  "int_p90": 1,
+  "tklw_p90": 1,
+  "fld_p90": 1,
+  "fls_p90": -1,
+  "off_p90": -1,
+  "save_pct": 1,
+  "ga_p90": -1,
+  "cs_pct": 1,
+  "saves_p90": 0,
+  "sota_p90": 0
+ },
+ "weakness_ok": {
+  "GK": [
+   "save_pct",
+   "ga_p90",
+   "cs_pct"
+  ],
+  "CB": [
+   "tklw_p90",
+   "int_p90",
+   "fls_p90"
+  ],
+  "FB": [
+   "tklw_p90",
+   "int_p90",
+   "crs_p90",
+   "ast_p90"
+  ],
+  "DM": [
+   "tklw_p90",
+   "int_p90",
+   "fls_p90"
+  ],
+  "CM": [
+   "ast_p90",
+   "tklw_p90",
+   "int_p90",
+   "fld_p90"
+  ],
+  "AM": [
+   "ast_p90",
+   "sh_p90",
+   "sot_p90",
+   "fld_p90"
+  ],
+  "W": [
+   "crs_p90",
+   "ast_p90",
+   "npg_p90",
+   "sh_p90"
+  ],
+  "ST": [
+   "npg_p90",
+   "sh_p90",
+   "sot_p90",
+   "ast_p90"
+  ]
+ },
+ "min_effect": 0.03,
+ "min_pct_gap": 10,
+ "feature_weights": {
+  "GK": {
+   "save_pct": 1.5,
+   "ga_p90": 1.3,
+   "cs_pct": 1.2,
+   "saves_p90": 1.0,
+   "sota_p90": 0.8
+  },
+  "CB": {
+   "tklw_p90": 1.5,
+   "int_p90": 1.5,
+   "fls_p90": 1.2,
+   "crs_p90": 0.6,
+   "ast_p90": 0.5,
+   "npg_p90": 0.5,
+   "sh_p90": 0.6,
+   "sot_p90": 0.6,
+   "fld_p90": 0.8,
+   "off_p90": 0.8
+  },
+  "FB": {
+   "crs_p90": 1.4,
+   "ast_p90": 1.3,
+   "tklw_p90": 1.2,
+   "int_p90": 1.1,
+   "npg_p90": 0.7
+  },
+  "DM": {
+   "tklw_p90": 1.4,
+   "int_p90": 1.4,
+   "fls_p90": 1.1,
+   "npg_p90": 0.6,
+   "sh_p90": 0.7,
+   "sot_p90": 0.7
+  },
+  "CM": {
+   "ast_p90": 1.2,
+   "tklw_p90": 1.1,
+   "int_p90": 1.1,
+   "crs_p90": 1.0
+  },
+  "AM": {
+   "ast_p90": 1.4,
+   "sh_p90": 1.2,
+   "sot_p90": 1.2,
+   "fld_p90": 1.1,
+   "tklw_p90": 0.7,
+   "int_p90": 0.7
+  },
+  "W": {
+   "crs_p90": 1.3,
+   "ast_p90": 1.2,
+   "sh_p90": 1.2,
+   "npg_p90": 1.1,
+   "tklw_p90": 0.8
+  },
+  "ST": {
+   "npg_p90": 1.5,
+   "sh_p90": 1.3,
+   "sot_p90": 1.3,
+   "ast_p90": 0.8,
+   "tklw_p90": 0.6,
+   "int_p90": 0.6,
+   "crs_p90": 0.7
+  }
+ },
+ "hexagon_axes": {
+  "outfield": [
+   {
+    "label": "Gol non-penalti",
+    "feature": "npg_p90",
+    "invert": false
+   },
+   {
+    "label": "Assist",
+    "feature": "ast_p90",
+    "invert": false
+   },
+   {
+    "label": "Tembakan",
+    "feature": "sh_p90",
+    "invert": false
+   },
+   {
+    "label": "Umpan silang",
+    "feature": "crs_p90",
+    "invert": false
+   },
+   {
+    "label": "Tekel berhasil",
+    "feature": "tklw_p90",
+    "invert": false
+   },
+   {
+    "label": "Intersep",
+    "feature": "int_p90",
+    "invert": false
+   }
+  ],
+  "GK": [
+   {
+    "label": "Save %",
+    "feature": "save_pct",
+    "invert": false
+   },
+   {
+    "label": "Kebobolan",
+    "feature": "ga_p90",
+    "invert": true
+   },
+   {
+    "label": "Clean sheet %",
+    "feature": "cs_pct",
+    "invert": false
+   },
+   {
+    "label": "Penyelamatan",
+    "feature": "saves_p90",
+    "invert": false
+   },
+   {
+    "label": "Tembakan dihadapi",
+    "feature": "sota_p90",
+    "invert": false
+   }
+  ]
+ }
+}
