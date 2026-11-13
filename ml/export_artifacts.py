@@ -11,7 +11,11 @@ Hasil ditulis ke `ml/export/`.
 """
 
 import os
+import sys
 from pathlib import Path
+
+# Windows memakai cp1252 secara default; notebook memakai karakter Σ, ±, →.
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 # Selalu bekerja dari root repo agar path dataset ditemukan.
 os.chdir(Path(__file__).resolve().parents[1])
@@ -1209,7 +1213,7 @@ os.makedirs(OUT_DIR, exist_ok=True)
 # 1) tabel pemain
 app_cols = (["uid", "Player", "Squad", "Comp", "Age", "Born", "Pos", "pos_group", "arch", "sub_position", "Min",
              "player_id", "foot", "height_in_cm", "country_of_citizenship", "contract_expiration_date",
-             "market_value_in_eur", "highest_market_value_in_eur", "value_growth_1y", "image_url", "url"]
+             "market_value_in_eur", "highest_market_value_in_eur", "value_growth_1y", "image_url", "url", "start_rate", "plus_p90", "crd_p90"]
             + [c for a in ARCH_KEYS for c in ARCH_FEATS[a]]
             + [c for c in players.columns if c.startswith("pct_")])
 app_cols = list(dict.fromkeys([c for c in app_cols if c in players.columns]))
