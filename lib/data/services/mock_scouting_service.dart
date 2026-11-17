@@ -782,12 +782,17 @@ class MockScoutingService implements ScoutingService {
     }
 
     return [
-      for (final feature in features)
-        FeatureContribution(
+      for (final feature in features) () {
+        final shap = total == 0 ? 0.0 : (raw[feature]! / total) * 0.35;
+        final effect = (math.exp(shap) - 1.0) * 100;
+        return FeatureContribution(
           feature: feature,
           value: player.stat(feature),
-          shapValue: total == 0 ? 0 : (raw[feature]! / total) * 0.35,
-        ),
+          shapValue: shap,
+          effectPct: effect,
+          label: feature.label,
+        );
+      }(),
     ];
   }
 }

@@ -117,7 +117,7 @@ class PlayerResultTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (similarity != null)
-                MatchScoreBadge(similarity: similarity! / 100, size: 46)
+                MatchScoreBadge(similarity: similarity!, size: 46)
               else
                 _OverallBadge(overall: player.overall),
               if (onShortlist != null || onCompare != null) ...[

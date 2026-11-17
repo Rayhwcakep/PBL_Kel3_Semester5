@@ -708,7 +708,7 @@ class _SimilarCard extends StatelessWidget {
               children: [
                 PlayerAvatar(player: player, size: 46),
                 const Spacer(),
-                MatchScoreBadge(similarity: player.overall / 100, size: 42),
+                MatchScoreBadge(similarity: player.overall, size: 42),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),

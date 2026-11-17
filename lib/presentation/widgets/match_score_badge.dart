@@ -7,21 +7,51 @@ import '../../core/theme/app_typography.dart';
 
 /// Lencana melingkar skor kemiripan KNN (mis. "88 MATCH").
 class MatchScoreBadge extends StatelessWidget {
-  const MatchScoreBadge({super.key, required this.similarity, this.size = 46});
+  const MatchScoreBadge({
+    super.key,
+    required this.similarity,
+    this.size = 46,
+    this.isDark,
+  });
 
-  /// Skor 0-1.
+  /// Skor kemiripan memakai skala 0-100 (mis. 88.0).
+  ///
+  /// Bila caller mengirim skala 0-1 (mis. <= 1.0), otomatis dinormalisasi
+  /// ke skala 0-100 agar kompatibel dengan kode lama.
   final double similarity;
   final double size;
 
+  /// Override tema terang/gelap secara eksplisit. Bila null, mengikuti `Theme.of(context)`.
+  final bool? isDark;
+
   @override
   Widget build(BuildContext context) {
-    final percent = (similarity.clamp(0, 1) * 100).round();
+    final effectiveDark =
+        isDark ?? (Theme.of(context).brightness == Brightness.dark);
+
+    // Normalisasi: skala 0-100 (bukan 0-1). Skala 0-1 tetap didukung demi kompatibilitas.
+    final score = (similarity > 0 && similarity <= 1.0)
+        ? similarity * 100
+        : similarity;
+    final clamped = score.clamp(0, 100).toDouble();
+    final percent = clamped.round();
+
+    final textColor = effectiveDark ? AppColors.ink : const Color(0xFF10210F);
+    final overlineColor =
+        effectiveDark ? AppColors.sageSoft : const Color(0xFF6C816C);
+    final trackColor =
+        effectiveDark ? AppColors.barTrack : const Color(0xFFE3ECDB);
+    final ringColor = effectiveDark ? AppColors.lime : const Color(0xFFB9E85B);
 
     return SizedBox(
       width: size,
       height: size,
       child: CustomPaint(
-        painter: _RingPainter(progress: similarity.clamp(0, 1).toDouble()),
+        painter: _RingPainter(
+          progress: clamped / 100,
+          trackColor: trackColor,
+          fillColor: ringColor,
+        ),
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -29,13 +59,13 @@ class MatchScoreBadge extends StatelessWidget {
               Text(
                 '$percent',
                 style: AppTypography.statMd(
-                  color: AppColors.ink,
+                  color: textColor,
                 ).copyWith(fontSize: size * 0.34, height: 1),
               ),
               Text(
                 'MATCH',
                 style: AppTypography.overline(
-                  color: AppColors.sageSoft,
+                  color: overlineColor,
                 ).copyWith(fontSize: size * 0.15, letterSpacing: 0.2),
               ),
             ],
@@ -47,9 +77,15 @@ class MatchScoreBadge extends StatelessWidget {
 }
 
 class _RingPainter extends CustomPainter {
-  _RingPainter({required this.progress});
+  _RingPainter({
+    required this.progress,
+    required this.trackColor,
+    required this.fillColor,
+  });
 
   final double progress;
+  final Color trackColor;
+  final Color fillColor;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -60,13 +96,13 @@ class _RingPainter extends CustomPainter {
     final track = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke
-      ..color = AppColors.barTrack;
+      ..color = trackColor;
 
     final fill = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke
       ..strokeCap = StrokeCap.round
-      ..color = AppColors.lime;
+      ..color = fillColor;
 
     canvas.drawCircle(center, radius, track);
     canvas.drawArc(
@@ -80,5 +116,7 @@ class _RingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _RingPainter oldDelegate) =>
-      oldDelegate.progress != progress;
+      oldDelegate.progress != progress ||
+      oldDelegate.trackColor != trackColor ||
+      oldDelegate.fillColor != fillColor;
 }

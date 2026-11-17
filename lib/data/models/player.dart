@@ -131,6 +131,9 @@ class Player {
   /// Nilai pasar dalam juta Euro.
   final double marketValue;
 
+  /// Nilai pasar dalam satuan Euro mentah (mis. 200_000_000 untuk EUR 200 jt).
+  double get marketValueEur => marketValue * 1e6;
+
   /// Perubahan nilai pasar satu tahun terakhir (persen), mis. 25 = +25%.
   final double trendPercent;
 
@@ -194,11 +197,17 @@ class Player {
     return (parts.first[0] + parts.last[0]).toUpperCase();
   }
 
-  /// Label nilai pasar, mis. 150 -> "€150M", 0.5 -> "€500K".
+  /// Label nilai pasar, mis. 200 -> "EUR 200 jt", 0.5 -> "EUR 500 rb".
   String get marketValueLabel {
     if (marketValue <= 0) return '-';
-    if (marketValue >= 1) return '€${marketValue.toStringAsFixed(0)}M';
-    return '€${(marketValue * 1000).toStringAsFixed(0)}K';
+    if (marketValue >= 1) {
+      final valueStr = marketValue % 1 == 0
+          ? marketValue.toInt().toString()
+          : marketValue.toStringAsFixed(1);
+      return 'EUR $valueStr jt';
+    }
+    final thousands = (marketValue * 1000).round();
+    return 'EUR $thousands rb';
   }
 
   /// Label tren, mis. "+25%".
@@ -281,7 +290,7 @@ class Player {
       height: (json['height'] as num?)?.round() ?? 0,
       foot: json['foot'] as String? ?? 'Right',
       contractUntil: _contractLabel(json['contract_until']),
-      marketValue: _toDouble(json['market_value_eur']) / 1e6,
+      marketValue: _parseMarketValue(json),
       trendPercent: _toDouble(json['value_growth_1y']) * 100,
       minutesPlayed: (json['minutes'] as num?)?.round() ?? 0,
       stats: stats,
@@ -347,6 +356,20 @@ String _contractLabel(Object? value) {
 Map<String, dynamic> _asMap(Object? value) {
   if (value is Map) return value.cast<String, dynamic>();
   return const {};
+}
+
+double _parseMarketValue(Map<String, dynamic> json) {
+  final rawEur = json['market_value_eur'];
+  if (rawEur != null) {
+    final val = _toDouble(rawEur);
+    return val >= 1000 ? val / 1e6 : val;
+  }
+  final rawVal = json['market_value'];
+  if (rawVal != null) {
+    final val = _toDouble(rawVal);
+    return val >= 1000 ? val / 1e6 : val;
+  }
+  return 0;
 }
 
 double _toDouble(Object? value) {
