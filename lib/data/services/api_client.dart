@@ -24,9 +24,24 @@ class ApiClient {
   }
 
   /// GET dan ubah balasan menjadi [Map].
-  Future<Map<String, dynamic>> getJson(String path) async {
+  ///
+  /// [query] boleh berisi `null`; entri tersebut dibuang agar tidak dikirim
+  /// sebagai parameter kosong (`?sliders`), yang bisa ditafsirkan berbeda
+  /// oleh backend.
+  Future<Map<String, dynamic>> getJson(
+    String path, {
+    Map<String, dynamic>? query,
+  }) async {
+    final params = <String, dynamic>{
+      for (final entry in (query ?? const {}).entries)
+        if (entry.value != null) entry.key: entry.value,
+    };
+
     return _guard(() async {
-      final response = await _dio.get<dynamic>(path);
+      final response = await _dio.get<dynamic>(
+        path,
+        queryParameters: params.isEmpty ? null : params,
+      );
       return _asMap(response.data);
     });
   }
