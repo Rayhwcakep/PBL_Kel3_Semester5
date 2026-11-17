@@ -32,6 +32,16 @@ class ApiScoutingService implements ScoutingService {
 
   @override
   Future<ScoutResponse> scout(ScoutingCriteria criteria) async {
+    // Persentil 0-100 hanya diterima `/scout/tactic`; `/scout` menuntut
+    // statistik per-90 nyata.
+    if (criteria.isTacticSearch) {
+      final json = await _client.postJson(
+        ApiEndpoints.scoutTactic,
+        criteria.toTacticJson(),
+      );
+      return ScoutResponse.fromJson(json);
+    }
+
     final json = await _client.postJson(ApiEndpoints.scout, criteria.toJson());
     return ScoutResponse.fromJson(json);
   }

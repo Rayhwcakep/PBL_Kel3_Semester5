@@ -141,10 +141,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               ),
               child: _SortRow(
                 current: scouting.criteria.sortBy,
-                onChanged: (value) {
-                  scouting.setSortBy(value);
-                  if (scouting.hasResult) scouting.runScout();
-                },
+                onChanged: scouting.setSortBy,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -200,6 +197,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                         player: result.player,
                         rank: result.rank,
                         similarity: result.similarity,
+                        why: result.why,
                         isShortlisted: shortlist.contains(result.player.id),
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(

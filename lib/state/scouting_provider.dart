@@ -27,13 +27,22 @@ class ScoutingProvider extends ChangeNotifier {
   String? get error => _error;
   bool get hasResult => _response != null && _response!.results.isNotEmpty;
 
-  /// Menetapkan pemain acuan (anchor) dan menyalin atributnya ke kriteria.
+  /// Menetapkan pemain acuan (anchor) dan menyalin statistiknya ke kriteria.
+  ///
+  /// Hanya statistik arketipe pemain ini yang dikirim, karena backend menolak
+  /// statistik yang tidak dipakai arketipe tersebut.
   void setBasePlayer(Player player) {
     _basePlayer = player;
     final values = <PlayerFeature, double>{
-      for (final feature in PlayerFeature.values) feature: player.stat(feature),
+      for (final feature in player.radarAxes) feature: player.stat(feature),
     };
-    _criteria = _criteria.copyWith(values: values, basePlayerId: player.id);
+    _criteria = _criteria.copyWith(
+      values: values,
+      clearSliders: true,
+      clearTactic: true,
+      archetype: player.archetype,
+      basePlayerId: player.id,
+    );
     notifyListeners();
   }
 
@@ -48,13 +57,6 @@ class ScoutingProvider extends ChangeNotifier {
     values[feature] = value;
     _criteria = _criteria.copyWith(values: values, clearBasePlayer: true);
     _basePlayer = null;
-    notifyListeners();
-  }
-
-  void setPosition(String? position) {
-    _criteria = position == null
-        ? _criteria.copyWith(clearPosition: true)
-        : _criteria.copyWith(position: position);
     notifyListeners();
   }
 
@@ -79,8 +81,11 @@ class ScoutingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Mengganti urutan hasil. Backend selalu mengurutkan dari yang paling
+  /// mirip, jadi urutan lain diterapkan di sini tanpa memanggil ulang API.
   void setSortBy(ScoutSortBy sortBy) {
     _criteria = _criteria.copyWith(sortBy: sortBy);
+    _applySort();
     notifyListeners();
   }
 
@@ -90,19 +95,24 @@ class ScoutingProvider extends ChangeNotifier {
   }
 
   /// Menetapkan kriteria sekaligus, dipakai oleh halaman Find by Tactic.
+  ///
+  /// [sliders] berisi persentil 0-100 sehingga pencarian memakai
+  /// `POST /scout/tactic`.
   void applyCriteria({
     Map<PlayerFeature, double>? values,
-    String? position,
+    Map<PlayerFeature, double>? sliders,
+    String? archetype,
     String? league,
     int? maxAge,
     double? maxValue,
   }) {
     _criteria = _criteria.copyWith(
       values: values,
-      position: position,
-      clearPosition: position == null,
-      league: league,
+      sliders: sliders,
+      clearSliders: sliders == null,
+      archetype: archetype,
       clearLeague: league == null,
+      league: league,
       maxAge: maxAge,
       clearMaxAge: maxAge == null,
       maxValue: maxValue,
@@ -117,6 +127,7 @@ class ScoutingProvider extends ChangeNotifier {
   void resetForm() {
     _criteria = ScoutingCriteria();
     _basePlayer = null;
+    _response = null;
     notifyListeners();
   }
 
@@ -128,6 +139,7 @@ class ScoutingProvider extends ChangeNotifier {
 
     try {
       _response = await _repository.scout(_criteria);
+      _applySort();
     } on ApiException catch (e) {
       _error = e.message;
     } catch (e) {
@@ -136,5 +148,29 @@ class ScoutingProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void _applySort() {
+    final response = _response;
+    if (response == null || response.results.length < 2) return;
+
+    final sorted = [...response.results];
+    switch (_criteria.sortBy) {
+      case ScoutSortBy.similarity:
+        sorted.sort((a, b) => b.similarity.compareTo(a.similarity));
+      case ScoutSortBy.value:
+        sorted.sort(
+          (a, b) => b.player.marketValue.compareTo(a.player.marketValue),
+        );
+      case ScoutSortBy.age:
+        sorted.sort((a, b) => a.player.age.compareTo(b.player.age));
+    }
+
+    _response = response.copyWith(
+      results: [
+        for (var i = 0; i < sorted.length; i++)
+          sorted[i].copyWith(rank: i + 1),
+      ],
+    );
   }
 }

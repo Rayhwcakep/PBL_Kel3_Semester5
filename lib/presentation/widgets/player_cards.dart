@@ -16,6 +16,7 @@ class PlayerResultTile extends StatelessWidget {
     required this.player,
     this.rank,
     this.similarity,
+    this.why,
     this.onTap,
     this.onShortlist,
     this.onCompare,
@@ -24,7 +25,13 @@ class PlayerResultTile extends StatelessWidget {
 
   final Player player;
   final int? rank;
+
+  /// Skor kemiripan 0-100 dari backend.
   final double? similarity;
+
+  /// Alasan singkat dari backend, mis. "lebih: Assist +14 | kurang: Tekel -11".
+  final String? why;
+
   final VoidCallback? onTap;
   final VoidCallback? onShortlist;
   final VoidCallback? onCompare;
@@ -93,6 +100,15 @@ class PlayerResultTile extends StatelessWidget {
                     TrendBadge(percent: player.trendPercent),
                   ],
                 ),
+                if (why != null && why!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    why!,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodySm(color: AppColors.sageSoft),
+                  ),
+                ],
               ],
             ),
           ),
@@ -101,7 +117,7 @@ class PlayerResultTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (similarity != null)
-                MatchScoreBadge(similarity: similarity!, size: 46)
+                MatchScoreBadge(similarity: similarity! / 100, size: 46)
               else
                 _OverallBadge(overall: player.overall),
               if (onShortlist != null || onCompare != null) ...[

@@ -5,7 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../data/mock/mock_tactics.dart';
-import '../../data/models/player_feature.dart';
+import '../../data/models/scouting_criteria.dart';
 import '../../data/models/tactical_archetype.dart';
 import '../../state/scouting_provider.dart';
 import '../widgets/chips.dart';
@@ -128,13 +128,11 @@ class _FindByTacticScreenState extends State<FindByTacticScreen> {
 
   void _submit() {
     final scouting = context.read<ScoutingProvider>();
-    final values = <PlayerFeature, double>{
-      for (final feature in PlayerFeature.values) feature: 50,
-      ..._archetype.toFeatureValues(),
-    };
+    // DNA taktik berisi persentil 0-100, jadi dikirim sebagai slider ke
+    // `POST /scout/tactic`; backend yang mengubahnya menjadi angka per-90.
     scouting.applyCriteria(
-      values: values,
-      position: _positionGroup,
+      sliders: _archetype.toFeatureValues(),
+      archetype: ScoutingCriteria.archetypeForPositionGroup(_positionGroup),
       league: _competitions.isNotEmpty ? _competitions.first : null,
       maxAge: _ageRange.end.round(),
       maxValue: _maxValue,

@@ -18,4 +18,7 @@ class ApiEndpoints {
 
   /// Endpoint utama: pencarian pemain dengan KNN + penjelasan SHAP.
   static const String scout = '/scout';
+
+  /// Pencarian dengan preset taktik atau slider persentil 0-100.
+  static const String scoutTactic = '/scout/tactic';
 }

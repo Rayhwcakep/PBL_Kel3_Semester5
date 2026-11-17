@@ -1,21 +1,23 @@
 import 'feature_contribution.dart';
 import 'player.dart';
 
-/// Hasil pencocokan satu pemain beserta skor dan penjelasan SHAP-nya.
+/// Hasil pencocokan satu pemain beserta skor dan alasannya.
+///
+/// Cocok untuk `ScoutingResultOut` pada `backend/app/schemas/scouting.py`.
 class ScoutingResult {
   const ScoutingResult({
     required this.player,
     required this.similarity,
     required this.distance,
     required this.rank,
-    this.baseValue = 0,
-    this.prediction = 0,
+    this.why,
     this.contributions = const [],
   });
 
   final Player player;
 
-  /// Skor kemiripan 0 - 1 (semakin besar semakin cocok).
+  /// Skor kemiripan **0-100**: `100 × exp(−jarak / jarak_tipikal)`.
+  /// Sekitar 37 pada jarak tipikal, mendekati 100 untuk pemain sangat mirip.
   final double similarity;
 
   /// Jarak KNN. Semakin kecil semakin mirip.
@@ -24,13 +26,14 @@ class ScoutingResult {
   /// Peringkat hasil (dimulai dari 1).
   final int rank;
 
-  /// Nilai dasar model (rata-rata prediksi) untuk perhitungan SHAP.
-  final double baseValue;
+  /// Ringkasan selisih terhadap target, mis.
+  /// `"lebih: Assist +14 | kurang: Tekel -11"`.
+  final String? why;
 
-  /// Nilai prediksi akhir model.
-  final double prediction;
-
-  /// Kontribusi tiap fitur terhadap skor (SHAP).
+  /// Kontribusi tiap statistik (SHAP) bila tersedia.
+  ///
+  /// `POST /scout` tidak mengirimkannya, jadi kosong untuk hasil pencarian;
+  /// `GET /players/{id}/explain` yang mengisinya.
   final List<FeatureContribution> contributions;
 
   /// Kontribusi diurutkan dari yang paling berpengaruh.
@@ -43,8 +46,7 @@ class ScoutingResult {
   ScoutingResult copyWith({
     double? similarity,
     int? rank,
-    double? baseValue,
-    double? prediction,
+    String? why,
     List<FeatureContribution>? contributions,
   }) {
     return ScoutingResult(
@@ -52,8 +54,7 @@ class ScoutingResult {
       similarity: similarity ?? this.similarity,
       distance: distance,
       rank: rank ?? this.rank,
-      baseValue: baseValue ?? this.baseValue,
-      prediction: prediction ?? this.prediction,
+      why: why ?? this.why,
       contributions: contributions ?? this.contributions,
     );
   }
@@ -61,16 +62,13 @@ class ScoutingResult {
   factory ScoutingResult.fromJson(
     Map<String, dynamic> json, {
     List<FeatureContribution> contributions = const [],
-    double baseValue = 0,
-    double prediction = 0,
   }) {
     return ScoutingResult(
       player: Player.fromJson((json['player'] as Map).cast<String, dynamic>()),
       similarity: (json['similarity'] as num?)?.toDouble() ?? 0,
       distance: (json['distance'] as num?)?.toDouble() ?? 0,
       rank: (json['rank'] as num?)?.toInt() ?? 0,
-      baseValue: baseValue,
-      prediction: prediction,
+      why: json['why'] as String?,
       contributions: contributions,
     );
   }
