@@ -6,7 +6,6 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../data/models/player.dart';
 import '../../data/models/player_feature.dart';
-import '../../data/models/radar_metric.dart';
 import '../../data/models/scouting_result.dart';
 import '../../state/compare_provider.dart';
 import '../../state/player_provider.dart';
@@ -336,12 +335,12 @@ class _ProfileRadarCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Center(
             child: RadarChart(
-              axisLabels: RadarMetric.all.map((m) => m.label).toList(),
+              axisLabels: player.radarAxes.map((f) => f.label).toList(),
               size: 280,
               series: [
                 RadarSeries(
                   label: player.name,
-                  values: RadarMetric.all.map(player.percentile).toList(),
+                  values: player.radarAxes.map(player.radarValue).toList(),
                   fillColor: AppColors.playerAFill,
                   strokeColor: AppColors.playerA,
                 ),
@@ -448,10 +447,11 @@ class _SeasonStatsCard extends StatelessWidget {
                   style: AppTypography.titleMd().copyWith(fontSize: 14),
                 ),
                 const Spacer(),
-                Text(
-                  '${player.matches} matches',
-                  style: AppTypography.titleMd().copyWith(fontSize: 14),
-                ),
+                if (player.matches > 0)
+                  Text(
+                    '${player.matches} matches',
+                    style: AppTypography.titleMd().copyWith(fontSize: 14),
+                  ),
               ],
             ),
           ),
@@ -537,7 +537,7 @@ class _AiDossierCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '${player.position} ${player.foot.toLowerCase()}-footed yang bermain '
-            'dengan ${player.stat(_topFeature(player)).toStringAsFixed(0)} poin '
+            'dengan skor ${player.radarValue(_topFeature(player)).toStringAsFixed(0)} '
             'pada ${_topFeature(player).label.toLowerCase()}. Cocok untuk sistem '
             'yang mengandalkan transisi cepat dan penguasaan bola di sepertiga akhir.',
             style: AppTypography.bodySm(color: AppColors.sage),
@@ -582,33 +582,33 @@ class _AiDossierCard extends StatelessWidget {
   }
 
   static PlayerFeature _topFeature(Player player) {
-    var best = PlayerFeature.all.first;
-    for (final feature in PlayerFeature.all) {
-      if (player.stat(feature) > player.stat(best)) best = feature;
+    var best = player.radarAxes.first;
+    for (final feature in player.radarAxes) {
+      if (player.radarValue(feature) > player.radarValue(best)) best = feature;
     }
     return best;
   }
 
   static List<String> _strengths(Player player) {
-    final sorted = [...PlayerFeature.all]
-      ..sort((a, b) => player.stat(b).compareTo(player.stat(a)));
+    final sorted = [...player.radarAxes]
+      ..sort((a, b) => player.radarValue(b).compareTo(player.radarValue(a)));
     return sorted
         .take(3)
         .map(
           (f) =>
-              '${f.label} (${player.stat(f).toStringAsFixed(0)}): ${f.description}.',
+              '${f.label} (skor ${player.radarValue(f).toStringAsFixed(0)}): ${f.description}.',
         )
         .toList();
   }
 
   static List<String> _weaknesses(Player player) {
-    final sorted = [...PlayerFeature.all]
-      ..sort((a, b) => player.stat(a).compareTo(player.stat(b)));
+    final sorted = [...player.radarAxes]
+      ..sort((a, b) => player.radarValue(a).compareTo(player.radarValue(b)));
     return sorted
         .take(2)
         .map(
           (f) =>
-              '${f.label} (${player.stat(f).toStringAsFixed(0)}): perlu peningkatan ${f.description.toLowerCase()}.',
+              '${f.label} (skor ${player.radarValue(f).toStringAsFixed(0)}): perlu peningkatan ${f.description.toLowerCase()}.',
         )
         .toList();
   }

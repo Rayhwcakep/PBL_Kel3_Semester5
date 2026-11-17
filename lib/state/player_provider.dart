@@ -44,12 +44,16 @@ class PlayerProvider extends ChangeNotifier {
     return sorted;
   }
 
-  /// Pemain dengan nilai xG+xA per 90 tertinggi (untuk "Top Performers").
+  /// Pemain dengan kontribusi gol (gol + assist) per 90 tertinggi
+  /// (untuk "Top Performers").
   List<Player> topPerformers({String? positionGroup, int limit = 5}) {
     final filtered = _players.where((p) {
       if (positionGroup == null) return true;
       return p.positionGroup == positionGroup;
-    }).toList()..sort((a, b) => b.xgXaPer90.compareTo(a.xgXaPer90));
+    }).toList()..sort(
+      (a, b) =>
+          b.metrics.goalContribution.compareTo(a.metrics.goalContribution),
+    );
     return filtered.take(limit).toList();
   }
 

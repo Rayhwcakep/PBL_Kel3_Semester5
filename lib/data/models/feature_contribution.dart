@@ -5,7 +5,7 @@ import 'player_feature.dart';
 ///
 /// Contoh payload JSON dari backend:
 /// ```json
-/// { "feature": "pace", "value": 88, "shap_value": 0.12 }
+/// { "feature": "npg_p90", "value": 0.52, "shap_value": 0.12 }
 /// ```
 class FeatureContribution {
   const FeatureContribution({
@@ -16,7 +16,7 @@ class FeatureContribution {
 
   final PlayerFeature feature;
 
-  /// Nilai fitur pemain pada skala 0 - 100.
+  /// Nilai statistik pemain, dalam satuan aslinya (per 90 menit).
   final double value;
 
   /// Kontribusi SHAP. Positif menaikkan skor, negatif menurunkan.
@@ -30,7 +30,7 @@ class FeatureContribution {
   factory FeatureContribution.fromJson(Map<String, dynamic> json) {
     final feature = PlayerFeature.fromJsonKey(json['feature'] as String? ?? '');
     return FeatureContribution(
-      feature: feature ?? PlayerFeature.pace,
+      feature: feature ?? PlayerFeature.npgP90,
       value: (json['value'] as num?)?.toDouble() ?? 0,
       shapValue: (json['shap_value'] as num?)?.toDouble() ?? 0,
     );

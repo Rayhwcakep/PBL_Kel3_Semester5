@@ -5,7 +5,6 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../data/models/player.dart';
-import '../../data/models/radar_metric.dart';
 import '../../data/models/scouting_criteria.dart';
 import '../../state/compare_provider.dart';
 import '../../state/player_provider.dart';
@@ -470,14 +469,15 @@ class _AnchorCard extends StatelessWidget {
                 width: 66,
                 height: 66,
                 child: RadarChart(
-                  axisLabels: const ['', '', '', '', '', ''],
+                  axisLabels: List<String>.filled(
+                    player.radarAxes.length,
+                    '',
+                  ),
                   size: 66,
                   series: [
                     RadarSeries(
                       label: 'DNA',
-                      values: RadarMetric.all
-                          .map((m) => player.percentile(m))
-                          .toList(),
+                      values: player.radarAxes.map(player.radarValue).toList(),
                       fillColor: AppColors.lime.withValues(alpha: 0.35),
                       strokeColor: AppColors.lime,
                     ),

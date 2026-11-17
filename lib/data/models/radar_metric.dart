@@ -1,25 +1,21 @@
-/// Sumbu radar untuk profil pemain (persentil 0-100).
+import 'player_feature.dart';
+
+/// Sumbu grafik radar profil pemain (persentil 0-100).
 ///
-/// [jsonKey] harus sama dengan kunci di payload backend.
-enum RadarMetric {
-  goals('goals', 'Goals'),
-  assists('assists', 'Assists'),
-  shots('shots', 'Shots'),
-  crossing('crossing', 'Crossing'),
-  tackles('tackles', 'Tackles'),
-  interceptions('interceptions', 'Interceptions');
+/// Jumlah sumbu mengikuti arketipe: 10 statistik untuk pemain lapangan dan
+/// 5 statistik untuk kiper. Backend menyebut pilihan ini `hexagon_axes`;
+/// di aplikasi seluruh statistik arketipe dipakai supaya tidak ada data
+/// yang dibuang.
+class RadarMetric {
+  const RadarMetric._();
 
-  const RadarMetric(this.jsonKey, this.label);
+  /// Sepuluh sumbu pemain lapangan.
+  static const List<PlayerFeature> outfield = PlayerFeature.outfield;
 
-  final String jsonKey;
-  final String label;
+  /// Lima sumbu kiper.
+  static const List<PlayerFeature> goalkeeper = PlayerFeature.goalkeeper;
 
-  static List<RadarMetric> get all => RadarMetric.values;
-
-  static RadarMetric? fromJsonKey(String key) {
-    for (final metric in RadarMetric.values) {
-      if (metric.jsonKey == key) return metric;
-    }
-    return null;
-  }
+  /// Sumbu sesuai arketipe pemain. `'GK'` memakai sumbu kiper.
+  static List<PlayerFeature> axesFor(String archetype) =>
+      PlayerFeature.forArchetype(archetype);
 }

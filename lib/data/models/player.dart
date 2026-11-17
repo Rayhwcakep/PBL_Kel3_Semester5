@@ -1,7 +1,43 @@
 import 'player_feature.dart';
 import 'radar_metric.dart';
 
-/// Data mentah statistik per-90 menit untuk satu pemain.
+/// Variabel konteks pemain: keadaan tim dan menit bermain, bukan kemampuan.
+///
+/// Dipakai model nilai pasar di backend untuk menyesuaikan statistik dengan
+/// situasi pemain, jadi ditampilkan terpisah dari statistik permainan.
+class PlayerContext {
+  const PlayerContext({
+    this.startRate = 0,
+    this.plusP90 = 0,
+    this.cardP90 = 0,
+  });
+
+  /// Porsi pertandingan sebagai pemain inti (0-1).
+  final double startRate;
+
+  /// Selisih gol tim selama pemain bermain, per 90 menit.
+  final double plusP90;
+
+  /// Kartu per 90 menit.
+  final double cardP90;
+
+  factory PlayerContext.fromJson(Map<String, dynamic> json) => PlayerContext(
+    startRate: _toDouble(json['start_rate']),
+    plusP90: _toDouble(json['plus_p90']),
+    cardP90: _toDouble(json['crd_p90']),
+  );
+
+  Map<String, dynamic> toJson() => {
+    'start_rate': startRate,
+    'plus_p90': plusP90,
+    'crd_p90': cardP90,
+  };
+}
+
+/// Statistik per-90 menit yang tampil pada kartu dan grafik.
+///
+/// Nama field dipertahankan agar layar Compare dan Player Detail tidak perlu
+/// berubah; nilainya diisi dari statistik nyata backend.
 class SeasonMetrics {
   const SeasonMetrics({
     this.goals = 0,
@@ -11,57 +47,34 @@ class SeasonMetrics {
     this.crossing = 0,
     this.tackles = 0,
     this.interceptions = 0,
-    this.xgPer90 = 0,
-    this.xaPer90 = 0,
   });
 
+  /// Gol non-penalti per 90 menit (`npg_p90`).
   final double goals;
+
+  /// Assist per 90 menit (`ast_p90`).
   final double assists;
+
+  /// Tembakan per 90 menit (`sh_p90`).
   final double shots;
+
+  /// Tembakan on target per 90 menit (`sot_p90`).
   final double onTarget;
+
+  /// Umpan silang per 90 menit (`crs_p90`).
   final double crossing;
+
+  /// Tekel berhasil per 90 menit (`tklw_p90`).
   final double tackles;
+
+  /// Intersep per 90 menit (`int_p90`).
   final double interceptions;
-  final double xgPer90;
-  final double xaPer90;
 
   /// Jumlah gol + assist per 90 menit.
   double get goalContribution => goals + assists;
-
-  double valueOf(RadarMetric metric) {
-    switch (metric) {
-      case RadarMetric.goals:
-        return goals;
-      case RadarMetric.assists:
-        return assists;
-      case RadarMetric.shots:
-        return shots;
-      case RadarMetric.crossing:
-        return crossing;
-      case RadarMetric.tackles:
-        return tackles;
-      case RadarMetric.interceptions:
-        return interceptions;
-    }
-  }
-
-  factory SeasonMetrics.fromJson(Map<String, dynamic> json) => SeasonMetrics(
-    goals: _d(json['goals']),
-    assists: _d(json['assists']),
-    shots: _d(json['shots']),
-    onTarget: _d(json['on_target']),
-    crossing: _d(json['crossing']),
-    tackles: _d(json['tackles']),
-    interceptions: _d(json['interceptions']),
-    xgPer90: _d(json['xg_per90']),
-    xaPer90: _d(json['xa_per90']),
-  );
-
-  static double _d(Object? value) =>
-      value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
 }
 
-/// Representasi satu pemain beserta seluruh atribut scouting-nya.
+/// Representasi satu pemain beserta seluruh statistik scouting-nya.
 class Player {
   const Player({
     required this.id,
@@ -70,6 +83,8 @@ class Player {
     required this.position,
     required this.age,
     required this.stats,
+    this.archetype = '',
+    this.positionGroup = '',
     this.league = '',
     this.positionShort = '',
     this.nationality = '',
@@ -80,8 +95,8 @@ class Player {
     this.trendPercent = 0,
     this.minutesPlayed = 0,
     this.matches = 0,
-    this.metrics = const SeasonMetrics(),
     this.percentiles = const {},
+    this.context = const PlayerContext(),
     this.imageUrl,
   });
 
@@ -92,7 +107,14 @@ class Player {
   /// Posisi lengkap, mis. "Right Winger".
   final String position;
 
-  /// Kode posisi singkat, mis. "RW".
+  /// Kode arketipe dari backend: `GK`, `CB`, `FB`, `DM`, `CM`, `AM`, `W`,
+  /// atau `ST`.
+  final String archetype;
+
+  /// Kelompok posisi: `GK`, `DF`, `MF`, atau `FW`.
+  final String positionGroup;
+
+  /// Kode posisi singkat, mis. "RW". Tidak dikirim backend, jadi boleh kosong.
   final String positionShort;
 
   final String league;
@@ -103,39 +125,65 @@ class Player {
   /// Kaki dominan: "Left" / "Right" / "Both".
   final String foot;
 
-  /// Kontrak berakhir, mis. "June 2030".
+  /// Kontrak berakhir, mis. "Jun 2028".
   final String contractUntil;
 
   /// Nilai pasar dalam juta Euro.
   final double marketValue;
 
-  /// Perubahan nilai pasar (persen), mis. 25 berarti +25%.
+  /// Perubahan nilai pasar satu tahun terakhir (persen), mis. 25 = +25%.
   final double trendPercent;
 
   final int minutesPlayed;
   final int matches;
 
-  /// Nilai tiap fitur (0-100) untuk perhitungan KNN.
+  /// Statistik per-90 mentah, kunci mengikuti [PlayerFeature].
   final Map<PlayerFeature, double> stats;
 
-  /// Statistik per-90 mentah.
-  final SeasonMetrics metrics;
+  /// Persentil tiap statistik di antara pemain searketipe (0-100).
+  final Map<PlayerFeature, double> percentiles;
 
-  /// Persentil tiap sumbu radar (0-100).
-  final Map<RadarMetric, double> percentiles;
+  /// Variabel konteks dari backend.
+  final PlayerContext context;
 
   /// Foto pemain (opsional). Bila kosong, UI memakai inisial.
   final String? imageUrl;
 
+  bool get isGoalkeeper => archetype == 'GK' || positionGroup == 'GK';
+
+  /// Statistik ringkas untuk kartu dan tabel Compare. Diturunkan dari
+  /// [stats] supaya hanya ada satu sumber angka.
+  SeasonMetrics get metrics => SeasonMetrics(
+    goals: stat(PlayerFeature.npgP90),
+    assists: stat(PlayerFeature.astP90),
+    shots: stat(PlayerFeature.shP90),
+    onTarget: stat(PlayerFeature.sotP90),
+    crossing: stat(PlayerFeature.crsP90),
+    tackles: stat(PlayerFeature.tklwP90),
+    interceptions: stat(PlayerFeature.intP90),
+  );
+
+  /// Sumbu radar pemain ini: 10 untuk pemain lapangan, 5 untuk kiper.
+  List<PlayerFeature> get radarAxes => RadarMetric.axesFor(archetype);
+
   double stat(PlayerFeature feature) => stats[feature] ?? 0;
 
-  double percentile(RadarMetric metric) => percentiles[metric] ?? 0;
+  double percentile(PlayerFeature feature) => percentiles[feature] ?? 0;
 
-  /// Rata-rata seluruh fitur, dipakai sebagai "overall".
+  /// Nilai sumbu radar 0-100. Statistik yang makin kecil makin baik
+  /// (pelanggaran, offside, kebobolan) dibalik supaya jarak dari pusat
+  /// grafik selalu berarti "makin baik".
+  double radarValue(PlayerFeature feature) {
+    final value = percentile(feature).clamp(0, 100).toDouble();
+    return feature.isInverted ? 100 - value : value;
+  }
+
+  /// Rata-rata persentil pada sumbu pemain ini (0-100).
   double get overall {
-    if (stats.isEmpty) return 0;
-    final total = stats.values.reduce((a, b) => a + b);
-    return total / stats.length;
+    final axes = radarAxes;
+    if (axes.isEmpty) return 0;
+    final total = axes.map(percentile).reduce((a, b) => a + b);
+    return total / axes.length;
   }
 
   /// Inisial nama, mis. "Lamine Yamal" -> "LY".
@@ -160,37 +208,8 @@ class Player {
   }
 
   /// Contoh "RW · 18y" untuk badge kartu.
-  String get shortBadge => '$positionShort · ${age}y';
-
-  /// Kelompok posisi: GK, DF, MF, atau FW. Dipakai untuk filter cepat.
-  String get positionGroup {
-    final code = positionShort.toUpperCase();
-    if (code.startsWith('GK') ||
-        position.toLowerCase().contains('goalkeeper')) {
-      return 'GK';
-    }
-    if (code.startsWith('CB') ||
-        code.startsWith('LB') ||
-        code.startsWith('RB') ||
-        code.startsWith('DF') ||
-        position.toLowerCase().contains('back')) {
-      return 'DF';
-    }
-    if (code.startsWith('ST') ||
-        code.startsWith('CF') ||
-        code.startsWith('LW') ||
-        code.startsWith('RW') ||
-        code.startsWith('FW') ||
-        position.toLowerCase().contains('winger') ||
-        position.toLowerCase().contains('forward') ||
-        position.toLowerCase().contains('striker')) {
-      return 'FW';
-    }
-    return 'MF';
-  }
-
-  /// Nilai xG + xA per 90 menit.
-  double get xgXaPer90 => metrics.xgPer90 + metrics.xaPer90;
+  String get shortBadge =>
+      positionShort.isEmpty ? '${age}y' : '$positionShort · ${age}y';
 
   List<double> toVector(List<PlayerFeature> features) =>
       features.map(stat).toList(growable: false);
@@ -199,18 +218,22 @@ class Player {
     String? name,
     String? club,
     String? position,
+    String? archetype,
+    String? positionGroup,
     String? positionShort,
     String? league,
     int? age,
     double? marketValue,
     Map<PlayerFeature, double>? stats,
-    Map<RadarMetric, double>? percentiles,
+    Map<PlayerFeature, double>? percentiles,
   }) {
     return Player(
       id: id,
       name: name ?? this.name,
       club: club ?? this.club,
       position: position ?? this.position,
+      archetype: archetype ?? this.archetype,
+      positionGroup: positionGroup ?? this.positionGroup,
       positionShort: positionShort ?? this.positionShort,
       league: league ?? this.league,
       nationality: nationality,
@@ -223,49 +246,47 @@ class Player {
       minutesPlayed: minutesPlayed,
       matches: matches,
       stats: stats ?? this.stats,
-      metrics: metrics,
       percentiles: percentiles ?? this.percentiles,
+      context: context,
       imageUrl: imageUrl,
     );
   }
 
   factory Player.fromJson(Map<String, dynamic> json) {
-    final rawStats = (json['stats'] as Map?)?.cast<String, dynamic>() ?? {};
+    final rawStats = _asMap(json['stats']);
     final stats = <PlayerFeature, double>{};
     for (final entry in rawStats.entries) {
       final feature = PlayerFeature.fromJsonKey(entry.key);
-      if (feature != null) stats[feature] = _d(entry.value);
+      if (feature != null) stats[feature] = _toDouble(entry.value);
     }
 
-    final rawPercentiles =
-        (json['percentiles'] as Map?)?.cast<String, dynamic>() ?? {};
-    final percentiles = <RadarMetric, double>{};
+    final rawPercentiles = _asMap(json['percentiles']);
+    final percentiles = <PlayerFeature, double>{};
     for (final entry in rawPercentiles.entries) {
-      final metric = RadarMetric.fromJsonKey(entry.key);
-      if (metric != null) percentiles[metric] = _d(entry.value);
+      final feature = PlayerFeature.fromJsonKey(entry.key);
+      if (feature != null) percentiles[feature] = _toDouble(entry.value);
     }
 
     return Player(
-      id: json['id'] as String? ?? '',
+      id: json['id']?.toString() ?? '',
       name: json['name'] as String? ?? 'Tanpa Nama',
       club: json['club'] as String? ?? '-',
       position: json['position'] as String? ?? '-',
+      archetype: json['archetype'] as String? ?? '',
+      positionGroup: json['position_group'] as String? ?? '',
       positionShort: json['position_short'] as String? ?? '',
       league: json['league'] as String? ?? '',
       nationality: json['nationality'] as String? ?? '',
-      age: (json['age'] as num?)?.toInt() ?? 0,
-      height: (json['height'] as num?)?.toInt() ?? 0,
+      age: (json['age'] as num?)?.round() ?? 0,
+      height: (json['height'] as num?)?.round() ?? 0,
       foot: json['foot'] as String? ?? 'Right',
-      contractUntil: json['contract_until'] as String? ?? '',
-      marketValue: _d(json['market_value']),
-      trendPercent: _d(json['trend_percent']),
-      minutesPlayed: (json['minutes_played'] as num?)?.toInt() ?? 0,
-      matches: (json['matches'] as num?)?.toInt() ?? 0,
+      contractUntil: _contractLabel(json['contract_until']),
+      marketValue: _toDouble(json['market_value_eur']) / 1e6,
+      trendPercent: _toDouble(json['value_growth_1y']) * 100,
+      minutesPlayed: (json['minutes'] as num?)?.round() ?? 0,
       stats: stats,
-      metrics: SeasonMetrics.fromJson(
-        (json['metrics'] as Map?)?.cast<String, dynamic>() ?? const {},
-      ),
       percentiles: percentiles,
+      context: PlayerContext.fromJson(_asMap(json['context'])),
       imageUrl: json['image_url'] as String?,
     );
   }
@@ -275,17 +296,16 @@ class Player {
     'name': name,
     'club': club,
     'position': position,
-    'position_short': positionShort,
+    'position_group': positionGroup,
+    'archetype': archetype,
     'league': league,
-    'nationality': nationality,
     'age': age,
-    'height': height,
     'foot': foot,
     'contract_until': contractUntil,
-    'market_value': marketValue,
-    'trend_percent': trendPercent,
-    'minutes_played': minutesPlayed,
-    'matches': matches,
+    'market_value_eur': marketValue * 1e6,
+    'value_growth_1y': trendPercent / 100,
+    'minutes': minutesPlayed,
+    'context': context.toJson(),
     'stats': {
       for (final entry in stats.entries) entry.key.jsonKey: entry.value,
     },
@@ -295,12 +315,42 @@ class Player {
     'image_url': imageUrl,
   };
 
-  static double _d(Object? value) {
-    if (value is num) return value.toDouble();
-    if (value is String) return double.tryParse(value) ?? 0;
-    return 0;
-  }
-
   @override
   String toString() => 'Player($id, $name)';
+}
+
+const List<String> _monthNames = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'Mei',
+  'Jun',
+  'Jul',
+  'Agu',
+  'Sep',
+  'Okt',
+  'Nov',
+  'Des',
+];
+
+/// Mengubah "2028-06-30 00:00:00" menjadi "Jun 2028" agar enak dibaca.
+String _contractLabel(Object? value) {
+  if (value is! String || value.isEmpty) return '';
+  final match = RegExp(r'^(\d{4})-(\d{2})').firstMatch(value);
+  if (match == null) return value;
+  final month = int.tryParse(match.group(2)!);
+  if (month == null || month < 1 || month > 12) return value;
+  return '${_monthNames[month - 1]} ${match.group(1)}';
+}
+
+Map<String, dynamic> _asMap(Object? value) {
+  if (value is Map) return value.cast<String, dynamic>();
+  return const {};
+}
+
+double _toDouble(Object? value) {
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value) ?? 0;
+  return 0;
 }

@@ -5,7 +5,6 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../data/models/player.dart';
-import '../../data/models/radar_metric.dart';
 import '../../state/compare_provider.dart';
 import '../../state/shortlist_provider.dart';
 import '../widgets/app_bars.dart';
@@ -297,18 +296,18 @@ class _RadarComparison extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Center(
             child: RadarChart(
-              axisLabels: RadarMetric.all.map((m) => m.label).toList(),
+              axisLabels: left.radarAxes.map((f) => f.label).toList(),
               size: 280,
               series: [
                 RadarSeries(
                   label: left.name,
-                  values: RadarMetric.all.map(left.percentile).toList(),
+                  values: left.radarAxes.map(left.radarValue).toList(),
                   fillColor: AppColors.playerAFill,
                   strokeColor: AppColors.playerA,
                 ),
                 RadarSeries(
                   label: right.name,
-                  values: RadarMetric.all.map(right.percentile).toList(),
+                  values: left.radarAxes.map(right.radarValue).toList(),
                   fillColor: AppColors.playerBFill,
                   strokeColor: AppColors.playerB,
                 ),
@@ -571,7 +570,8 @@ class _VerdictCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final leftWins = left.xgXaPer90 >= right.xgXaPer90;
+    final leftWins =
+        left.metrics.goalContribution >= right.metrics.goalContribution;
     final winner = leftWins ? left : right;
 
     return ScoutCard(
@@ -595,8 +595,8 @@ class _VerdictCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Text(
             '${winner.name} unggul dalam kontribusi gol per 90 menit '
-            '(${winner.xgXaPer90.toStringAsFixed(2)} vs '
-            '${(leftWins ? right : left).xgXaPer90.toStringAsFixed(2)}). '
+            '(${winner.metrics.goalContribution.toStringAsFixed(2)} vs '
+            '${(leftWins ? right : left).metrics.goalContribution.toStringAsFixed(2)}). '
             'Profil ${winner.position} cocok untuk sistem yang menekan tinggi '
             'dan membutuhkan penyelesaian cepat di sepertiga akhir.',
             style: AppTypography.bodyMd(),

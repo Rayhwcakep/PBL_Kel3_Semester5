@@ -478,8 +478,9 @@ class _TopPerformers extends StatelessWidget {
                         RankingRow(
                           rank: i + 1,
                           player: ranked[i],
-                          value: ranked[i].xgXaPer90.toStringAsFixed(2),
-                          valueLabel: 'xG+xA / 90',
+                          value: ranked[i].metrics.goalContribution
+                              .toStringAsFixed(2),
+                          valueLabel: 'Gol+Assist / 90',
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) =>
