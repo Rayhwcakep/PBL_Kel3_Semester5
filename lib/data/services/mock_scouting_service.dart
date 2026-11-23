@@ -459,9 +459,19 @@ class MockScoutingService implements ScoutingService {
         if (base.percentile(feature) >= 60) feature,
     ];
 
-    final similar = await similarPlayers(id, limit: topK);
+    // Ambil semua tetangga lalu saring dulu, seperti backend yang menerapkan
+    // filter umur/harga sebelum memeringkat. Meminta `topK` lebih dulu akan
+    // menyisakan kandidat lebih sedikit dari yang diminta.
+    final similar = await similarPlayers(id, limit: mockPlayers.length);
+    final eligible = [
+      for (final neighbor in similar.neighbors)
+        if ((maxAge == null || neighbor.player.age <= maxAge) &&
+            (maxValueEur == null ||
+                neighbor.player.marketValueEur <= maxValueEur))
+          neighbor,
+    ];
     final candidates = <BestFitCandidate>[];
-    for (final neighbor in similar.neighbors) {
+    for (final neighbor in eligible.take(topK)) {
       final others = neighbor.player;
       double closeUp(PlayerFeature feature) {
         final gain = others.percentile(feature) - base.percentile(feature);

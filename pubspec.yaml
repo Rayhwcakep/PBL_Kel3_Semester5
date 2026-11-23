@@ -47,9 +47,6 @@ dependencies:
   # Penyimpanan preferensi dan shortlist lokal agar tidak hilang saat app ditutup.
   shared_preferences: ^2.3.3
 
-  # HTTP client untuk best fit screen
-  http: ^1.2.0
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
