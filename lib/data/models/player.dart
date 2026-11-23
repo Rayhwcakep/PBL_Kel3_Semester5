@@ -152,7 +152,8 @@ class Player {
   /// Foto pemain (opsional). Bila kosong, UI memakai inisial.
   final String? imageUrl;
 
-  bool get isGoalkeeper => archetype == 'GK' || positionGroup == 'GK';
+  bool get isGoalkeeper =>
+      RadarMetric.isGoalkeeper(archetype, positionGroup: positionGroup);
 
   /// Statistik ringkas untuk kartu dan tabel Compare. Diturunkan dari
   /// [stats] supaya hanya ada satu sumber angka.
@@ -167,7 +168,17 @@ class Player {
   );
 
   /// Sumbu radar pemain ini: 10 untuk pemain lapangan, 5 untuk kiper.
-  List<PlayerFeature> get radarAxes => RadarMetric.axesFor(archetype);
+  List<PlayerFeature> get radarAxes =>
+      RadarMetric.axesFor(archetype, positionGroup: positionGroup);
+
+  /// Label ringkas seluruh sumbu radar, urut sesuai [radarAxes].
+  List<String> get radarLabels =>
+      RadarMetric.labelsFor(radarAxes, compact: true);
+
+  /// Nilai 0-100 tiap sumbu radar, urut sesuai [radarAxes].
+  List<double> get radarValues => [
+    for (final feature in radarAxes) radarValue(feature),
+  ];
 
   double stat(PlayerFeature feature) => stats[feature] ?? 0;
 

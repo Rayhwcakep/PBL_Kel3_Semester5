@@ -36,23 +36,29 @@ class _QuickActionCardState extends State<QuickActionCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // Kartu hero tetap menonjol, tetapi wajib mengikuti mode aktif: Forest
+    // gelap di tema gelap dan hijau pastel di tema terang.
     final background = widget.hero
-        ? AppColors.forest
-        : (AppColors.isDark
-              ? AppColors.surfaceContainer
-              : AppColors.secondaryFixed);
-    final titleColor = widget.hero ? AppColors.onForest : AppColors.ink;
+        ? (isDark ? AppColors.forest : AppColors.primaryFixed)
+        : (isDark ? AppColors.surfaceContainer : AppColors.secondaryFixed);
+    final titleColor = widget.hero
+        ? (isDark ? AppColors.onForest : AppColors.forest)
+        : AppColors.ink;
     final subtitleColor = widget.hero
-        ? AppColors.onForestMuted
+        ? (isDark ? AppColors.onForestMuted : AppColors.sage)
         : AppColors.sage;
     final iconBg = widget.hero
-        ? AppColors.sage.withValues(alpha: 0.3)
-        : (AppColors.isDark
+        ? (isDark ? AppColors.sage.withValues(alpha: 0.3) : AppColors.forest)
+        : (isDark
               ? AppColors.lime.withValues(alpha: 0.14)
               : AppColors.lime.withValues(alpha: 0.35));
     final iconColor = widget.hero
         ? AppColors.lime
-        : (AppColors.isDark ? AppColors.lime : AppColors.forest);
+        : (isDark ? AppColors.lime : AppColors.forest);
+    final arrowColor = widget.hero
+        ? (isDark ? AppColors.lime : AppColors.forest)
+        : AppColors.sage;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -70,7 +76,7 @@ class _QuickActionCardState extends State<QuickActionCard> {
                 ? [
                     BoxShadow(
                       color: (widget.hero ? AppColors.forest : Colors.black)
-                          .withValues(alpha: 0.2),
+                          .withValues(alpha: isDark ? 0.2 : 0.12),
                       blurRadius: 16,
                       offset: const Offset(0, 8),
                     ),
@@ -83,8 +89,14 @@ class _QuickActionCardState extends State<QuickActionCard> {
               borderRadius: AppRadius.cardBorder,
               side: BorderSide(
                 color: _isElevated && widget.hero
-                    ? AppColors.lime.withValues(alpha: 0.4)
-                    : (widget.hero ? AppColors.forest : AppColors.cardBorder),
+                    ? (isDark
+                          ? AppColors.lime.withValues(alpha: 0.4)
+                          : AppColors.forest.withValues(alpha: 0.45))
+                    : (widget.hero
+                          ? (isDark
+                                ? AppColors.forest
+                                : AppColors.forest.withValues(alpha: 0.22))
+                          : AppColors.cardBorder),
                 width: _isElevated ? 1.5 : 1,
               ),
             ),
@@ -119,9 +131,7 @@ class _QuickActionCardState extends State<QuickActionCard> {
                           child: Icon(
                             Icons.arrow_forward,
                             size: 18,
-                            color: widget.hero
-                                ? AppColors.lime
-                                : AppColors.sage,
+                            color: arrowColor,
                           ),
                         ),
                       ],

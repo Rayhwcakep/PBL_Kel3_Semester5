@@ -1,4 +1,5 @@
 import '../../core/config/app_config.dart';
+import '../models/explain_response.dart';
 import '../models/player.dart';
 import '../models/scout_response.dart';
 import '../models/scouting_criteria.dart';
@@ -24,6 +25,10 @@ class ScoutingRepository {
   Future<List<Player>> getPlayers() => _service.fetchPlayers();
 
   Future<Player> getPlayer(String id) => _service.fetchPlayer(id);
+
+  /// Kelebihan dan kekurangan pemain hasil SHAP
+  /// (`GET /players/{id}/explain`).
+  Future<PlayerExplain> explain(String id) => _service.explain(id);
 
   Future<ScoutResponse> scout(ScoutingCriteria criteria) =>
       _service.scout(criteria);

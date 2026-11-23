@@ -153,6 +153,9 @@ class MockScoutingService implements ScoutingService {
     await Future<void>.delayed(latency);
     final player = _player(id);
 
+    final fixture = _explainFixture(player);
+    if (fixture != null) return fixture;
+
     final rows = [
       for (final feature in player.radarAxes) _explainRow(player, feature),
     ]..sort((a, b) => b.shapValue.compareTo(a.shapValue));
@@ -167,6 +170,123 @@ class MockScoutingService implements ScoutingService {
       weaknesses: weaknesses.take(3).toList(),
       // Data contoh tidak punya SHAP variabel konteks, jadi daftarnya kosong.
       summary: _explainSummary(player, strengths, weaknesses),
+    );
+  }
+
+  /// Potret balasan backend asli untuk Lamine Yamal (notebook Langkah 15).
+  ///
+  /// Angka effect_pct tidak bisa diturunkan dari persentil saja karena berasal
+  /// dari model nilai pasar, jadi disalin apa adanya agar layar Insight
+  /// menampilkan kalimat yang sama dengan `GET /players/1959/explain`.
+  PlayerExplain? _explainFixture(Player player) {
+    if (player.name != 'Lamine Yamal') return null;
+
+    ExplainContribution row({
+      required String feature,
+      required String label,
+      required double value,
+      required double percentile,
+      required double betterThanPct,
+      required double effectPct,
+      required String verdict,
+    }) {
+      return ExplainContribution(
+        feature: feature,
+        label: label,
+        value: value,
+        percentile: percentile,
+        betterThanPct: betterThanPct,
+        shapValue: math.log(1 + effectPct / 100),
+        effectPct: effectPct,
+        verdict: verdict,
+      );
+    }
+
+    ExplainContribution context({
+      required String feature,
+      required String label,
+      required double effectPct,
+    }) {
+      return row(
+        feature: feature,
+        label: label,
+        value: 0,
+        percentile: 0,
+        betterThanPct: 0,
+        effectPct: effectPct,
+        verdict: 'konteks',
+      );
+    }
+
+    return PlayerExplain(
+      player: player,
+      strengths: [
+        row(
+          feature: 'sh_p90',
+          label: 'Tembakan',
+          value: 4.66,
+          percentile: 100,
+          betterThanPct: 100,
+          effectPct: 77,
+          verdict: 'kelebihan',
+        ),
+        row(
+          feature: 'npg_p90',
+          label: 'Gol non-penalti',
+          value: 0.52,
+          percentile: 96,
+          betterThanPct: 96,
+          effectPct: 33,
+          verdict: 'kelebihan',
+        ),
+        row(
+          feature: 'ast_p90',
+          label: 'Assist',
+          value: 0.44,
+          percentile: 98,
+          betterThanPct: 98,
+          effectPct: 11,
+          verdict: 'kelebihan',
+        ),
+        row(
+          feature: 'fld_p90',
+          label: 'Pelanggaran diterima',
+          value: 2.07,
+          percentile: 82,
+          betterThanPct: 82,
+          effectPct: 4,
+          verdict: 'kelebihan',
+        ),
+        row(
+          feature: 'sot_p90',
+          label: 'Tembakan on target',
+          value: 1.47,
+          percentile: 96,
+          betterThanPct: 96,
+          effectPct: 4,
+          verdict: 'kelebihan',
+        ),
+      ],
+      context: [
+        context(feature: 'Age', label: 'Usia', effectPct: 54),
+        context(feature: 'Min', label: 'Menit main', effectPct: 18),
+        context(
+          feature: 'start_rate',
+          label: 'Rasio jadi starter',
+          effectPct: 35,
+        ),
+        context(
+          feature: 'plus_p90',
+          label: 'Plus/minus per 90',
+          effectPct: 123,
+        ),
+        context(feature: 'ctx_liga', label: 'Liga', effectPct: -22),
+      ],
+      summary:
+          'Lamine Yamal (Pemain sayap, 18 tahun, €200.0 jt). '
+          'Kelebihan: Tembakan (+77%), Gol non-penalti (+33%). '
+          'Kekurangan: tidak ada yang menonjol. '
+          'Keandalan model nilai pasar: baik (R² uji 0.57).',
     );
   }
 

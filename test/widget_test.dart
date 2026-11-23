@@ -1,10 +1,12 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 import 'package:scout_ml/app.dart';
+import 'package:scout_ml/core/theme/app_colors.dart';
 import 'package:scout_ml/core/theme/app_theme.dart';
 import 'package:scout_ml/presentation/screens/find_by_tactic_screen.dart';
+import 'package:scout_ml/presentation/widgets/quick_action_card.dart';
 import 'package:scout_ml/state/compare_provider.dart';
 import 'package:scout_ml/state/player_provider.dart';
 import 'package:scout_ml/state/scouting_provider.dart';
@@ -90,6 +92,49 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.byIcon(Icons.dark_mode_outlined), findsOneWidget);
+  });
+
+  testWidgets('Kartu hero Quick Action mengikuti tema terang dan gelap', (
+    tester,
+  ) async {
+    Future<void> pumpHero(ThemeData theme) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: const Scaffold(
+            body: QuickActionCard(
+              title: 'Find by Tactic',
+              subtitle: 'Match squad shape & role',
+              icon: Icons.format_shapes,
+              hero: true,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    Material heroMaterial() {
+      return tester.widget<Material>(
+        find
+            .descendant(
+              of: find.byType(QuickActionCard),
+              matching: find.byType(Material),
+            )
+            .first,
+      );
+    }
+
+    Text heroTitle() => tester.widget<Text>(find.text('Find by Tactic'));
+
+    await pumpHero(AppTheme.dark);
+    expect(heroMaterial().color, AppColors.forest);
+    expect(heroTitle().style?.color, AppColors.onForest);
+
+    await pumpHero(AppTheme.light);
+    expect(heroMaterial().color, AppColors.primaryFixed);
+    expect(heroMaterial().color, isNot(AppColors.forest));
+    expect(heroTitle().style?.color, AppColors.forest);
   });
 
   testWidgets('Find by Tactic aman pada tema gelap dan terang', (tester) async {

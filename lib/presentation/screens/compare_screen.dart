@@ -283,6 +283,11 @@ class _RadarComparison extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Dua seri bisa berbagi satu radar hanya bila keduanya pemain lapangan
+    // (10 sumbu) atau keduanya kiper (5 sumbu). Bila berbeda, tiap pemain
+    // mendapat radar sendiri supaya tidak ada sumbu kosong.
+    final sameCategory = left.isGoalkeeper == right.isGoalkeeper;
+
     return ScoutCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,26 +299,46 @@ class _RadarComparison extends StatelessWidget {
             style: AppTypography.bodySm(color: AppColors.sageSoft),
           ),
           const SizedBox(height: AppSpacing.md),
-          Center(
-            child: RadarChart(
-              axisLabels: left.radarAxes.map((f) => f.label).toList(),
-              size: 280,
-              series: [
-                RadarSeries(
-                  label: left.name,
-                  values: left.radarAxes.map(left.radarValue).toList(),
-                  fillColor: AppColors.playerAFill,
-                  strokeColor: AppColors.playerA,
-                ),
-                RadarSeries(
-                  label: right.name,
-                  values: left.radarAxes.map(right.radarValue).toList(),
-                  fillColor: AppColors.playerBFill,
-                  strokeColor: AppColors.playerB,
-                ),
-              ],
+          if (sameCategory)
+            Center(
+              child: RadarChart(
+                axisLabels: left.radarLabels,
+                size: 280,
+                series: [
+                  RadarSeries(
+                    label: left.name,
+                    values: left.radarValues,
+                    fillColor: AppColors.playerAFill,
+                    strokeColor: AppColors.playerA,
+                  ),
+                  RadarSeries(
+                    label: right.name,
+                    values: right.radarValues,
+                    fillColor: AppColors.playerBFill,
+                    strokeColor: AppColors.playerB,
+                  ),
+                ],
+              ),
+            )
+          else ...[
+            Text(
+              'Arketipe berbeda: radar ditampilkan terpisah agar jumlah sumbu '
+              'sesuai posisi masing-masing pemain.',
+              style: AppTypography.bodySm(color: AppColors.sageSoft),
             ),
-          ),
+            const SizedBox(height: AppSpacing.sm),
+            _SingleRadar(
+              player: left,
+              fillColor: AppColors.playerAFill,
+              strokeColor: AppColors.playerA,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            _SingleRadar(
+              player: right,
+              fillColor: AppColors.playerBFill,
+              strokeColor: AppColors.playerB,
+            ),
+          ],
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
@@ -324,6 +349,34 @@ class _RadarComparison extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _SingleRadar extends StatelessWidget {
+  const _SingleRadar({
+    required this.player,
+    required this.fillColor,
+    required this.strokeColor,
+  });
+
+  final Player player;
+  final Color fillColor;
+  final Color strokeColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return RadarChart(
+      axisLabels: player.radarLabels,
+      size: 230,
+      series: [
+        RadarSeries(
+          label: player.name,
+          values: player.radarValues,
+          fillColor: fillColor,
+          strokeColor: strokeColor,
+        ),
+      ],
     );
   }
 }

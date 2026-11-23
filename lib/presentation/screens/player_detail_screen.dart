@@ -18,6 +18,7 @@ import '../widgets/radar_chart.dart';
 import '../widgets/scout_card.dart';
 import '../widgets/section_header.dart';
 import '../widgets/shap_contribution_chart.dart';
+import 'player_insight_screen.dart';
 import 'player_picker_screen.dart';
 
 /// Halaman detail pemain (Player Dossier).
@@ -62,6 +63,8 @@ class PlayerDetailScreen extends StatelessWidget {
           _ValuationCard(player: player),
           const SizedBox(height: AppSpacing.md),
           _ProfileRadarCard(player: player),
+          const SizedBox(height: AppSpacing.md),
+          _InsightEntryCard(player: player),
           const SizedBox(height: AppSpacing.md),
           _SeasonStatsCard(player: player),
           if (result != null && result!.contributions.isNotEmpty) ...[
@@ -335,12 +338,12 @@ class _ProfileRadarCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           Center(
             child: RadarChart(
-              axisLabels: player.radarAxes.map((f) => f.label).toList(),
+              axisLabels: player.radarLabels,
               size: 280,
               series: [
                 RadarSeries(
                   label: player.name,
-                  values: player.radarAxes.map(player.radarValue).toList(),
+                  values: player.radarValues,
                   fillColor: AppColors.playerAFill,
                   strokeColor: AppColors.playerA,
                 ),
@@ -387,6 +390,53 @@ class _ProfileRadarCard extends StatelessWidget {
       ),
     );
     if (other != null) compare.add(other);
+  }
+}
+
+class _InsightEntryCard extends StatelessWidget {
+  const _InsightEntryCard({required this.player});
+
+  final Player player;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScoutCard(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => PlayerInsightScreen(player: player)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppColors.forest,
+              borderRadius: AppRadius.controlBorder,
+            ),
+            child: Icon(
+              Icons.psychology_outlined,
+              size: 23,
+              color: AppColors.lime,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Player Insight (SHAP)', style: AppTypography.titleLg()),
+                const SizedBox(height: 2),
+                Text(
+                  'Kelebihan, kekurangan, dan konteks nilai pasar',
+                  style: AppTypography.bodySm(color: AppColors.sageSoft),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right, size: 22, color: AppColors.sageSoft),
+        ],
+      ),
+    );
   }
 }
 

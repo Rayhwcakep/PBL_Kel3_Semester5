@@ -96,7 +96,12 @@ class LoadingView extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              Text(message, style: AppTypography.bodySm(color: AppColors.sage)),
+              Flexible(
+                child: Text(
+                  message,
+                  style: AppTypography.bodySm(color: AppColors.sage),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
