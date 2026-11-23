@@ -211,13 +211,20 @@ class MockScoutingService implements ScoutingService {
     );
   }
 
-  /// Potret balasan backend asli untuk Lamine Yamal (notebook Langkah 15).
+  /// Pemain contoh yang punya potret balasan SHAP asli dari backend.
+  ///
+  /// Dicocokkan lewat [Player.id], bukan teks nama, supaya fixture tidak
+  /// diam-diam berhenti terpakai saat nama di `mockPlayers` berubah.
+  static const String explainFixturePlayerId = 'p001';
+
+  /// Potret balasan backend asli untuk [explainFixturePlayerId]
+  /// (notebook Langkah 15).
   ///
   /// Angka effect_pct tidak bisa diturunkan dari persentil saja karena berasal
   /// dari model nilai pasar, jadi disalin apa adanya agar layar Insight
   /// menampilkan kalimat yang sama dengan `GET /players/1959/explain`.
   PlayerExplain? _explainFixture(Player player) {
-    if (player.name != 'Lamine Yamal') return null;
+    if (player.id != explainFixturePlayerId) return null;
 
     ExplainContribution row({
       required String feature,
@@ -321,7 +328,8 @@ class MockScoutingService implements ScoutingService {
         context(feature: 'ctx_liga', label: 'Liga', effectPct: -22),
       ],
       summary:
-          'Lamine Yamal (Pemain sayap, 18 tahun, €200.0 jt). '
+          '${player.name} (${player.position}, ${player.age} tahun, '
+          '${player.marketValueLabel}). '
           'Kelebihan: Tembakan (+77%), Gol non-penalti (+33%). '
           'Kekurangan: tidak ada yang menonjol. '
           'Keandalan model nilai pasar: baik (R² uji 0.57).',
