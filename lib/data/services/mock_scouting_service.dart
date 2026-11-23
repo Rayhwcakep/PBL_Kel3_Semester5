@@ -9,6 +9,7 @@ import '../models/feature_catalog.dart';
 import '../models/feature_contribution.dart';
 import '../models/player.dart';
 import '../models/player_feature.dart';
+import '../models/player_query.dart';
 import '../models/scout_response.dart';
 import '../models/scouting_criteria.dart';
 import '../models/scouting_result.dart';
@@ -55,9 +56,46 @@ class MockScoutingService implements ScoutingService {
   static const double _typicalDistance = 0.35;
 
   @override
-  Future<List<Player>> fetchPlayers() async {
+  Future<List<Player>> fetchPlayers({PlayerQuery? filter}) async {
     await Future<void>.delayed(latency);
-    return List<Player>.unmodifiable(mockPlayers);
+    return List<Player>.unmodifiable(_filterPlayers(filter));
+  }
+
+  /// Meniru filter `GET /players` pada data contoh.
+  List<Player> _filterPlayers(PlayerQuery? filter) {
+    if (filter == null) return mockPlayers;
+
+    var items = mockPlayers.where((player) {
+      if (filter.archetype != null && player.archetype != filter.archetype) {
+        return false;
+      }
+      if (filter.league != null &&
+          !player.league.toLowerCase().contains(filter.league!.toLowerCase())) {
+        return false;
+      }
+      if (filter.minAge != null && player.age < filter.minAge!) return false;
+      if (filter.maxAge != null && player.age > filter.maxAge!) return false;
+      if (filter.maxValueEur != null &&
+          player.marketValueEur > filter.maxValueEur!) {
+        return false;
+      }
+      if (filter.search != null) {
+        final needle = filter.search!.toLowerCase();
+        final matchesName = player.name.toLowerCase().contains(needle);
+        final matchesClub = player.club.toLowerCase().contains(needle);
+        if (!matchesName && !matchesClub) return false;
+      }
+      return true;
+    }).toList();
+
+    final offset = filter.offset ?? 0;
+    if (offset > 0) {
+      items = items.skip(offset).toList();
+    }
+    if (filter.limit != null) {
+      items = items.take(filter.limit!).toList();
+    }
+    return items;
   }
 
   @override

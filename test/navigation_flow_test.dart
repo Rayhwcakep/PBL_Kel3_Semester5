@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:scout_ml/app.dart';
 import 'package:scout_ml/state/compare_provider.dart';
+import 'package:scout_ml/state/feature_catalog_provider.dart';
 import 'package:scout_ml/state/player_provider.dart';
 import 'package:scout_ml/state/scouting_provider.dart';
 import 'package:scout_ml/state/shortlist_provider.dart';
@@ -14,6 +15,7 @@ Widget _app() {
     providers: [
       ChangeNotifierProvider(create: (_) => PlayerProvider()),
       ChangeNotifierProvider(create: (_) => ScoutingProvider()),
+      ChangeNotifierProvider(create: (_) => FeatureCatalogProvider()),
       ChangeNotifierProvider(create: (_) => ShortlistProvider()),
       ChangeNotifierProvider(create: (_) => CompareProvider()),
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
@@ -41,6 +43,8 @@ void main() {
     expect(find.text('Pilih pemain acuan'), findsOneWidget);
     expect(find.text('Hello, Scout'), findsNothing);
 
+    await tester.ensureVisible(find.text('Pilih Pemain'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Pilih Pemain'));
     await tester.pumpAndSettle();
     expect(find.text('Pilih Pemain Acuan'), findsOneWidget);

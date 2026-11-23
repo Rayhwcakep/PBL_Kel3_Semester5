@@ -1,22 +1,31 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
+import '../../data/models/feature_catalog.dart';
 import '../../data/models/player.dart';
+import '../../data/models/player_feature.dart';
+import '../../data/models/player_query.dart';
 import '../../data/models/scouting_criteria.dart';
 import '../../state/compare_provider.dart';
+import '../../state/feature_catalog_provider.dart';
 import '../../state/player_provider.dart';
 import '../../state/scouting_provider.dart';
 import '../../state/shortlist_provider.dart';
 import '../widgets/app_bars.dart';
 import '../widgets/chips.dart';
 import '../widgets/empty_state_view.dart';
+import '../widgets/feature_slider.dart';
 import '../widgets/loading_view.dart';
+import '../widgets/pill_button.dart';
 import '../widgets/player_cards.dart';
 import '../widgets/player_avatar.dart';
 import '../widgets/radar_chart.dart';
+import '../widgets/scout_card.dart';
 import '../widgets/section_header.dart';
 import 'find_by_tactic_screen.dart';
 import 'player_detail_screen.dart';
@@ -37,12 +46,25 @@ class DiscoverScreen extends StatefulWidget {
 }
 
 class _DiscoverScreenState extends State<DiscoverScreen> {
+  /// Filter yang dikirim sebagai query `GET /players`.
+  ///
+  /// Daftar hasil tidak disaring di aplikasi: setiap perubahan filter
+  /// meminta ulang ke backend, jadi jumlahnya sesuai data sebenarnya.
+  PlayerQuery _browseFilter = const PlayerQuery();
+  int? _browseCount;
+  bool _isFiltering = false;
+  String? _filterError;
+  int _filterRequestId = 0;
+  final _searchController = TextEditingController();
+  Timer? _searchDebounce;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final players = context.read<PlayerProvider>();
       if (players.players.isEmpty) players.loadPlayers();
+      context.read<FeatureCatalogProvider>().load();
 
       if (widget.initialBase != null) {
         final scouting = context.read<ScoutingProvider>();
@@ -53,10 +75,71 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
   }
 
   @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  /// Mengubah filter lalu meminta ulang daftar ke `GET /players`.
+  void _updateFilter(PlayerQuery Function(PlayerQuery) update) {
+    _searchDebounce?.cancel();
+    setState(() => _browseFilter = update(_browseFilter));
+    _runBrowseQuery();
+  }
+
+  void _onSearchChanged(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 350), () {
+      _updateFilter(
+        (current) => current.copyWith(
+          search: value.trim().isEmpty ? null : value.trim(),
+          clearSearch: value.trim().isEmpty,
+        ),
+      );
+    });
+  }
+
+  Future<void> _runBrowseQuery() async {
+    final query = _browseFilter;
+    final requestId = ++_filterRequestId;
+
+    if (query.isEmpty) {
+      setState(() {
+        _browseCount = null;
+        _isFiltering = false;
+        _filterError = null;
+      });
+      return;
+    }
+
+    setState(() {
+      _isFiltering = true;
+      _filterError = null;
+    });
+
+    try {
+      final results = await context.read<PlayerProvider>().searchPlayers(query);
+      if (!mounted || requestId != _filterRequestId) return;
+      setState(() {
+        _browseCount = results.length;
+        _isFiltering = false;
+      });
+    } catch (e) {
+      if (!mounted || requestId != _filterRequestId) return;
+      setState(() {
+        _filterError = 'Gagal memuat pemain: $e';
+        _isFiltering = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final scouting = context.watch<ScoutingProvider>();
     final players = context.watch<PlayerProvider>();
     final shortlist = context.watch<ShortlistProvider>();
+    final features = context.watch<FeatureCatalogProvider>();
     final base = scouting.basePlayer;
     final response = scouting.response;
     final results = response?.results ?? const [];
@@ -118,7 +201,10 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.margin,
                 ),
-                child: _AnchorCard(player: base),
+                child: _AnchorCard(
+                  player: base,
+                  radar: features.radarFor(base),
+                ),
               ),
             ],
             const SizedBox(height: AppSpacing.md),
@@ -126,12 +212,62 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.margin,
               ),
+              child: SearchPill(
+                controller: _searchController,
+                hint: 'Cari nama atau klub...',
+                onChanged: _onSearchChanged,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.margin,
+              ),
               child: _FilterRow(
-                criteria: scouting.criteria,
+                filter: _browseFilter,
                 leagues: players.leagues,
-                onMaxAge: scouting.setMaxAge,
-                onMaxValue: scouting.setMaxValue,
-                onLeague: scouting.setLeague,
+                onMaxAge: (value) {
+                  scouting.setMaxAge(value);
+                  _updateFilter(
+                    (current) => current.copyWith(
+                      maxAge: value,
+                      clearMaxAge: value == null,
+                    ),
+                  );
+                },
+                onMaxValue: (value) {
+                  scouting.setMaxValue(value);
+                  _updateFilter(
+                    (current) => current.copyWith(
+                      maxValueEur: value == null ? null : value * 1e6,
+                      clearMaxValue: value == null,
+                    ),
+                  );
+                },
+                onLeague: (value) {
+                  scouting.setLeague(value);
+                  _updateFilter(
+                    (current) => current.copyWith(
+                      league: value,
+                      clearLeague: value == null,
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.margin,
+                AppSpacing.sm,
+                AppSpacing.margin,
+                0,
+              ),
+              child: _BrowseSummary(
+                filter: _browseFilter,
+                isLoading: _isFiltering,
+                error: _filterError,
+                count: _browseCount ?? players.players.length,
+                onRetry: _runBrowseQuery,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -144,6 +280,23 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 onChanged: scouting.setSortBy,
               ),
             ),
+            if (base != null) ...[
+              const SizedBox(height: AppSpacing.md),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.margin,
+                ),
+                child: _CriteriaTuner(
+                  key: ValueKey(base.id),
+                  player: base,
+                  catalog: features.catalog,
+                  isLoading: features.isLoading,
+                  error: features.error,
+                  onRetry: features.load,
+                  onApply: (sliders) => _applySliders(context, sliders),
+                ),
+              ),
+            ],
             const SizedBox(height: AppSpacing.md),
             if (scouting.isLoading)
               const Padding(
@@ -229,6 +382,16 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
         ),
       ),
     );
+  }
+
+  /// Mengirim target persentil hasil slider ke `POST /scout/tactic`.
+  Future<void> _applySliders(
+    BuildContext context,
+    Map<PlayerFeature, double> sliders,
+  ) async {
+    final scouting = context.read<ScoutingProvider>();
+    scouting.setSliders(sliders);
+    await scouting.runScout();
   }
 
   Future<void> _pickBase(BuildContext context) async {
@@ -406,12 +569,18 @@ class _BaseSelector extends StatelessWidget {
 }
 
 class _AnchorCard extends StatelessWidget {
-  const _AnchorCard({required this.player});
+  const _AnchorCard({required this.player, this.radar});
 
   final Player player;
 
+  /// Sumbu radar dari `GET /meta/features`; kosong berarti memakai urutan
+  /// statistik lokal.
+  final ({List<String> labels, List<double> values})? radar;
+
   @override
   Widget build(BuildContext context) {
+    final metricCount = radar?.values.length ?? player.radarAxes.length;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -467,12 +636,24 @@ class _AnchorCard extends StatelessWidget {
                 width: 66,
                 height: 66,
                 child: RadarChart(
+<<<<<<< HEAD
                   axisLabels: List<String>.filled(player.radarAxes.length, ''),
+=======
+                  axisLabels:
+                      radar?.labels ??
+                      List<String>.filled(player.radarAxes.length, ''),
+>>>>>>> 4d4e7f3e42ade03082b6821ec7ed385e1c65091b
                   size: 66,
                   series: [
                     RadarSeries(
                       label: 'DNA',
+<<<<<<< HEAD
                       values: player.radarValues,
+=======
+                      values:
+                          radar?.values ??
+                          player.radarAxes.map(player.radarValue).toList(),
+>>>>>>> 4d4e7f3e42ade03082b6821ec7ed385e1c65091b
                       fillColor: AppColors.lime.withValues(alpha: 0.35),
                       strokeColor: AppColors.lime,
                     ),
@@ -506,7 +687,7 @@ class _AnchorCard extends StatelessWidget {
               Column(
                 children: [
                   Text(
-                    '12',
+                    '$metricCount',
                     style: AppTypography.statMd(color: AppColors.onForest),
                   ),
                   Text(
@@ -525,16 +706,179 @@ class _AnchorCard extends StatelessWidget {
   }
 }
 
+/// Daftar slider target persentil untuk arketipe pemain acuan.
+///
+/// Urutan, label, dan arah logika setiap statistik diambil dari
+/// `GET /meta/features` (`FeatureCatalog`), bukan daftar tetap di aplikasi.
+class _CriteriaTuner extends StatefulWidget {
+  const _CriteriaTuner({
+    super.key,
+    required this.player,
+    required this.catalog,
+    required this.isLoading,
+    required this.error,
+    required this.onRetry,
+    required this.onApply,
+  });
+
+  final Player player;
+  final FeatureCatalog? catalog;
+  final bool isLoading;
+  final String? error;
+  final VoidCallback onRetry;
+  final ValueChanged<Map<PlayerFeature, double>> onApply;
+
+  @override
+  State<_CriteriaTuner> createState() => _CriteriaTunerState();
+}
+
+class _CriteriaTunerState extends State<_CriteriaTuner> {
+  /// Statistik arketipe sesuai metadata backend, berurutan.
+  List<ArchetypeFeature> get _features =>
+      widget.catalog?.archetype(widget.player.archetype)?.features ?? const [];
+
+  Map<PlayerFeature, double> _values = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _seed();
+  }
+
+  @override
+  void didUpdateWidget(covariant _CriteriaTuner oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.player.id != widget.player.id ||
+        oldWidget.catalog != widget.catalog) {
+      _seed();
+    }
+  }
+
+  /// Nilai awal tiap slider = persentil pemain acuan pada statistik tersebut.
+  void _seed() {
+    final values = <PlayerFeature, double>{};
+    for (final item in _features) {
+      final feature = PlayerFeature.fromJsonKey(item.key);
+      if (feature == null) continue;
+      values[feature] = widget.player
+          .percentile(feature)
+          .clamp(0, 100)
+          .toDouble();
+    }
+    _values = values;
+  }
+
+  void _reset() => setState(_seed);
+
+  @override
+  Widget build(BuildContext context) {
+    final features = _features;
+
+    return ScoutCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Sesuaikan Kriteria',
+                  style: AppTypography.headlineMd().copyWith(fontSize: 20),
+                ),
+              ),
+              if (features.isNotEmpty)
+                MetricBadge(label: '${features.length} statistik'),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'Label dan urutan dari metadata model, bukan daftar tetap.',
+            style: AppTypography.bodySm(color: AppColors.sageSoft),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          if (features.isEmpty)
+            _placeholder()
+          else ...[
+            for (final item in features)
+              if (PlayerFeature.fromJsonKey(item.key) case final feature?)
+                FeatureSlider(
+                  label: item.label,
+                  goodDir: item.goodDir,
+                  unit: item.unit,
+                  value: _values[feature] ?? 0,
+                  onChanged: (value) =>
+                      setState(() => _values[feature] = value),
+                ),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                TextButton(
+                  onPressed: _reset,
+                  child: Text(
+                    'Reset',
+                    style: AppTypography.labelLg(color: AppColors.sage),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: PillButton(
+                    label: 'Terapkan & Cari',
+                    icon: Icons.tune,
+                    height: 46,
+                    onPressed: () => widget.onApply(_values),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _placeholder() {
+    if (widget.isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+        child: LoadingView(message: 'Memuat statistik model...'),
+      );
+    }
+
+    final error = widget.error;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              error ?? 'Metadata statistik belum tersedia.',
+              style: AppTypography.bodySm(color: AppColors.sageSoft),
+            ),
+          ),
+          TextButton(
+            onPressed: widget.onRetry,
+            child: Text(
+              'Muat ulang',
+              style: AppTypography.labelLg(color: AppColors.sage),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _FilterRow extends StatelessWidget {
   const _FilterRow({
-    required this.criteria,
+    required this.filter,
     required this.leagues,
     required this.onMaxAge,
     required this.onMaxValue,
     required this.onLeague,
   });
 
-  final ScoutingCriteria criteria;
+  /// Filter aktif; nilainya juga dipakai untuk label pill.
+  final PlayerQuery filter;
   final List<String> leagues;
   final ValueChanged<int?> onMaxAge;
   final ValueChanged<double?> onMaxValue;
@@ -547,31 +891,103 @@ class _FilterRow extends StatelessWidget {
       child: Row(
         children: [
           _DropdownPill<int>(
-            label: criteria.maxAge == null
+            label: filter.maxAge == null
                 ? 'Max age'
-                : 'Max age: ${criteria.maxAge}',
+                : 'Max age: ${filter.maxAge}',
             items: const [21, 23, 25, 27, 30],
             itemLabel: (value) => '<= $value tahun',
             onSelected: onMaxAge,
           ),
           const SizedBox(width: AppSpacing.sm),
           _DropdownPill<double>(
-            label: criteria.maxValue == null
+            label: filter.maxValueEur == null
                 ? 'Max value'
-                : 'Max: €${criteria.maxValue!.toStringAsFixed(0)}M',
+                : 'Max: EUR ${(filter.maxValueEur! / 1e6).toStringAsFixed(0)} jt',
             items: const [40, 60, 80, 120, 200],
-            itemLabel: (value) => '<= €${value.toStringAsFixed(0)}M',
+            itemLabel: (value) => '<= EUR ${value.toStringAsFixed(0)} jt',
             onSelected: onMaxValue,
           ),
           const SizedBox(width: AppSpacing.sm),
           _DropdownPill<String>(
-            label: criteria.league ?? 'League',
+            label: filter.league ?? 'League',
             items: leagues,
             itemLabel: (value) => value,
             onSelected: onLeague,
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Ringkasan jumlah pemain hasil filter `GET /players`.
+class _BrowseSummary extends StatelessWidget {
+  const _BrowseSummary({
+    required this.filter,
+    required this.isLoading,
+    required this.error,
+    required this.count,
+    required this.onRetry,
+  });
+
+  final PlayerQuery filter;
+  final bool isLoading;
+  final String? error;
+  final int count;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return Row(
+        children: [
+          SizedBox(
+            width: 13,
+            height: 13,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: AppColors.sage,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            'Memuat pemain sesuai filter...',
+            style: AppTypography.bodySm(color: AppColors.sageSoft),
+          ),
+        ],
+      );
+    }
+
+    if (error != null) {
+      return Row(
+        children: [
+          Expanded(
+            child: Text(
+              error!,
+              style: AppTypography.bodySm(color: AppColors.error),
+            ),
+          ),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(
+              'Coba lagi',
+              style: AppTypography.labelLg(color: AppColors.sage),
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (filter.isEmpty) {
+      return Text(
+        '$count pemain pada dataset',
+        style: AppTypography.bodySm(color: AppColors.sageSoft),
+      );
+    }
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: MetricBadge(label: '$count pemain cocok'),
     );
   }
 }

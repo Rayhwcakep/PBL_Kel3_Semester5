@@ -8,6 +8,7 @@ import 'package:scout_ml/core/theme/app_theme.dart';
 import 'package:scout_ml/presentation/screens/find_by_tactic_screen.dart';
 import 'package:scout_ml/presentation/widgets/quick_action_card.dart';
 import 'package:scout_ml/state/compare_provider.dart';
+import 'package:scout_ml/state/feature_catalog_provider.dart';
 import 'package:scout_ml/state/player_provider.dart';
 import 'package:scout_ml/state/scouting_provider.dart';
 import 'package:scout_ml/state/shortlist_provider.dart';
@@ -22,6 +23,7 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (_) => PlayerProvider()),
           ChangeNotifierProvider(create: (_) => ScoutingProvider()),
+          ChangeNotifierProvider(create: (_) => FeatureCatalogProvider()),
           ChangeNotifierProvider(create: (_) => ShortlistProvider()),
           ChangeNotifierProvider(create: (_) => CompareProvider()),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
@@ -43,6 +45,7 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (_) => PlayerProvider()),
           ChangeNotifierProvider(create: (_) => ScoutingProvider()),
+          ChangeNotifierProvider(create: (_) => FeatureCatalogProvider()),
           ChangeNotifierProvider(create: (_) => ShortlistProvider()),
           ChangeNotifierProvider(create: (_) => CompareProvider()),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
@@ -72,6 +75,7 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (_) => PlayerProvider()),
           ChangeNotifierProvider(create: (_) => ScoutingProvider()),
+          ChangeNotifierProvider(create: (_) => FeatureCatalogProvider()),
           ChangeNotifierProvider(create: (_) => ShortlistProvider()),
           ChangeNotifierProvider(create: (_) => CompareProvider()),
           ChangeNotifierProvider(create: (_) => ThemeProvider()),
