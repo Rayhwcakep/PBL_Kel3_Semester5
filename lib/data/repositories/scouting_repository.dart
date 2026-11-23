@@ -1,10 +1,7 @@
 import '../../core/config/app_config.dart';
-<<<<<<< HEAD
-import '../models/explain_response.dart';
-=======
 import '../models/compare_report.dart';
+import '../models/explain_response.dart';
 import '../models/feature_catalog.dart';
->>>>>>> 4d4e7f3e42ade03082b6821ec7ed385e1c65091b
 import '../models/player.dart';
 import '../models/player_query.dart';
 import '../models/scout_response.dart';
