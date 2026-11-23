@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../data/models/api_exception.dart';
 import '../data/models/player.dart';
+import '../data/models/player_query.dart';
 import '../data/repositories/scouting_repository.dart';
 
 /// Memuat dan menyimpan daftar pemain pada dataset.
@@ -12,6 +13,7 @@ class PlayerProvider extends ChangeNotifier {
   final ScoutingRepository _repository;
 
   List<Player> _players = const [];
+  PlayerQuery _filter = const PlayerQuery();
   bool _isLoading = false;
   String? _error;
 
@@ -64,14 +66,19 @@ class PlayerProvider extends ChangeNotifier {
     return null;
   }
 
-  Future<void> loadPlayers() async {
+  /// Memuat daftar pemain dari `GET /players`.
+  ///
+  /// Bila [filter] diisi, filter tersebut disimpan dan dipakai untuk
+  /// permintaan berikutnya (mis. saat pull-to-refresh).
+  Future<void> loadPlayers({PlayerQuery? filter}) async {
     if (_isLoading) return;
+    if (filter != null) _filter = filter;
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      _players = await _repository.getPlayers();
+      _players = await _repository.getPlayers(filter: _filter);
     } on ApiException catch (e) {
       _error = e.message;
     } catch (e) {
@@ -81,4 +88,11 @@ class PlayerProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// Mencari pemain lewat `GET /players` tanpa mengubah daftar utama.
+  ///
+  /// Dipakai filter Discover agar penyaringan dikerjakan backend dan tidak
+  /// mengganggu data yang sudah dimuat untuk halaman lain.
+  Future<List<Player>> searchPlayers(PlayerQuery query) =>
+      _repository.getPlayers(filter: query);
 }

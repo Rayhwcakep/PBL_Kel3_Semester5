@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:scout_ml/data/models/player_feature.dart';
+import 'package:scout_ml/data/models/player_query.dart';
 import 'package:scout_ml/data/services/api_client.dart';
 import 'package:scout_ml/data/services/api_scouting_service.dart';
 
@@ -110,6 +111,57 @@ Map<String, dynamic> _reasonJson({double share = 0.0081}) => {
 }
 
 void main() {
+  test('fetchPlayers mengirim filter sebagai query GET /players', () async {
+    final (service, adapter) = _service(
+      (_) => {
+        'total': 1,
+        'count': 1,
+        'players': [_playerJson('7', 'Matthis Abline')],
+      },
+    );
+
+    final players = await service.fetchPlayers(
+      filter: const PlayerQuery(
+        archetype: 'ST',
+        league: 'Ligue 1',
+        maxAge: 23,
+        maxValueEur: 50000000,
+        search: 'matthis',
+        limit: 20,
+      ),
+    );
+
+    final request = adapter.requests.single;
+    final query = request.queryParameters;
+    expect(request.path, '/players');
+    expect(request.method, 'GET');
+    expect(query['archetype'], 'ST');
+    expect(query['league'], 'Ligue 1');
+    expect(query['max_age'], 23);
+    expect(query['max_value_eur'], 50000000.0);
+    expect(query['search'], 'matthis');
+    expect(query['limit'], 20);
+    // Filter yang kosong tidak boleh dikirim sebagai parameter.
+    expect(query.containsKey('min_age'), isFalse);
+    expect(query.containsKey('offset'), isFalse);
+    expect(players.single.name, 'Matthis Abline');
+  });
+
+  test('fetchPlayers tanpa filter tidak mengirim query tambahan', () async {
+    final (service, adapter) = _service(
+      (_) => {
+        'total': 1,
+        'count': 1,
+        'players': [_playerJson('7', 'Matthis Abline')],
+      },
+    );
+
+    await service.fetchPlayers();
+
+    expect(adapter.requests.single.path, '/players');
+    expect(adapter.requests.single.queryParameters, isEmpty);
+  });
+
   test('explain memanggil /players/{id}/explain dan membaca hasilnya', () async {
     final (service, adapter) = _service(
       (_) => {

@@ -6,6 +6,7 @@ import '../models/explain_response.dart';
 import '../models/feature_catalog.dart';
 import '../models/player.dart';
 import '../models/player_feature.dart';
+import '../models/player_query.dart';
 import '../models/scout_response.dart';
 import '../models/scouting_criteria.dart';
 import '../models/similar_response.dart';
@@ -21,8 +22,11 @@ class ApiScoutingService implements ScoutingService {
   final ApiClient _client;
 
   @override
-  Future<List<Player>> fetchPlayers() async {
-    final json = await _client.getJson(ApiEndpoints.players);
+  Future<List<Player>> fetchPlayers({PlayerQuery? filter}) async {
+    final json = await _client.getJson(
+      ApiEndpoints.players,
+      query: filter?.toQuery(),
+    );
     final items = (json['players'] as List?) ?? (json as List?);
     if (items == null) {
       throw const ApiException('Daftar pemain tidak ditemukan pada balasan.');

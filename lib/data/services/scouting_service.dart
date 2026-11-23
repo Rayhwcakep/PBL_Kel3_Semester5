@@ -4,6 +4,7 @@ import '../models/explain_response.dart';
 import '../models/feature_catalog.dart';
 import '../models/player.dart';
 import '../models/player_feature.dart';
+import '../models/player_query.dart';
 import '../models/scout_response.dart';
 import '../models/scouting_criteria.dart';
 import '../models/similar_response.dart';
@@ -16,8 +17,11 @@ import '../models/tactics_catalog.dart';
 /// - `ApiScoutingService`  -> memanggil backend FastAPI (JSON).
 /// - `MockScoutingService` -> data contoh lokal, untuk mengerjakan UI dulu.
 abstract class ScoutingService {
-  /// Mengambil seluruh pemain pada dataset.
-  Future<List<Player>> fetchPlayers();
+  /// Mengambil daftar pemain pada dataset (`GET /players`).
+  ///
+  /// [filter] diteruskan sebagai query string sehingga penyaringan
+  /// (arketipe, liga, umur, nilai pasar, pencarian) dikerjakan backend.
+  Future<List<Player>> fetchPlayers({PlayerQuery? filter});
 
   /// Mengambil detail satu pemain.
   Future<Player> fetchPlayer(String id);

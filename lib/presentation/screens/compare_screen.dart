@@ -4,12 +4,14 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
+import '../../data/models/compare_report.dart';
 import '../../data/models/player.dart';
 import '../../state/compare_provider.dart';
 import '../../state/shortlist_provider.dart';
 import '../widgets/app_bars.dart';
 import '../widgets/chips.dart';
 import '../widgets/empty_state_view.dart';
+import '../widgets/loading_view.dart';
 import '../widgets/pill_button.dart';
 import '../widgets/player_avatar.dart';
 import '../widgets/radar_chart.dart';
@@ -26,6 +28,7 @@ class CompareScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final compare = context.watch<CompareProvider>();
+    final report = compare.report;
 
     return Scaffold(
       backgroundColor: embedded ? Colors.transparent : AppColors.canvas,
@@ -113,6 +116,41 @@ class CompareScreen extends StatelessWidget {
                 ),
               )
             else ...[
+              if (compare.isLoading)
+                const Padding(
+                  padding: EdgeInsets.only(top: AppSpacing.md),
+                  child: LoadingView(message: 'Menganalisis kedua pemain...'),
+                ),
+              if (compare.error != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.margin,
+                    AppSpacing.md,
+                    AppSpacing.margin,
+                    0,
+                  ),
+                  child: _CompareNotice(
+                    icon: Icons.cloud_off_rounded,
+                    title: 'Gagal memuat perbandingan',
+                    message: compare.error!,
+                    actionLabel: 'Coba lagi',
+                    onAction: compare.runCompare,
+                  ),
+                ),
+              if (report?.warning != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.margin,
+                    AppSpacing.md,
+                    AppSpacing.margin,
+                    0,
+                  ),
+                  child: _CompareNotice(
+                    icon: Icons.info_outline,
+                    title: 'Perbandingan lintas arketipe',
+                    message: report!.warning!,
+                  ),
+                ),
               const SizedBox(height: AppSpacing.lg),
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -128,8 +166,28 @@ class CompareScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.margin,
                 ),
-                child: _HeadToHead(left: compare.left!, right: compare.right!),
+                child: _HeadToHead(
+                  left: compare.left!,
+                  right: compare.right!,
+                  reportRows: report?.rows,
+                ),
               ),
+              if (report != null &&
+                  (report.aBetter.isNotEmpty ||
+                      report.bBetter.isNotEmpty ||
+                      report.rawOnly.isNotEmpty)) ...[
+                const SizedBox(height: AppSpacing.md),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.margin,
+                  ),
+                  child: _HighlightsCard(
+                    report: report,
+                    left: compare.left!,
+                    right: compare.right!,
+                  ),
+                ),
+              ],
               const SizedBox(height: AppSpacing.md),
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -145,7 +203,11 @@ class CompareScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.margin,
                 ),
-                child: _VerdictCard(left: compare.left!, right: compare.right!),
+                child: _VerdictCard(
+                  left: compare.left!,
+                  right: compare.right!,
+                  summary: report?.summary,
+                ),
               ),
               const SizedBox(height: AppSpacing.md),
               Padding(
@@ -352,25 +414,60 @@ class _LegendDot extends StatelessWidget {
 }
 
 class _HeadToHead extends StatelessWidget {
-  const _HeadToHead({required this.left, required this.right});
+  const _HeadToHead({required this.left, required this.right, this.reportRows});
 
   final Player left;
   final Player right;
 
+  /// Baris hasil `POST /compare`; kosong berarti memakai statistik lokal.
+  final List<CompareRow>? reportRows;
+
   @override
   Widget build(BuildContext context) {
-    final rows = <(String, double, double)>[
-      ('GOALS / 90', left.metrics.goals, right.metrics.goals),
-      ('ASSISTS / 90', left.metrics.assists, right.metrics.assists),
-      ('SHOTS / 90', left.metrics.shots, right.metrics.shots),
-      ('CROSSING / 90', left.metrics.crossing, right.metrics.crossing),
-      ('TACKLES / 90', left.metrics.tackles, right.metrics.tackles),
-      (
-        'INTERCEPTIONS / 90',
-        left.metrics.interceptions,
-        right.metrics.interceptions,
-      ),
+    final rows = <(String, double, double, bool)>[
+      for (final row in reportRows ?? const <CompareRow>[])
+        (row.label, row.a, row.b, row.gapGood >= 0),
     ];
+    if (rows.isEmpty) {
+      rows.addAll([
+        (
+          'GOALS / 90',
+          left.metrics.goals,
+          right.metrics.goals,
+          left.metrics.goals >= right.metrics.goals,
+        ),
+        (
+          'ASSISTS / 90',
+          left.metrics.assists,
+          right.metrics.assists,
+          left.metrics.assists >= right.metrics.assists,
+        ),
+        (
+          'SHOTS / 90',
+          left.metrics.shots,
+          right.metrics.shots,
+          left.metrics.shots >= right.metrics.shots,
+        ),
+        (
+          'CROSSING / 90',
+          left.metrics.crossing,
+          right.metrics.crossing,
+          left.metrics.crossing >= right.metrics.crossing,
+        ),
+        (
+          'TACKLES / 90',
+          left.metrics.tackles,
+          right.metrics.tackles,
+          left.metrics.tackles >= right.metrics.tackles,
+        ),
+        (
+          'INTERCEPTIONS / 90',
+          left.metrics.interceptions,
+          right.metrics.interceptions,
+          left.metrics.interceptions >= right.metrics.interceptions,
+        ),
+      ]);
+    }
 
     return ScoutCard(
       child: Column(
@@ -393,7 +490,12 @@ class _HeadToHead extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           for (final row in rows) ...[
-            _MetricCompareRow(label: row.$1, left: row.$2, right: row.$3),
+            _MetricCompareRow(
+              label: row.$1,
+              left: row.$2,
+              right: row.$3,
+              leftWins: row.$4,
+            ),
             const SizedBox(height: AppSpacing.sm),
           ],
         ],
@@ -412,18 +514,22 @@ class _MetricCompareRow extends StatelessWidget {
     required this.label,
     required this.left,
     required this.right,
+    this.leftWins,
   });
 
   final String label;
   final double left;
   final double right;
 
+  /// Arah pemenang dari backend (sudah memperhitungkan statistik terbalik).
+  final bool? leftWins;
+
   @override
   Widget build(BuildContext context) {
-    final leftWins = left >= right;
+    final aWins = leftWins ?? left >= right;
     return Row(
       children: [
-        _ValueTile(value: left, highlight: leftWins),
+        _ValueTile(value: left, highlight: aWins),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: Text(
@@ -433,7 +539,7 @@ class _MetricCompareRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        _ValueTile(value: right, highlight: !leftWins),
+        _ValueTile(value: right, highlight: !aWins),
       ],
     );
   }
@@ -562,17 +668,159 @@ class _ProfileRow extends StatelessWidget {
   }
 }
 
+/// Ringkasan statistik unggulan dari `POST /compare`.
+///
+/// Menampilkan `a_better`, `b_better`, dan `raw_only` apa adanya dari
+/// backend, jadi arah unggul selalu sama dengan perhitungan model.
+class _HighlightsCard extends StatelessWidget {
+  const _HighlightsCard({
+    required this.report,
+    required this.left,
+    required this.right,
+  });
+
+  final CompareReport report;
+  final Player left;
+  final Player right;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScoutCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Statistik Unggulan',
+            style: AppTypography.headlineMd().copyWith(fontSize: 20),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _HighlightGroup(
+            title: left.name,
+            color: AppColors.playerA,
+            rows: report.aBetter,
+          ),
+          if (report.aBetter.isNotEmpty && report.bBetter.isNotEmpty)
+            const SizedBox(height: AppSpacing.md),
+          _HighlightGroup(
+            title: right.name,
+            color: AppColors.playerB,
+            rows: report.bBetter,
+          ),
+          if (report.rawOnly.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.md),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: 10,
+              ),
+              decoration: BoxDecoration(
+                color: AppColors.surfaceLow,
+                borderRadius: AppRadius.controlBorder,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline, size: 16, color: AppColors.sageSoft),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      'Selisih angka besar pada '
+                      '${report.rawOnly.map((row) => row.label).take(3).join(', ')} '
+                      'tidak searah dengan penilaian pasar, jadi belum tentu '
+                      'keunggulan mutlak.',
+                      style: AppTypography.bodySm(color: AppColors.sageSoft),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _HighlightGroup extends StatelessWidget {
+  const _HighlightGroup({
+    required this.title,
+    required this.color,
+    required this.rows,
+  });
+
+  final String title;
+  final Color color;
+  final List<CompareRow> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 9,
+              height: 9,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.titleMd().copyWith(fontSize: 14),
+              ),
+            ),
+            Text(
+              rows.isEmpty ? 'Tidak ada' : '${rows.length} unggul',
+              style: AppTypography.bodySm(color: AppColors.sageSoft),
+            ),
+          ],
+        ),
+        if (rows.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              for (final row in rows)
+                SoftChip(
+                  '${row.label} ${row.gapPct >= 0 ? '+' : ''}'
+                  '${row.gapPct.toStringAsFixed(0)}',
+                  background: AppColors.surfaceLow,
+                  foreground: AppColors.ink,
+                ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
 class _VerdictCard extends StatelessWidget {
-  const _VerdictCard({required this.left, required this.right});
+  const _VerdictCard({required this.left, required this.right, this.summary});
 
   final Player left;
   final Player right;
+
+  /// Ringkasan siap tampil dari `POST /compare`.
+  final String? summary;
 
   @override
   Widget build(BuildContext context) {
     final leftWins =
         left.metrics.goalContribution >= right.metrics.goalContribution;
     final winner = leftWins ? left : right;
+    final verdictText = summary != null && summary!.isNotEmpty
+        ? summary!
+        : '${winner.name} unggul dalam kontribusi gol per 90 menit '
+              '(${winner.metrics.goalContribution.toStringAsFixed(2)} vs '
+              '${(leftWins ? right : left).metrics.goalContribution.toStringAsFixed(2)}). '
+              'Profil ${winner.position} cocok untuk sistem yang menekan tinggi '
+              'dan membutuhkan penyelesaian cepat di sepertiga akhir.';
 
     return ScoutCard(
       color: AppColors.surfaceLow,
@@ -593,14 +841,7 @@ class _VerdictCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          Text(
-            '${winner.name} unggul dalam kontribusi gol per 90 menit '
-            '(${winner.metrics.goalContribution.toStringAsFixed(2)} vs '
-            '${(leftWins ? right : left).metrics.goalContribution.toStringAsFixed(2)}). '
-            'Profil ${winner.position} cocok untuk sistem yang menekan tinggi '
-            'dan membutuhkan penyelesaian cepat di sepertiga akhir.',
-            style: AppTypography.bodyMd(),
-          ),
+          Text(verdictText, style: AppTypography.bodyMd()),
           const SizedBox(height: AppSpacing.md),
           Container(
             padding: const EdgeInsets.symmetric(
@@ -625,6 +866,60 @@ class _VerdictCard extends StatelessWidget {
                     style: AppTypography.labelLg(color: AppColors.onAccent),
                   ),
                 ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Kartu informasi/kesalahan di atas hasil perbandingan.
+class _CompareNotice extends StatelessWidget {
+  const _CompareNotice({
+    required this.icon,
+    required this.title,
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  final IconData icon;
+  final String title;
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScoutCard(
+      color: AppColors.surfaceLow,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: AppColors.sage),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTypography.titleMd()),
+                const SizedBox(height: 2),
+                Text(
+                  message,
+                  style: AppTypography.bodySm(color: AppColors.sageSoft),
+                ),
+                if (actionLabel != null && onAction != null) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  TextButton(
+                    onPressed: onAction,
+                    child: Text(
+                      actionLabel!,
+                      style: AppTypography.labelLg(color: AppColors.sage),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

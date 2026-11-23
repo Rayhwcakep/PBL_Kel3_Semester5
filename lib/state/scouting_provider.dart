@@ -89,6 +89,18 @@ class ScoutingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Menetapkan target persentil 0-100 untuk seluruh statistik sekaligus.
+  ///
+  /// Pemain acuan tetap disimpan supaya tetap dikecualikan dari hasil, dan
+  /// pencarian berikutnya memakai `POST /scout/tactic`.
+  void setSliders(Map<PlayerFeature, double> sliders) {
+    _criteria = _criteria.copyWith(
+      sliders: sliders,
+      clearSliders: sliders.isEmpty,
+    );
+    notifyListeners();
+  }
+
   void setTopK(int topK) {
     _criteria = _criteria.copyWith(topK: topK);
     notifyListeners();
