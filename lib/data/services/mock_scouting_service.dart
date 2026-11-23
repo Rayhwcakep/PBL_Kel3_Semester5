@@ -307,6 +307,8 @@ class MockScoutingService implements ScoutingService {
     int topK = 5,
     List<String>? needs,
     double improveWeight = 0.5,
+    int? maxAge,
+    double? maxValueEur,
   }) async {
     await Future<void>.delayed(latency);
     final base = _player(id);

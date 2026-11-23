@@ -1,18 +1,15 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import '../../data/models/best_fit.dart';
+import '../../data/services/api_scouting_service.dart';
 
 class BestFitScreen extends StatefulWidget {
   final String playerId;
   final String? playerName;
-  final String baseUrl;
 
   const BestFitScreen({
     super.key,
     required this.playerId,
     this.playerName,
-    this.baseUrl = 'http://localhost:8000',
   });
 
   @override
@@ -26,6 +23,7 @@ class _BestFitScreenState extends State<BestFitScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   BestFit? _bestFitData;
+  final ApiScoutingService _service = ApiScoutingService();
 
   @override
   void initState() {
@@ -47,28 +45,20 @@ class _BestFitScreenState extends State<BestFitScreen> {
     });
 
     try {
-      final queryParams = <String, String>{};
-      final maxAge = _maxAgeController.text.trim();
-      final maxPrice = _maxPriceController.text.trim();
+      final maxAgeStr = _maxAgeController.text.trim();
+      final maxPriceStr = _maxPriceController.text.trim();
 
-      if (maxAge.isNotEmpty) queryParams['max_age'] = maxAge;
-      if (maxPrice.isNotEmpty) queryParams['max_value_eur'] = maxPrice;
+      final maxAge = int.tryParse(maxAgeStr);
+      final maxPrice = double.tryParse(maxPriceStr);
 
-      final uri = Uri.parse('${widget.baseUrl}/best-fit/${widget.playerId}')
-          .replace(queryParameters: queryParams.isEmpty ? null : queryParams);
-
-      final response = await http.get(uri);
-      if (response.statusCode != 200) {
-        throw Exception('Gagal memuat data (HTTP ${response.statusCode})');
-      }
-
-      final decoded = jsonDecode(response.body);
-      if (decoded is! Map<String, dynamic>) {
-        throw Exception('Format respons JSON tidak sesuai');
-      }
+      final result = await _service.bestFit(
+        widget.playerId,
+        maxAge: maxAge,
+        maxValueEur: maxPrice,
+      );
 
       setState(() {
-        _bestFitData = BestFit.fromJson(decoded);
+        _bestFitData = result;
       });
     } catch (e) {
       setState(() {
