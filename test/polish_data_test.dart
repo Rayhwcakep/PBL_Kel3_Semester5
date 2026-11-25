@@ -96,7 +96,9 @@ void main() {
       expect(find.text('MATCH'), findsOneWidget);
     });
 
-    testWidgets('mendukung skala legacy 0-1 (0.88 -> 88)', (tester) async {
+    testWidgets('skor kecil pada skala 0-100 tidak dibaca sebagai skala 0-1', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -105,8 +107,9 @@ void main() {
         ),
       );
 
-      expect(find.text('88'), findsOneWidget);
-      expect(find.text('MATCH'), findsOneWidget);
+      // 0.88 adalah skor mentah 0-100 yang dibulatkan jadi 1, bukan 88.
+      expect(find.text('1'), findsOneWidget);
+      expect(find.text('88'), findsNothing);
     });
 
     testWidgets('tampil konsisten pada tema gelap dan tema terang', (

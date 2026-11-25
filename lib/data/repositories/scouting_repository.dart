@@ -1,5 +1,9 @@
 import '../../core/config/app_config.dart';
+<<<<<<< HEAD
 import '../cache/explain_cache.dart';
+=======
+import '../models/best_fit.dart';
+>>>>>>> a70b4c61df15c695aaa1de19a4bd152a436a4f53
 import '../models/compare_report.dart';
 import '../models/explain_response.dart';
 import '../models/feature_catalog.dart';
@@ -48,6 +52,24 @@ class ScoutingRepository {
       _service.scout(criteria);
 
   Future<CompareReport> compare(String a, String b) => _service.compare(a, b);
+
+  /// Kandidat pengganti yang menutup kekurangan pemain acuan
+  /// (`GET /best-fit/{id}`).
+  Future<BestFit> bestFit(
+    String id, {
+    int topK = 5,
+    List<String>? needs,
+    double improveWeight = 0.5,
+    int? maxAge,
+    double? maxValueEur,
+  }) => _service.bestFit(
+    id,
+    topK: topK,
+    needs: needs,
+    improveWeight: improveWeight,
+    maxAge: maxAge,
+    maxValueEur: maxValueEur,
+  );
 
   Future<FeatureCatalog> getFeatures() => _service.fetchFeatures();
 }

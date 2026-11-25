@@ -20,6 +20,7 @@ import '../widgets/radar_chart.dart';
 import '../widgets/scout_card.dart';
 import '../widgets/section_header.dart';
 import '../widgets/shap_contribution_chart.dart';
+import 'best_fit_screen.dart';
 import 'player_insight_screen.dart';
 import 'player_picker_screen.dart';
 
@@ -75,6 +76,8 @@ class PlayerDetailScreen extends StatelessWidget {
           _ProfileRadarCard(player: player),
           const SizedBox(height: AppSpacing.md),
           _InsightEntryCard(player: player),
+          const SizedBox(height: AppSpacing.md),
+          _BestFitEntryCard(player: player),
           const SizedBox(height: AppSpacing.md),
           _SeasonStatsCard(player: player),
           _WhyPlayerSection(
@@ -426,6 +429,53 @@ class _InsightEntryCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   'Kelebihan, kekurangan, dan konteks nilai pasar',
+                  style: AppTypography.bodySm(color: AppColors.sageSoft),
+                ),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right, size: 22, color: AppColors.sageSoft),
+        ],
+      ),
+    );
+  }
+}
+
+class _BestFitEntryCard extends StatelessWidget {
+  const _BestFitEntryCard({required this.player});
+
+  final Player player;
+
+  @override
+  Widget build(BuildContext context) {
+    return ScoutCard(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => BestFitScreen(player: player)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppColors.forest,
+              borderRadius: AppRadius.controlBorder,
+            ),
+            child: Icon(
+              Icons.swap_horiz_rounded,
+              size: 23,
+              color: AppColors.lime,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Cari Pengganti (Best Fit)', style: AppTypography.titleLg()),
+                const SizedBox(height: 2),
+                Text(
+                  'Kandidat yang menutup kekurangan tanpa membuang kelebihan',
                   style: AppTypography.bodySm(color: AppColors.sageSoft),
                 ),
               ],

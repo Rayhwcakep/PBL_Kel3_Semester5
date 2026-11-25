@@ -56,6 +56,8 @@ abstract class ScoutingService {
     int topK = 5,
     List<String>? needs,
     double improveWeight = 0.5,
+    int? maxAge,
+    double? maxValueEur,
   });
 
   /// Membandingkan dua pemain (`POST /compare`).

@@ -14,10 +14,11 @@ class MatchScoreBadge extends StatelessWidget {
     this.isDark,
   });
 
-  /// Skor kemiripan memakai skala 0-100 (mis. 88.0).
+  /// Skor kemiripan memakai skala 0-100 (mis. 88.0), sesuai balasan backend.
   ///
-  /// Bila caller mengirim skala 0-1 (mis. <= 1.0), otomatis dinormalisasi
-  /// ke skala 0-100 agar kompatibel dengan kode lama.
+  /// Nilai di luar rentang itu dijepit ke 0-100. Tidak ada lagi tebakan
+  /// "nilai <= 1.0 berarti skala 0-1": skor asli 0,5 dari 100 akan salah
+  /// tampil sebagai 50.
   final double similarity;
   final double size;
 
@@ -29,11 +30,8 @@ class MatchScoreBadge extends StatelessWidget {
     final effectiveDark =
         isDark ?? (Theme.of(context).brightness == Brightness.dark);
 
-    // Normalisasi: skala 0-100 (bukan 0-1). Skala 0-1 tetap didukung demi kompatibilitas.
-    final score = (similarity > 0 && similarity <= 1.0)
-        ? similarity * 100
-        : similarity;
-    final clamped = score.clamp(0, 100).toDouble();
+    // Skor sudah 0-100; jepit saja agar ring tetap dalam rentang.
+    final clamped = similarity.clamp(0, 100).toDouble();
     final percent = clamped.round();
 
     final textColor = effectiveDark ? AppColors.ink : const Color(0xFF10210F);

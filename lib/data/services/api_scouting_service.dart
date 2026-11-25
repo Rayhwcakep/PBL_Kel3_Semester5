@@ -101,6 +101,8 @@ class ApiScoutingService implements ScoutingService {
     int topK = 5,
     List<String>? needs,
     double improveWeight = 0.5,
+    int? maxAge,
+    double? maxValueEur,
   }) async {
     final json = await _client.getJson(
       ApiEndpoints.bestFit(id),
@@ -108,6 +110,8 @@ class ApiScoutingService implements ScoutingService {
         'top_k': topK,
         'needs': needs == null || needs.isEmpty ? null : needs.join(','),
         'improve_weight': improveWeight,
+        'max_age': maxAge,
+        'max_value_eur': maxValueEur,
       },
     );
     return BestFit.fromJson(json);

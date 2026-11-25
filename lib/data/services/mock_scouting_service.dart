@@ -211,13 +211,20 @@ class MockScoutingService implements ScoutingService {
     );
   }
 
-  /// Potret balasan backend asli untuk Lamine Yamal (notebook Langkah 15).
+  /// Pemain contoh yang punya potret balasan SHAP asli dari backend.
+  ///
+  /// Dicocokkan lewat [Player.id], bukan teks nama, supaya fixture tidak
+  /// diam-diam berhenti terpakai saat nama di `mockPlayers` berubah.
+  static const String explainFixturePlayerId = 'p001';
+
+  /// Potret balasan backend asli untuk [explainFixturePlayerId]
+  /// (notebook Langkah 15).
   ///
   /// Angka effect_pct tidak bisa diturunkan dari persentil saja karena berasal
   /// dari model nilai pasar, jadi disalin apa adanya agar layar Insight
   /// menampilkan kalimat yang sama dengan `GET /players/1959/explain`.
   PlayerExplain? _explainFixture(Player player) {
-    if (player.name != 'Lamine Yamal') return null;
+    if (player.id != explainFixturePlayerId) return null;
 
     ExplainContribution row({
       required String feature,
@@ -331,7 +338,8 @@ class MockScoutingService implements ScoutingService {
         context(feature: 'ctx_liga', label: 'Liga', effectPct: -22),
       ],
       summary:
-          'Lamine Yamal (Pemain sayap, 18 tahun, €200.0 jt). '
+          '${player.name} (${player.position}, ${player.age} tahun, '
+          '${player.marketValueLabel}). '
           'Kelebihan: Tembakan (+77%), Gol non-penalti (+33%). '
           'Kekurangan: tidak ada yang menonjol. '
           'Keandalan model nilai pasar: baik (R² uji 0.57).',
@@ -437,6 +445,8 @@ class MockScoutingService implements ScoutingService {
     int topK = 5,
     List<String>? needs,
     double improveWeight = 0.5,
+    int? maxAge,
+    double? maxValueEur,
   }) async {
     await Future<void>.delayed(latency);
     final base = _player(id);
@@ -459,9 +469,19 @@ class MockScoutingService implements ScoutingService {
         if (base.percentile(feature) >= 60) feature,
     ];
 
-    final similar = await similarPlayers(id, limit: topK);
+    // Ambil semua tetangga lalu saring dulu, seperti backend yang menerapkan
+    // filter umur/harga sebelum memeringkat. Meminta `topK` lebih dulu akan
+    // menyisakan kandidat lebih sedikit dari yang diminta.
+    final similar = await similarPlayers(id, limit: mockPlayers.length);
+    final eligible = [
+      for (final neighbor in similar.neighbors)
+        if ((maxAge == null || neighbor.player.age <= maxAge) &&
+            (maxValueEur == null ||
+                neighbor.player.marketValueEur <= maxValueEur))
+          neighbor,
+    ];
     final candidates = <BestFitCandidate>[];
-    for (final neighbor in similar.neighbors) {
+    for (final neighbor in eligible.take(topK)) {
       final others = neighbor.player;
       double closeUp(PlayerFeature feature) {
         final gain = others.percentile(feature) - base.percentile(feature);

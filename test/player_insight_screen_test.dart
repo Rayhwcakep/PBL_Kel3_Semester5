@@ -30,7 +30,7 @@ class _CountingExplainService extends MockScoutingService {
 
 void main() {
   final yamal = mockPlayers.firstWhere(
-    (player) => player.name == 'Lamine Yamal',
+    (player) => player.id == MockScoutingService.explainFixturePlayerId,
   );
   final repository = ScoutingRepository(
     service: MockScoutingService(latency: Duration.zero),
