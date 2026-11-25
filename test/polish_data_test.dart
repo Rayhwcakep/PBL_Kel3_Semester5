@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:scout_ml/core/theme/app_theme.dart';
+import 'package:scout_ml/data/mock/mock_players.dart';
 import 'package:scout_ml/data/models/explain_response.dart';
 import 'package:scout_ml/data/models/feature_contribution.dart';
 import 'package:scout_ml/data/models/player.dart';
 import 'package:scout_ml/data/models/player_feature.dart';
+import 'package:scout_ml/data/services/mock_scouting_service.dart';
 import 'package:scout_ml/presentation/widgets/match_score_badge.dart';
 import 'package:scout_ml/presentation/widgets/shap_contribution_chart.dart';
 
@@ -86,11 +88,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: Center(
-              child: MatchScoreBadge(similarity: 88),
-            ),
-          ),
+          home: Scaffold(body: Center(child: MatchScoreBadge(similarity: 88))),
         ),
       );
 
@@ -102,9 +100,7 @@ void main() {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
-            body: Center(
-              child: MatchScoreBadge(similarity: 0.88),
-            ),
+            body: Center(child: MatchScoreBadge(similarity: 0.88)),
           ),
         ),
       );
@@ -121,9 +117,7 @@ void main() {
         MaterialApp(
           theme: AppTheme.dark,
           home: const Scaffold(
-            body: Center(
-              child: MatchScoreBadge(similarity: 95),
-            ),
+            body: Center(child: MatchScoreBadge(similarity: 95)),
           ),
         ),
       );
@@ -136,9 +130,7 @@ void main() {
         MaterialApp(
           theme: AppTheme.light,
           home: const Scaffold(
-            body: Center(
-              child: MatchScoreBadge(similarity: 95),
-            ),
+            body: Center(child: MatchScoreBadge(similarity: 95)),
           ),
         ),
       );
@@ -149,26 +141,29 @@ void main() {
   });
 
   group('FeatureContribution & ShapContributionChart data asli /explain', () {
-    test('FeatureContribution membaca shap_value dan effect_pct dari /explain', () {
-      final json = {
-        'feature': 'crs_p90',
-        'label': 'Umpan silang',
-        'value': 2.16,
-        'percentile': 93.0,
-        'better_than_pct': 93.0,
-        'shap_value': 0.08,
-        'effect_pct': 9.1,
-        'verdict': 'kelebihan',
-      };
+    test(
+      'FeatureContribution membaca shap_value dan effect_pct dari /explain',
+      () {
+        final json = {
+          'feature': 'crs_p90',
+          'label': 'Umpan silang',
+          'value': 2.16,
+          'percentile': 93.0,
+          'better_than_pct': 93.0,
+          'shap_value': 0.08,
+          'effect_pct': 9.1,
+          'verdict': 'kelebihan',
+        };
 
-      final contribution = FeatureContribution.fromJson(json);
-      expect(contribution.feature, PlayerFeature.crsP90);
-      expect(contribution.label, 'Umpan silang');
-      expect(contribution.shapValue, 0.08);
-      expect(contribution.effectPct, 9.1);
-      expect(contribution.isPositive, isTrue);
-      expect(contribution.magnitude, 9.1);
-    });
+        final contribution = FeatureContribution.fromJson(json);
+        expect(contribution.feature, PlayerFeature.crsP90);
+        expect(contribution.label, 'Umpan silang');
+        expect(contribution.shapValue, 0.08);
+        expect(contribution.effectPct, 9.1);
+        expect(contribution.isPositive, isTrue);
+        expect(contribution.magnitude, 9.1);
+      },
+    );
 
     test('FeatureContribution.fromExplain mengonversi ExplainContribution', () {
       const explain = ExplainContribution(
@@ -191,39 +186,40 @@ void main() {
       expect(contribution.magnitude, 11.21);
     });
 
-    testWidgets('ShapContributionChart menampilkan nama statistik Indonesia dari /meta/features', (
-      tester,
-    ) async {
-      final contributions = [
-        const FeatureContribution(
-          feature: PlayerFeature.crsP90,
-          value: 2.16,
-          shapValue: 0.08,
-          effectPct: 9.1,
-          label: 'Umpan silang',
-        ),
-        const FeatureContribution(
-          feature: PlayerFeature.npgP90,
-          value: 0.21,
-          shapValue: -0.12,
-          effectPct: -11.2,
-          label: 'Gol non-penalti',
-        ),
-      ];
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: ShapContributionChart(contributions: contributions),
+    testWidgets(
+      'ShapContributionChart menampilkan nama statistik Indonesia dari /meta/features',
+      (tester) async {
+        final contributions = [
+          const FeatureContribution(
+            feature: PlayerFeature.crsP90,
+            value: 2.16,
+            shapValue: 0.08,
+            effectPct: 9.1,
+            label: 'Umpan silang',
           ),
-        ),
-      );
+          const FeatureContribution(
+            feature: PlayerFeature.npgP90,
+            value: 0.21,
+            shapValue: -0.12,
+            effectPct: -11.2,
+            label: 'Gol non-penalti',
+          ),
+        ];
 
-      expect(find.text('Umpan silang'), findsOneWidget);
-      expect(find.text('Gol non-penalti'), findsOneWidget);
-      expect(find.text('+9.1%'), findsOneWidget);
-      expect(find.text('-11.2%'), findsOneWidget);
-    });
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: ShapContributionChart(contributions: contributions),
+            ),
+          ),
+        );
+
+        expect(find.text('Umpan silang'), findsOneWidget);
+        expect(find.text('Gol non-penalti'), findsOneWidget);
+        expect(find.text('+9.1%'), findsOneWidget);
+        expect(find.text('-11.2%'), findsOneWidget);
+      },
+    );
 
     testWidgets('Bar divergen membedakan positif dan negatif dengan benar', (
       tester,
@@ -249,9 +245,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: ShapContributionChart(
-              contributions: [positive, negative],
-            ),
+            body: ShapContributionChart(contributions: [positive, negative]),
           ),
         ),
       );
@@ -262,6 +256,81 @@ void main() {
       expect(find.text('-9.5%'), findsOneWidget);
       expect(find.text('Menaikkan skor'), findsOneWidget);
       expect(find.text('Menurunkan skor'), findsOneWidget);
+    });
+
+    testWidgets('daftar panjang bisa diperluas tanpa memotong data', (
+      tester,
+    ) async {
+      final contributions = [
+        for (var i = 0; i < 10; i++)
+          FeatureContribution(
+            feature: PlayerFeature.outfield[i],
+            value: 1,
+            shapValue: i == 0 ? -0.2 : 0.1,
+            effectPct: i == 0 ? -20 : 10,
+            label: 'Fitur $i',
+          ),
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ShapContributionChart(
+                contributions: contributions,
+                maxRows: 8,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Fitur 9'), findsNothing);
+      await tester.tap(find.text('Tampilkan 2 fitur lain'));
+      await tester.pumpAndSettle();
+      expect(find.text('Fitur 9'), findsOneWidget);
+    });
+  });
+
+  group('Mock explain konsisten dengan arah statistik', () {
+    final service = MockScoutingService(latency: Duration.zero);
+
+    test('verdict mengikuti arah baik, bukan persentil mentah', () async {
+      // João Neves: offside persentil rendah (baik) dan pelanggaran tinggi
+      // (buruk). Keduanya statistik terbalik.
+      final explain = await service.explain('p004');
+
+      expect(
+        explain.strengths.every((row) => row.effectPct > 0),
+        isTrue,
+        reason: 'Kelebihan tidak boleh berisi pengaruh negatif',
+      );
+      expect(
+        explain.weaknesses.every((row) => row.effectPct < 0),
+        isTrue,
+        reason: 'Kekurangan tidak boleh berisi pengaruh positif',
+      );
+      expect(explain.strengths.map((row) => row.feature), contains('off_p90'));
+    });
+
+    test('persentil fixture Yamal sama dengan data radar', () async {
+      final explain = await service.explain('p001');
+      final shooting = explain.strengths.firstWhere(
+        (row) => row.feature == 'sh_p90',
+      );
+      final yamal = mockPlayers.firstWhere((player) => player.id == 'p001');
+
+      expect(shooting.percentile, yamal.percentile(PlayerFeature.shP90));
+      expect(shooting.betterThanPct, yamal.radarValue(PlayerFeature.shP90));
+    });
+
+    test('pemain non-fixture tetap punya variabel konteks', () async {
+      final explain = await service.explain('p004');
+      final labels = explain.context.map((row) => row.label).toList();
+
+      expect(explain.context, isNotEmpty);
+      expect(labels, containsAll(['Usia', 'Menit main', 'Liga']));
+      expect(explain.context.every((row) => row.verdict == 'konteks'), isTrue);
     });
   });
 }

@@ -366,6 +366,7 @@ class _RadarComparison extends StatelessWidget {
               child: RadarChart(
                 axisLabels: left.radarLabels,
                 size: 280,
+                interactive: true,
                 series: [
                   RadarSeries(
                     label: left.name,
@@ -431,6 +432,7 @@ class _SingleRadar extends StatelessWidget {
     return RadarChart(
       axisLabels: player.radarLabels,
       size: 230,
+      interactive: true,
       series: [
         RadarSeries(
           label: player.name,

@@ -127,15 +127,15 @@ class MockScoutingService implements ScoutingService {
       if (criteria.maxAge != null && player.age > criteria.maxAge!) {
         return false;
       }
-      if (criteria.maxValue != null && player.marketValue > criteria.maxValue!) {
+      if (criteria.maxValue != null &&
+          player.marketValue > criteria.maxValue!) {
         return false;
       }
       return true;
     }).toList();
 
-    double valueOf(Player player, PlayerFeature feature) => byPercentile
-        ? player.percentile(feature)
-        : player.stat(feature);
+    double valueOf(Player player, PlayerFeature feature) =>
+        byPercentile ? player.percentile(feature) : player.stat(feature);
 
     final targetVector = features
         .map((feature) => targets[feature] ?? 0)
@@ -172,9 +172,7 @@ class MockScoutingService implements ScoutingService {
       k: criteria.topK,
       target: {
         for (final feature in features)
-          feature: byPercentile
-              ? _medianOf(feature)
-              : (targets[feature] ?? 0),
+          feature: byPercentile ? _medianOf(feature) : (targets[feature] ?? 0),
       },
       targetPercentiles: {
         for (final feature in features)
@@ -206,7 +204,9 @@ class MockScoutingService implements ScoutingService {
       player: player,
       strengths: strengths,
       weaknesses: weaknesses.take(3).toList(),
-      // Data contoh tidak punya SHAP variabel konteks, jadi daftarnya kosong.
+      // Data contoh tidak punya SHAP asli untuk variabel konteks, jadi
+      // pengaruhnya diturunkan dari usia, menit main, dan liga.
+      context: _contextRows(player),
       summary: _explainSummary(player, strengths, weaknesses),
     );
   }
@@ -228,12 +228,22 @@ class MockScoutingService implements ScoutingService {
       required double effectPct,
       required String verdict,
     }) {
+      // Persentil diambil dari data pemain agar radar dan layar Insight tidak
+      // menampilkan angka berbeda untuk statistik yang sama.
+      final featureKey = PlayerFeature.fromJsonKey(feature);
+      final resolvedPercentile = featureKey == null
+          ? percentile
+          : player.percentile(featureKey);
+      final resolvedBetter = featureKey == null
+          ? betterThanPct
+          : player.radarValue(featureKey);
+
       return ExplainContribution(
         feature: feature,
         label: label,
         value: value,
-        percentile: percentile,
-        betterThanPct: betterThanPct,
+        percentile: resolvedPercentile,
+        betterThanPct: resolvedBetter,
         shapValue: math.log(1 + effectPct / 100),
         effectPct: effectPct,
         verdict: verdict,
@@ -348,8 +358,8 @@ class MockScoutingService implements ScoutingService {
           similarity: 100 * math.exp(-top[i].$2 / _typicalDistance),
           distance: top[i].$2,
           rank: i + 1,
-          closerThanPct: 100 *
-              (1 - (i + 1) / math.max(mockPlayers.length - 1, 1)),
+          closerThanPct:
+              100 * (1 - (i + 1) / math.max(mockPlayers.length - 1, 1)),
         ),
     ];
 
@@ -471,7 +481,8 @@ class MockScoutingService implements ScoutingService {
           : kept.map(sacrifice).fold(0.0, (sum, value) => sum + value) /
                 kept.length;
       final fit =
-          neighbor.similarity * (1 - improveWeight) + gain * 100 * improveWeight;
+          neighbor.similarity * (1 - improveWeight) +
+          gain * 100 * improveWeight;
 
       final closed = [
         for (final feature in wanted)
@@ -492,7 +503,8 @@ class MockScoutingService implements ScoutingService {
           fit: fit,
           gain: gain,
           loss: loss,
-          why: 'Menutup: '
+          why:
+              'Menutup: '
               '${closed.isEmpty ? '-' : closed.take(2).join(', ')} | '
               'Mengorbankan: ${dropped.isEmpty ? '-' : dropped.take(2).join(', ')}',
         ),
@@ -566,17 +578,19 @@ class MockScoutingService implements ScoutingService {
     for (final archetype in mockArchetypes) {
       final code = _presetArchetype[archetype.id];
       if (code == null) continue;
-      presets.putIfAbsent(code, () => []).add(
-        TacticPreset(
-          key: archetype.id,
-          label: archetype.name,
-          description: archetype.description,
-          targets: {
-            for (final entry in archetype.toFeatureValues().entries)
-              entry.key.jsonKey: entry.value,
-          },
-        ),
-      );
+      presets
+          .putIfAbsent(code, () => [])
+          .add(
+            TacticPreset(
+              key: archetype.id,
+              label: archetype.name,
+              description: archetype.description,
+              targets: {
+                for (final entry in archetype.toFeatureValues().entries)
+                  entry.key.jsonKey: entry.value,
+              },
+            ),
+          );
     }
 
     return TacticsCatalog(
@@ -630,7 +644,9 @@ class MockScoutingService implements ScoutingService {
         'ctx_liga': 'Liga',
       },
       hexagonAxes: {
-        'outfield': [for (final feature in PlayerFeature.outfield) _axis(feature)],
+        'outfield': [
+          for (final feature in PlayerFeature.outfield) _axis(feature),
+        ],
         'GK': [for (final feature in PlayerFeature.goalkeeper) _axis(feature)],
       },
     );
@@ -642,19 +658,81 @@ class MockScoutingService implements ScoutingService {
   /// Satu baris SHAP tiruan: simpangan persentil dari rata-rata arketipe.
   ExplainContribution _explainRow(Player player, PlayerFeature feature) {
     final percentile = player.percentile(feature);
-    final shap = (player.radarValue(feature) - 50) / 100 * 0.4;
+    // Arah "baik" memakai radarValue supaya statistik seperti pelanggaran dan
+    // offside (makin kecil makin baik) tidak salah masuk ke daftar kelebihan.
+    final betterThan = player.radarValue(feature);
+    final shap = (betterThan - 50) / 100 * 0.4;
     return ExplainContribution(
       feature: feature.jsonKey,
       label: feature.label,
       value: player.stat(feature),
       percentile: percentile,
-      betterThanPct: player.radarValue(feature),
+      betterThanPct: betterThan,
       shapValue: shap,
       effectPct: shap * 100,
-      verdict: percentile >= 65
+      verdict: betterThan >= 65
           ? 'kelebihan'
-          : (percentile <= 35 ? 'kekurangan' : 'netral'),
+          : (betterThan <= 35 ? 'kekurangan' : 'netral'),
     );
+  }
+
+  /// Variabel konteks tiruan: usia, menit main, dan liga.
+  ///
+  /// Backend asli menghitungnya lewat SHAP; di mode contoh nilainya diturunkan
+  /// dari atribut pemain agar kartu Konteks tetap terisi untuk semua pemain.
+  List<ExplainContribution> _contextRows(Player player) {
+    ExplainContribution make(String feature, String label, double effectPct) {
+      final effect = double.parse(effectPct.toStringAsFixed(1));
+      return ExplainContribution(
+        feature: feature,
+        label: label,
+        value: 0,
+        percentile: 0,
+        betterThanPct: 0,
+        shapValue: effect == 0 ? 0.0 : math.log(1 + effect / 100),
+        effectPct: effect,
+        verdict: 'konteks',
+      );
+    }
+
+    final ageEffect = ((26 - player.age) * 2.2).clamp(-25.0, 45.0).toDouble();
+    final minutesEffect = ((player.minutesPlayed - 1800) / 90)
+        .clamp(-25.0, 30.0)
+        .toDouble();
+    final rows = <ExplainContribution>[
+      make('Age', 'Usia', ageEffect),
+      make('Min', 'Menit main', minutesEffect),
+      make('ctx_liga', 'Liga', _leagueEffect(player.league)),
+    ];
+
+    if (player.context.startRate > 0) {
+      rows.add(
+        make(
+          'start_rate',
+          'Rasio jadi starter',
+          (player.context.startRate - 0.6) * 50,
+        ),
+      );
+    }
+    if (player.context.plusP90 != 0) {
+      rows.add(
+        make('plus_p90', 'Plus/minus per 90', player.context.plusP90 * 8),
+      );
+    }
+    return rows;
+  }
+
+  /// Pengaruh kasar liga terhadap nilai pasar, hanya untuk data contoh.
+  double _leagueEffect(String league) {
+    const boosts = {
+      'Premier League': 12.0,
+      'La Liga': 8.0,
+      'Bundesliga': 7.0,
+      'Serie A': 6.0,
+      'Ligue 1': 5.0,
+      'Eredivisie': 2.0,
+    };
+    return boosts[league.trim()] ?? 0.0;
   }
 
   String _explainSummary(
@@ -677,11 +755,7 @@ class MockScoutingService implements ScoutingService {
   }
 
   /// Jarak antar dua pemain pada persentil 0-100, dinormalkan ke 0-1.
-  double _percentileDistance(
-    Player a,
-    Player b,
-    List<PlayerFeature> features,
-  ) {
+  double _percentileDistance(Player a, Player b, List<PlayerFeature> features) {
     if (features.isEmpty) return 0;
     var sum = 0.0;
     for (final feature in features) {
@@ -701,7 +775,8 @@ class MockScoutingService implements ScoutingService {
 
     final diffs = {
       for (final feature in features)
-        feature: (base.radarValue(feature) - neighbor.radarValue(feature)) / 100,
+        feature:
+            (base.radarValue(feature) - neighbor.radarValue(feature)) / 100,
     };
     final total = diffs.values
         .map((diff) => diff * diff)
@@ -867,11 +942,12 @@ class MockScoutingService implements ScoutingService {
 
   /// Median statistik arketipe (dipakai saat target persentil).
   double _medianOf(PlayerFeature feature) {
-    final values = mockPlayers
-        .where((player) => player.stats.containsKey(feature))
-        .map((player) => player.stat(feature))
-        .toList()
-      ..sort();
+    final values =
+        mockPlayers
+            .where((player) => player.stats.containsKey(feature))
+            .map((player) => player.stat(feature))
+            .toList()
+          ..sort();
     if (values.isEmpty) return 0;
     return values[values.length ~/ 2];
   }
@@ -924,33 +1000,64 @@ class MockScoutingService implements ScoutingService {
     return math.sqrt(sum / a.length);
   }
 
-  /// Menghasilkan kontribusi "mirip SHAP" agar grafik bisa diuji.
+  /// Menghitung kontribusi tiap fitur terhadap **skor kecocokan**.
+  ///
+  /// Skor kecocokan ditentukan jarak ke target, bukan besar nilainya: pemain
+  /// yang menembak jauh di atas target sama-sama tidak cocok dengan pemain
+  /// yang menembak jauh di bawah target. Karena itu kontribusi diukur dari
+  /// kedekatan fitur dibanding rata-rata fitur lain:
+  ///
+  /// - fitur yang lebih dekat ke target daripada rata-rata → positif (hijau),
+  /// - fitur yang menyimpang lebih jauh dari rata-rata → negatif (merah).
+  ///
+  /// Jumlah seluruh kontribusi nol, seperti SHAP terhadap nilai dasar model,
+  /// sehingga grafik selalu menunjukkan mana yang menaikkan dan mana yang
+  /// menahan skor. Arah statistik (`isInverted`) tidak perlu dibalik karena
+  /// jarak bersifat simetris.
   List<FeatureContribution> _fakeShap(
     List<PlayerFeature> features,
     Map<PlayerFeature, double> targets,
     Player player,
     double Function(Player, PlayerFeature) valueOf,
   ) {
-    final raw = <PlayerFeature, double>{};
-    var total = 0.0;
+    if (features.isEmpty) return const [];
+
+    // Kuadrat selisih ke target: bahan dasar jarak Euclidean yang dipakai
+    // `_euclidean`, jadi satuannya sejalan dengan skor yang dijelaskan.
+    final squaredGaps = <PlayerFeature, double>{};
+    var totalGap = 0.0;
     for (final feature in features) {
       final diff = valueOf(player, feature) - (targets[feature] ?? 0);
-      raw[feature] = diff;
-      total += diff.abs();
+      final squared = diff * diff;
+      squaredGaps[feature] = squared;
+      totalGap += squared;
     }
 
+    final meanGap = totalGap / features.length;
+    // Positif = fitur ini lebih dekat ke target daripada rata-rata.
+    final closeness = <PlayerFeature, double>{
+      for (final feature in features) feature: meanGap - squaredGaps[feature]!,
+    };
+    final totalCloseness = closeness.values.fold<double>(
+      0,
+      (sum, value) => sum + value.abs(),
+    );
+
     return [
-      for (final feature in features) () {
-        final shap = total == 0 ? 0.0 : (raw[feature]! / total) * 0.35;
-        final effect = (math.exp(shap) - 1.0) * 100;
-        return FeatureContribution(
-          feature: feature,
-          value: player.stat(feature),
-          shapValue: shap,
-          effectPct: effect,
-          label: feature.label,
-        );
-      }(),
+      for (final feature in features)
+        () {
+          final shap = totalCloseness == 0
+              ? 0.0
+              : (closeness[feature]! / totalCloseness) * 0.35;
+          final effect = (math.exp(shap) - 1.0) * 100;
+          return FeatureContribution(
+            feature: feature,
+            value: player.stat(feature),
+            shapValue: shap,
+            effectPct: effect,
+            label: feature.label,
+          );
+        }(),
     ];
   }
 }

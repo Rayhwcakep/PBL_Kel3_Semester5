@@ -4,9 +4,11 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
+import '../../data/models/feature_contribution.dart';
 import '../../data/models/player.dart';
 import '../../data/models/player_feature.dart';
 import '../../data/models/scouting_result.dart';
+import '../../data/repositories/scouting_repository.dart';
 import '../../state/compare_provider.dart';
 import '../../state/player_provider.dart';
 import '../../state/shortlist_provider.dart';
@@ -23,12 +25,20 @@ import 'player_picker_screen.dart';
 
 /// Halaman detail pemain (Player Dossier).
 class PlayerDetailScreen extends StatelessWidget {
-  const PlayerDetailScreen({super.key, required this.player, this.result});
+  const PlayerDetailScreen({
+    super.key,
+    required this.player,
+    this.result,
+    this.repository,
+  });
 
   final Player player;
 
   /// Hasil pencarian (opsional) yang membawa penjelasan SHAP.
   final ScoutingResult? result;
+
+  /// Opsional agar grafik SHAP mudah diuji dengan layanan tiruan.
+  final ScoutingRepository? repository;
 
   @override
   Widget build(BuildContext context) {
@@ -67,24 +77,11 @@ class PlayerDetailScreen extends StatelessWidget {
           _InsightEntryCard(player: player),
           const SizedBox(height: AppSpacing.md),
           _SeasonStatsCard(player: player),
-          if (result != null && result!.contributions.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.md),
-            ScoutCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SectionHeader(
-                    title: 'Mengapa Pemain Ini?',
-                    subtitle: 'Kontribusi tiap atribut terhadap skor kecocokan',
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  ShapContributionChart(
-                    contributions: result!.sortedContributions,
-                  ),
-                ],
-              ),
-            ),
-          ],
+          _WhyPlayerSection(
+            player: player,
+            result: result,
+            repository: repository,
+          ),
           const SizedBox(height: AppSpacing.md),
           _AiDossierCard(player: player),
           const SizedBox(height: AppSpacing.lg),
@@ -340,6 +337,7 @@ class _ProfileRadarCard extends StatelessWidget {
             child: RadarChart(
               axisLabels: player.radarLabels,
               size: 280,
+              interactive: true,
               series: [
                 RadarSeries(
                   label: player.name,
@@ -791,6 +789,120 @@ class _SimilarCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+typedef _WhyPlayerData = ({List<FeatureContribution> rows, bool fromExplain});
+
+/// Bagian "Mengapa Pemain Ini?".
+///
+/// Bila hasil pencarian membawa kontribusi SHAP, data itu yang dipakai.
+/// Bila tidak (mis. mode API atau dibuka dari Dashboard/Shortlist), layar
+/// mengambil penjelasan dari `GET /players/{id}/explain` agar grafik tetap
+/// tampil dengan data asli.
+class _WhyPlayerSection extends StatefulWidget {
+  const _WhyPlayerSection({required this.player, this.result, this.repository});
+
+  final Player player;
+  final ScoutingResult? result;
+  final ScoutingRepository? repository;
+
+  @override
+  State<_WhyPlayerSection> createState() => _WhyPlayerSectionState();
+}
+
+class _WhyPlayerSectionState extends State<_WhyPlayerSection> {
+  late final ScoutingRepository _repository;
+  late Future<_WhyPlayerData> _future;
+
+  @override
+  void initState() {
+    super.initState();
+    _repository = widget.repository ?? ScoutingRepository();
+    _future = _load();
+  }
+
+  @override
+  void didUpdateWidget(covariant _WhyPlayerSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.player.id != widget.player.id ||
+        oldWidget.result != widget.result) {
+      _future = _load();
+    }
+  }
+
+  Future<_WhyPlayerData> _load() async {
+    final existing =
+        widget.result?.contributions ?? const <FeatureContribution>[];
+    if (existing.isNotEmpty) {
+      final rows = [...existing]
+        ..sort((a, b) => b.magnitude.compareTo(a.magnitude));
+      return (rows: rows, fromExplain: false);
+    }
+
+    final explain = await _repository.explain(widget.player.id);
+    final rows = <FeatureContribution>[
+      for (final row in [...explain.strengths, ...explain.weaknesses])
+        FeatureContribution.fromExplain(row),
+    ]..sort((a, b) => b.magnitude.compareTo(a.magnitude));
+    return (rows: rows, fromExplain: true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<_WhyPlayerData>(
+      future: _future,
+      builder: (context, snapshot) {
+        // Jangan mengganggu halaman bila penjelasan tidak tersedia.
+        if (snapshot.hasError) return const SizedBox.shrink();
+
+        if (snapshot.connectionState != ConnectionState.done) {
+          return Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.md),
+            child: ScoutCard(
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.hourglass_empty,
+                    size: 16,
+                    color: AppColors.sageSoft,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      'Memuat penjelasan SHAP...',
+                      style: AppTypography.bodySm(color: AppColors.sageSoft),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        final data = snapshot.data;
+        if (data == null || data.rows.isEmpty) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.md),
+          child: ScoutCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionHeader(
+                  title: 'Mengapa Pemain Ini?',
+                  subtitle: data.fromExplain
+                      ? 'Kontribusi tiap atribut terhadap nilai pasar (SHAP)'
+                      : 'Kontribusi tiap atribut terhadap skor kecocokan',
+                ),
+                const SizedBox(height: AppSpacing.md),
+                ShapContributionChart(contributions: data.rows),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

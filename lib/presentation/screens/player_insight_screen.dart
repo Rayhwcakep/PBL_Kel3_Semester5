@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/utils/number_format_util.dart';
 import '../../data/models/api_exception.dart';
 import '../../data/models/explain_response.dart';
 import '../../data/models/player.dart';
 import '../../data/repositories/scouting_repository.dart';
+import '../widgets/effect_bar.dart';
 import '../widgets/error_view.dart';
 import '../widgets/loading_view.dart';
 import '../widgets/player_avatar.dart';
@@ -31,11 +33,13 @@ class PlayerInsightScreen extends StatefulWidget {
 class _PlayerInsightScreenState extends State<PlayerInsightScreen> {
   late final ScoutingRepository _repository;
   late Future<PlayerExplain> _explain;
+  bool _refreshing = false;
 
   @override
   void initState() {
     super.initState();
     _repository = widget.repository ?? ScoutingRepository();
+    // Permintaan pertama memakai cache bila layar ini pernah dibuka.
     _explain = _repository.explain(widget.player.id);
   }
 
@@ -47,11 +51,26 @@ class _PlayerInsightScreenState extends State<PlayerInsightScreen> {
     }
   }
 
-  void _reload() {
-    setState(() {
-      _explain = _repository.explain(widget.player.id);
-    });
+  /// Memuat ulang dari backend dan mengabaikan cache.
+  Future<void> _refresh() async {
+    if (_refreshing) return;
+    _refreshing = true;
+    final future = _repository.explain(widget.player.id, refresh: true);
+    if (mounted) {
+      setState(() {
+        _explain = future;
+      });
+    }
+    try {
+      await future;
+    } catch (_) {
+      // Pesan error ditampilkan oleh FutureBuilder.
+    } finally {
+      _refreshing = false;
+    }
   }
+
+  void _reload() => _refresh();
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +82,14 @@ class _PlayerInsightScreenState extends State<PlayerInsightScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text('Player Insight', style: AppTypography.headlineMd()),
+        actions: [
+          IconButton(
+            tooltip: 'Muat ulang penjelasan',
+            icon: const Icon(Icons.refresh),
+            onPressed: _reload,
+          ),
+          const SizedBox(width: AppSpacing.xs),
+        ],
       ),
       body: FutureBuilder<PlayerExplain>(
         future: _explain,
@@ -94,7 +121,10 @@ class _PlayerInsightScreenState extends State<PlayerInsightScreen> {
             );
           }
 
-          return _InsightBody(explain: explain);
+          return RefreshIndicator(
+            onRefresh: _refresh,
+            child: _InsightBody(explain: explain),
+          );
         },
       ),
     );
@@ -259,6 +289,12 @@ class _ContributionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Skala bar disamakan per kartu agar panjang bar sebanding.
+    final maxEffect = rows.fold<double>(0, (prev, row) {
+      final value = row.effectPct.abs();
+      return value > prev ? value : prev;
+    });
+
     return ScoutCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,7 +335,7 @@ class _ContributionCard extends StatelessWidget {
                 padding: EdgeInsets.only(
                   bottom: index == rows.length - 1 ? 0 : AppSpacing.md,
                 ),
-                child: _ContributionRow(row: rows[index]),
+                child: _ContributionRow(row: rows[index], maxEffect: maxEffect),
               ),
         ],
       ),
@@ -308,16 +344,16 @@ class _ContributionCard extends StatelessWidget {
 }
 
 class _ContributionRow extends StatelessWidget {
-  const _ContributionRow({required this.row});
+  const _ContributionRow({required this.row, required this.maxEffect});
 
   final ExplainContribution row;
+  final double maxEffect;
 
   @override
   Widget build(BuildContext context) {
-    final color = row.effectPct >= 0
-        ? AppColors.shapPositive
-        : AppColors.shapNegative;
-    final progress = (row.betterThanPct / 100).clamp(0.0, 1.0);
+    final isPositive = row.effectPct >= 0;
+    final color = isPositive ? AppColors.shapPositive : AppColors.shapNegative;
+    final ratio = maxEffect == 0 ? 0.0 : row.effectPct.abs() / maxEffect;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -329,14 +365,14 @@ class _ContributionRow extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          child: LinearProgressIndicator(
-            value: progress,
-            minHeight: 6,
-            backgroundColor: AppColors.surfaceContainer,
-            valueColor: AlwaysStoppedAnimation<Color>(color),
-          ),
+        EffectBar(
+          ratio: ratio,
+          isPositive: isPositive,
+          color: color,
+          semanticLabel:
+              '${row.label} '
+              '${isPositive ? 'menaikkan' : 'menurunkan'} nilai pasar '
+              '${NumberFormatUtil.signedPercent(row.effectPct)}',
         ),
         const SizedBox(height: 6),
         Text(
@@ -418,10 +454,23 @@ class _ContextChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(row.label, style: AppTypography.bodySm(color: AppColors.sage)),
+          Flexible(
+            child: Text(
+              row.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.bodySm(color: AppColors.sage),
+            ),
+          ),
           const SizedBox(width: AppSpacing.sm),
+          Icon(
+            row.effectPct >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+            size: 13,
+            color: color,
+          ),
+          const SizedBox(width: 2),
           Text(
-            _signedPercent(row.effectPct),
+            NumberFormatUtil.signedPercent(row.effectPct),
             style: AppTypography.labelLg(color: color),
           ),
         ],
@@ -444,9 +493,20 @@ class _EffectPill extends StatelessWidget {
         color: color.withValues(alpha: 0.14),
         borderRadius: AppRadius.pillBorder,
       ),
-      child: Text(
-        _signedPercent(effectPct),
-        style: AppTypography.labelLg(color: color),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            effectPct >= 0 ? Icons.arrow_upward : Icons.arrow_downward,
+            size: 13,
+            color: color,
+          ),
+          const SizedBox(width: 3),
+          Text(
+            NumberFormatUtil.signedPercent(effectPct),
+            style: AppTypography.labelLg(color: color),
+          ),
+        ],
       ),
     );
   }
@@ -503,10 +563,4 @@ class _ShapNote extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Format persen seperti ringkasan backend: `+77%`, `-22%`.
-String _signedPercent(double value) {
-  final sign = value >= 0 ? '+' : '-';
-  return '$sign${value.abs().toStringAsFixed(0)}%';
 }

@@ -150,8 +150,9 @@ void main() {
           home: Scaffold(
             body: Center(
               child: RadarChart(
-                axisLabels: List<String>.filled(player.radarAxes.length, ''),
+                axisLabels: player.radarLabels,
                 size: 66,
+                showLabels: false,
                 series: [
                   RadarSeries(
                     label: 'DNA',
@@ -167,6 +168,76 @@ void main() {
       );
 
       expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('radar interaktif menampilkan nilai sumbu saat diketuk', (
+      tester,
+    ) async {
+      final player = _outfieldPlayer();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: RadarChart(
+                axisLabels: player.radarLabels,
+                interactive: true,
+                series: [
+                  RadarSeries(
+                    label: player.name,
+                    values: player.radarValues,
+                    fillColor: Colors.green.withValues(alpha: 0.2),
+                    strokeColor: Colors.green,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Ketuk sumbu untuk melihat nilai'), findsOneWidget);
+
+      final center = tester.getCenter(find.byType(RadarChart));
+      await tester.tapAt(center + const Offset(0, -60));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Gol:'), findsOneWidget);
+    });
+
+    testWidgets('radar punya label pembaca layar berisi nilai', (tester) async {
+      final handle = tester.ensureSemantics();
+
+      final player = _outfieldPlayer();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Center(
+              child: RadarChart(
+                axisLabels: player.radarLabels,
+                series: [
+                  RadarSeries(
+                    label: player.name,
+                    values: player.radarValues,
+                    fillColor: Colors.green.withValues(alpha: 0.2),
+                    strokeColor: Colors.green,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(
+        find.bySemanticsLabel(RegExp('Grafik radar 10 sumbu')),
+        findsOneWidget,
+      );
+      expect(
+        find.bySemanticsLabel(RegExp('Bek Tengah: Gol 55')),
+        findsOneWidget,
+      );
+
+      handle.dispose();
     });
   });
 

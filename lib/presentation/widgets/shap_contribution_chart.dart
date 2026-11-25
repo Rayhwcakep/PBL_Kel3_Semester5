@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/utils/number_format_util.dart';
 import '../../data/models/feature_contribution.dart';
+import 'effect_bar.dart';
 
 /// Grafik batang divergen untuk menampilkan kontribusi SHAP tiap fitur.
 ///
 /// Bar ke kanan (hijau) = fitur menaikkan skor kecocokan atau nilai pasar.
 /// Bar ke kiri (merah)  = fitur menurunkan skor kecocokan atau nilai pasar.
-class ShapContributionChart extends StatelessWidget {
+class ShapContributionChart extends StatefulWidget {
   const ShapContributionChart({
     super.key,
     required this.contributions,
@@ -18,6 +20,8 @@ class ShapContributionChart extends StatelessWidget {
   });
 
   final List<FeatureContribution> contributions;
+
+  /// Jumlah baris yang tampil sebelum daftar diperluas pengguna.
   final int maxRows;
 
   /// Pilihan format nilai sisi kanan:
@@ -27,7 +31,23 @@ class ShapContributionChart extends StatelessWidget {
   final bool? showEffectPct;
 
   @override
+  State<ShapContributionChart> createState() => _ShapContributionChartState();
+}
+
+class _ShapContributionChartState extends State<ShapContributionChart> {
+  bool _expanded = false;
+
+  @override
+  void didUpdateWidget(covariant ShapContributionChart oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.contributions.length != widget.contributions.length) {
+      _expanded = false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final contributions = widget.contributions;
     if (contributions.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
@@ -38,20 +58,69 @@ class ShapContributionChart extends StatelessWidget {
       );
     }
 
-    final rows = contributions.take(maxRows).toList();
-    final useEffect = showEffectPct ?? rows.any((c) => c.effectPct != 0);
-    final maxAbs = rows
+    final useEffect =
+        widget.showEffectPct ?? contributions.any((c) => c.effectPct != 0);
+    // Skala dihitung dari seluruh data supaya panjang bar tidak berubah saat
+    // daftar diperluas.
+    final maxAbs = contributions
         .map((c) => useEffect ? c.effectPct.abs() : c.magnitude)
         .fold<double>(0, (prev, item) => item > prev ? item : prev);
+
+    final visible = _expanded
+        ? contributions
+        : contributions.take(widget.maxRows).toList();
+    final remaining = contributions.length - visible.length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final contribution in rows)
+        for (final contribution in visible)
           _ContributionRow(
             contribution: contribution,
             maxAbs: maxAbs,
             showEffectPct: useEffect,
+          ),
+        if (remaining > 0)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xs),
+            child: TextButton.icon(
+              onPressed: () => setState(() => _expanded = true),
+              icon: const Icon(Icons.unfold_more, size: 16),
+              label: Text(
+                'Tampilkan $remaining fitur lain',
+                style: AppTypography.labelMd(color: AppColors.lime),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.lime,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.xs,
+                ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
+          )
+        else if (_expanded && contributions.length > widget.maxRows)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xs),
+            child: TextButton.icon(
+              onPressed: () => setState(() => _expanded = false),
+              icon: const Icon(Icons.unfold_less, size: 16),
+              label: Text(
+                'Ringkas daftar',
+                style: AppTypography.labelMd(color: AppColors.lime),
+              ),
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.lime,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.xs,
+                ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+            ),
           ),
         const SizedBox(height: AppSpacing.sm),
         const _Legend(),
@@ -79,109 +148,69 @@ class _ContributionRow extends StatelessWidget {
         ? contribution.effectPct.abs()
         : contribution.magnitude;
     final ratio = maxAbs == 0 ? 0.0 : val / maxAbs;
+    final valueText = showEffectPct
+        ? NumberFormatUtil.signedPercent(contribution.effectPct)
+        : NumberFormatUtil.signedShap(contribution.shapValue);
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              contribution.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.bodySm(color: AppColors.sage),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.xs),
-          Expanded(
-            child: _DivergingBar(
-              ratio: ratio,
-              isPositive: isPositive,
-              color: color,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          SizedBox(
-            width: 58,
-            child: Text(
-              showEffectPct
-                  ? _signedPercent(contribution.effectPct)
-                  : _signedShap(contribution.shapValue),
-              textAlign: TextAlign.right,
-              style: AppTypography.labelMd(color: color),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Lebar label mengikuti ruang yang ada agar tidak memotong bar pada
+          // layar sempit.
+          final labelWidth = (constraints.maxWidth * 0.34).clamp(96.0, 150.0);
 
-  static String _signedPercent(double value) {
-    final text = value.toStringAsFixed(1);
-    return value > 0 ? '+$text%' : '$text%';
-  }
-
-  static String _signedShap(double value) {
-    final text = value.toStringAsFixed(2);
-    return value > 0 ? '+$text' : text;
-  }
-}
-
-class _DivergingBar extends StatelessWidget {
-  const _DivergingBar({
-    required this.ratio,
-    required this.isPositive,
-    required this.color,
-  });
-
-  final double ratio;
-  final bool isPositive;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final half = constraints.maxWidth / 2;
-        final clampedRatio = ratio.clamp(0.0, 1.0);
-        final barWidth = clampedRatio <= 0
-            ? 0.0
-            : (half * clampedRatio).clamp(2.0, half);
-
-        return SizedBox(
-          height: 14,
-          child: Stack(
+          return Row(
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0x1A728C5A),
-                  borderRadius: AppRadius.pillBorder,
+              SizedBox(
+                width: labelWidth,
+                child: Text(
+                  contribution.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.bodySm(color: AppColors.sage),
                 ),
               ),
-              Positioned(
-                left: half - 0.5,
-                top: 0,
-                bottom: 0,
-                child: Container(width: 1, color: AppColors.outlineVariant),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: EffectBar(
+                  ratio: ratio,
+                  isPositive: isPositive,
+                  color: color,
+                  semanticLabel:
+                      '${contribution.label} '
+                      '${isPositive ? 'menaikkan' : 'menurunkan'} nilai '
+                      '$valueText',
+                ),
               ),
-              if (barWidth > 0)
-                Positioned(
-                  left: isPositive ? half : half - barWidth,
-                  top: 0,
-                  bottom: 0,
-                  width: barWidth,
-                  child: Container(
-                    decoration: BoxDecoration(
+              const SizedBox(width: AppSpacing.sm),
+              SizedBox(
+                width: 68,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(
+                      isPositive ? Icons.trending_up : Icons.trending_down,
+                      size: 13,
                       color: color,
-                      borderRadius: AppRadius.pillBorder,
                     ),
-                  ),
+                    const SizedBox(width: 2),
+                    Flexible(
+                      child: Text(
+                        valueText,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
+                        style: AppTypography.labelMd(color: color),
+                      ),
+                    ),
+                  ],
                 ),
+              ),
             ],
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -195,16 +224,29 @@ class _Legend extends StatelessWidget {
       spacing: AppSpacing.md,
       runSpacing: 4,
       children: [
-        _LegendItem(color: AppColors.shapPositive, label: 'Menaikkan skor'),
-        _LegendItem(color: AppColors.shapNegative, label: 'Menurunkan skor'),
+        _LegendItem(
+          icon: Icons.trending_up,
+          color: AppColors.shapPositive,
+          label: 'Menaikkan skor',
+        ),
+        _LegendItem(
+          icon: Icons.trending_down,
+          color: AppColors.shapNegative,
+          label: 'Menurunkan skor',
+        ),
       ],
     );
   }
 }
 
 class _LegendItem extends StatelessWidget {
-  const _LegendItem({required this.color, required this.label});
+  const _LegendItem({
+    required this.icon,
+    required this.color,
+    required this.label,
+  });
 
+  final IconData icon;
   final Color color;
   final String label;
 
@@ -214,12 +256,13 @@ class _LegendItem extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 10,
-          height: 10,
+          width: 18,
+          height: 18,
           decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(3),
+            color: color.withValues(alpha: 0.16),
+            borderRadius: BorderRadius.circular(5),
           ),
+          child: Icon(icon, size: 12, color: color),
         ),
         const SizedBox(width: 6),
         Text(label, style: AppTypography.bodySm(color: AppColors.sage)),

@@ -16,4 +16,19 @@ class NumberFormatUtil {
     final text = value.toStringAsFixed(fractionDigits);
     return value > 0 ? '+$text' : text;
   }
+
+  /// Persentase bertanda untuk pengaruh SHAP, contoh `+9.1%` / `-11.2%`.
+  ///
+  /// Satu format dipakai grafik SHAP dan layar Player Insight supaya angka
+  /// yang sama tidak tampil berbeda di dua tempat.
+  static String signedPercent(double value, {int fractionDigits = 1}) {
+    final text = value.abs().toStringAsFixed(fractionDigits);
+    return '${value < 0 ? '-' : '+'}$text%';
+  }
+
+  /// Skor SHAP bertanda, contoh `+0.12` / `-0.08`.
+  static String signedShap(double value, {int fractionDigits = 2}) {
+    final text = value.abs().toStringAsFixed(fractionDigits);
+    return '${value < 0 ? '-' : '+'}$text';
+  }
 }

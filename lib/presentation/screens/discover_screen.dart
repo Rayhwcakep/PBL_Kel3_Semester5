@@ -201,10 +201,7 @@ class _DiscoverScreenState extends State<DiscoverScreen> {
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.margin,
                 ),
-                child: _AnchorCard(
-                  player: base,
-                  radar: features.radarFor(base),
-                ),
+                child: _AnchorCard(player: base),
               ),
             ],
             const SizedBox(height: AppSpacing.md),
@@ -569,17 +566,15 @@ class _BaseSelector extends StatelessWidget {
 }
 
 class _AnchorCard extends StatelessWidget {
-  const _AnchorCard({required this.player, this.radar});
+  const _AnchorCard({required this.player});
 
   final Player player;
 
-  /// Sumbu radar dari `GET /meta/features`; kosong berarti memakai urutan
-  /// statistik lokal.
-  final ({List<String> labels, List<double> values})? radar;
-
   @override
   Widget build(BuildContext context) {
-    final metricCount = radar?.values.length ?? player.radarAxes.length;
+    // Seluruh layar memakai sumbu yang sama (10 pemain lapangan / 5 kiper)
+    // supaya bentuk radar konsisten dengan Player Dossier dan Compare.
+    final metricCount = player.radarAxes.length;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -636,24 +631,13 @@ class _AnchorCard extends StatelessWidget {
                 width: 66,
                 height: 66,
                 child: RadarChart(
-<<<<<<< HEAD
                   axisLabels: List<String>.filled(player.radarAxes.length, ''),
-=======
-                  axisLabels:
-                      radar?.labels ??
-                      List<String>.filled(player.radarAxes.length, ''),
->>>>>>> 4d4e7f3e42ade03082b6821ec7ed385e1c65091b
                   size: 66,
+                  showLabels: false,
                   series: [
                     RadarSeries(
                       label: 'DNA',
-<<<<<<< HEAD
                       values: player.radarValues,
-=======
-                      values:
-                          radar?.values ??
-                          player.radarAxes.map(player.radarValue).toList(),
->>>>>>> 4d4e7f3e42ade03082b6821ec7ed385e1c65091b
                       fillColor: AppColors.lime.withValues(alpha: 0.35),
                       strokeColor: AppColors.lime,
                     ),
