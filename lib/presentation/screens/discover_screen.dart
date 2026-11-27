@@ -631,25 +631,13 @@ class _AnchorCard extends StatelessWidget {
                 width: 66,
                 height: 66,
                 child: RadarChart(
-<<<<<<< HEAD
                   axisLabels: List<String>.filled(player.radarAxes.length, ''),
-=======
-                  axisLabels:
-                      radar?.labels ??
-                      List<String>.filled(player.radarAxes.length, ''),
->>>>>>> a70b4c61df15c695aaa1de19a4bd152a436a4f53
                   size: 66,
                   showLabels: false,
                   series: [
                     RadarSeries(
                       label: 'DNA',
-<<<<<<< HEAD
                       values: player.radarValues,
-=======
-                      values:
-                          radar?.values ??
-                          player.radarAxes.map(player.radarValue).toList(),
->>>>>>> a70b4c61df15c695aaa1de19a4bd152a436a4f53
                       fillColor: AppColors.lime.withValues(alpha: 0.35),
                       strokeColor: AppColors.lime,
                     ),
